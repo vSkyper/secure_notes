@@ -21,6 +21,8 @@ class _CreatePasswordPageState extends State<CreatePasswordPage> {
   void dispose() {
     super.dispose();
 
+    _passwordController.text = '';
+    _passwordRepeatController.text = '';
     _passwordController.dispose();
     _passwordRepeatController.dispose();
   }
@@ -43,8 +45,6 @@ class _CreatePasswordPageState extends State<CreatePasswordPage> {
     const storage = FlutterSecureStorage();
 
     await storage.write(
-        key: 'password', value: hashPassword);
-    await storage.write(
         key: 'note', value: encrypter.encrypt('Enter your message!', iv: iv).base64);
 
     if (!mounted) return;
@@ -58,9 +58,7 @@ class _CreatePasswordPageState extends State<CreatePasswordPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        alignment: Alignment.center,
-        child: SingleChildScrollView(
+      body: SingleChildScrollView(
           padding: const EdgeInsets.all(15),
           physics: const BouncingScrollPhysics(),
           child: Form(
@@ -123,7 +121,6 @@ class _CreatePasswordPageState extends State<CreatePasswordPage> {
             ),
           ),
         ),
-      ),
-    );
+      );
   }
 }

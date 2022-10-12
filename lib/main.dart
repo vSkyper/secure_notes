@@ -16,7 +16,7 @@ class MyApp extends StatelessWidget {
   Stream<bool?> fetchPassword() async* {
     const storage = FlutterSecureStorage();
 
-    String? value = await storage.read(key: 'password');
+    String? value = await storage.read(key: 'note');
 
     if (value != null) {
       yield true;

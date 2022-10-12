@@ -5,6 +5,7 @@ import 'package:encrypt/encrypt.dart' as encrypt_package;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:secured_notes/main.dart';
 import 'package:secured_notes/utils.dart';
+import 'package:secured_notes/views/settings.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -15,7 +16,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   bool _isDecrypted = false;
-  final _formKey = GlobalKey<FormState>();
+  String password = '';
   final TextEditingController _noteController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
@@ -23,32 +24,31 @@ class _HomePageState extends State<HomePage> {
   void dispose() {
     super.dispose();
 
+    _noteController.text = '';
+    _passwordController.text = '';
     _noteController.dispose();
     _passwordController.dispose();
+    password = '';
   }
 
   Future saveNote() async {
-    final isValid = _formKey.currentState!.validate();
-    if (!isValid) return;
+    if (_noteController.text.isEmpty) return;
 
     showDialog(
         context: context,
         barrierDismissible: false,
         builder: (context) => const Center(child: CircularProgressIndicator()));
 
-    final hashPassword =
-        md5.convert(utf8.encode(_passwordController.text.trim())).toString();
+    final hashPassword = md5.convert(utf8.encode(password)).toString();
 
     final key = encrypt_package.Key.fromUtf8(hashPassword);
     final iv = encrypt_package.IV.fromLength(16);
     final encrypter = encrypt_package.Encrypter(encrypt_package.AES(key));
 
     const storage = FlutterSecureStorage();
-
     await storage.write(
-        key: 'password', value: hashPassword);
-    await storage.write(
-        key: 'note', value: encrypter.encrypt(_noteController.text.trim(), iv: iv).base64);
+        key: 'note',
+        value: encrypter.encrypt(_noteController.text.trim(), iv: iv).base64);
 
     Utils.showSnackBar('Save note');
 
@@ -78,6 +78,7 @@ class _HomePageState extends State<HomePage> {
       _noteController.text =
           encrypter.decrypt(encrypt_package.Encrypted.fromBase64(note), iv: iv);
 
+      password = _passwordController.text;
       _passwordController.text = '';
 
       setState(() {
@@ -88,6 +89,15 @@ class _HomePageState extends State<HomePage> {
     }
 
     navigatorKey.currentState!.pop();
+  }
+
+  refresh() {
+    _noteController.text = '';
+    _passwordController.text = '';
+    password = '';
+    setState(() {
+      _isDecrypted = false;
+    });
   }
 
   @override
@@ -102,7 +112,8 @@ class _HomePageState extends State<HomePage> {
             highlightColor: Colors.transparent,
             icon: const Icon(Icons.settings),
             onPressed: () => Navigator.of(context).push(
-              MaterialPageRoute(builder: (context) => Container()),
+              MaterialPageRoute(
+                  builder: (context) => Settings(notifyParent: refresh)),
             ),
           ),
         ],
@@ -111,59 +122,31 @@ class _HomePageState extends State<HomePage> {
         padding: const EdgeInsets.all(15),
         physics: const BouncingScrollPhysics(),
         child: _isDecrypted
-            ? Form(
-              key: _formKey,
-              child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    TextFormField(
-                      controller: _noteController,
-                      maxLines: 8,
-                      decoration: const InputDecoration.collapsed(
-                        hintText: "Enter your note here",
-                        hintStyle: TextStyle(
-                          color: Colors.grey,
-                        ),
-                      ),
-                      style: const TextStyle(color: Colors.white),
-                      autovalidateMode: AutovalidateMode.onUserInteraction,
-                      validator: (value) =>
-                      value != null && value.isEmpty
-                          ? 'Enter a note'
-                          : null,
-                    ),
-                    const SizedBox(height: 10),
-                    TextFormField(
-                      controller: _passwordController,
-                      obscureText: true,
-                      textInputAction: TextInputAction.next,
-                      style: const TextStyle(color: Colors.white),
-                      decoration: const InputDecoration(
-                        labelText: 'Password',
-                        labelStyle: TextStyle(color: Colors.grey, fontSize: 14),
-                        enabledBorder: UnderlineInputBorder(
-                          borderSide: BorderSide(color: Colors.white),
-                        ),
-                      ),
-                      autovalidateMode: AutovalidateMode.onUserInteraction,
-                      validator: (value) => value != null && value.length < 6
-                          ? 'Enter min. 6 characters'
-                          : null,
-                    ),
-                    const SizedBox(height: 15),
-                    ElevatedButton.icon(
-                      onPressed: saveNote,
-                      icon: const Icon(Icons.save),
-                      label: const Text('Save note'),
-                      style: ElevatedButton.styleFrom(
-                        minimumSize: const Size.fromHeight(45),
+            ? Column(
+                children: [
+                  TextField(
+                    controller: _noteController,
+                    maxLines: 8,
+                    decoration: const InputDecoration.collapsed(
+                      hintText: "Enter your note here",
+                      hintStyle: TextStyle(
+                        color: Colors.grey,
                       ),
                     ),
-                  ],
-                ),
-            )
+                    style: const TextStyle(color: Colors.white),
+                  ),
+                  const SizedBox(height: 15),
+                  ElevatedButton.icon(
+                    onPressed: saveNote,
+                    icon: const Icon(Icons.save),
+                    label: const Text('Save note'),
+                    style: ElevatedButton.styleFrom(
+                      minimumSize: const Size.fromHeight(45),
+                    ),
+                  ),
+                ],
+              )
             : Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   TextField(
                     controller: _passwordController,
