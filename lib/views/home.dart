@@ -102,94 +102,97 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
-        title: const Text('Home'),
-        actions: [
-          if (_isDecrypted)
-            IconButton(
-              splashColor: Colors.transparent,
-              highlightColor: Colors.transparent,
-              icon: const Icon(Icons.settings),
-              onPressed: () => Navigator.of(context).push(
-                MaterialPageRoute(
-                    builder: (context) => Settings(encryptNote: encryptNote)),
+    return GestureDetector(
+      onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+      child: Scaffold(
+        appBar: AppBar(
+          centerTitle: true,
+          title: const Text('Home'),
+          actions: [
+            if (_isDecrypted)
+              IconButton(
+                splashColor: Colors.transparent,
+                highlightColor: Colors.transparent,
+                icon: const Icon(Icons.settings),
+                onPressed: () => Navigator.of(context).push(
+                  MaterialPageRoute(
+                      builder: (context) => Settings(encryptNote: encryptNote)),
+                ),
               ),
-            ),
-          if (_isDecrypted)
-            IconButton(
-              splashColor: Colors.transparent,
-              highlightColor: Colors.transparent,
-              icon: const Icon(Icons.logout, color: Colors.red),
-              onPressed: () => encryptNote(),
-            ),
-        ],
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(15),
-        physics: const BouncingScrollPhysics(),
-        child: _isDecrypted
-            ? Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'Your note',
-                    style: TextStyle(
-                      color: Colors.grey,
-                      fontWeight: FontWeight.w200,
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  TextField(
-                    controller: _noteController,
-                    maxLines: 8,
-                    decoration: const InputDecoration.collapsed(
-                      hintText: "Enter your note here",
-                      hintStyle: TextStyle(
+            if (_isDecrypted)
+              IconButton(
+                splashColor: Colors.transparent,
+                highlightColor: Colors.transparent,
+                icon: const Icon(Icons.logout, color: Colors.red),
+                onPressed: () => encryptNote(),
+              ),
+          ],
+        ),
+        body: SingleChildScrollView(
+          padding: const EdgeInsets.all(15),
+          physics: const BouncingScrollPhysics(),
+          child: _isDecrypted
+              ? Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Your note',
+                      style: TextStyle(
                         color: Colors.grey,
+                        fontWeight: FontWeight.w200,
                       ),
                     ),
-                    style: const TextStyle(color: Colors.white),
-                  ),
-                  const SizedBox(height: 15),
-                  ElevatedButton.icon(
-                    onPressed: saveNote,
-                    icon: const Icon(Icons.save),
-                    label: const Text('Save note'),
-                    style: ElevatedButton.styleFrom(
-                      minimumSize: const Size.fromHeight(45),
+                    const SizedBox(height: 10),
+                    TextField(
+                      controller: _noteController,
+                      maxLines: 8,
+                      decoration: const InputDecoration.collapsed(
+                        hintText: "Enter your note here",
+                        hintStyle: TextStyle(
+                          color: Colors.grey,
+                        ),
+                      ),
+                      style: const TextStyle(color: Colors.white),
                     ),
-                  ),
-                ],
-              )
-            : Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  TextField(
-                    controller: _passwordController,
-                    obscureText: true,
-                    textInputAction: TextInputAction.next,
-                    style: const TextStyle(color: Colors.white),
-                    decoration: const InputDecoration(
-                      labelText: 'Password',
-                      labelStyle: TextStyle(color: Colors.grey, fontSize: 14),
-                      enabledBorder: UnderlineInputBorder(
-                        borderSide: BorderSide(color: Colors.white),
+                    const SizedBox(height: 15),
+                    ElevatedButton.icon(
+                      onPressed: saveNote,
+                      icon: const Icon(Icons.save),
+                      label: const Text('Save note'),
+                      style: ElevatedButton.styleFrom(
+                        minimumSize: const Size.fromHeight(45),
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 15),
-                  ElevatedButton.icon(
-                    onPressed: decryptNote,
-                    icon: const Icon(Icons.lock_open),
-                    label: const Text('Decrypt'),
-                    style: ElevatedButton.styleFrom(
-                      minimumSize: const Size.fromHeight(45),
+                  ],
+                )
+              : Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    TextField(
+                      controller: _passwordController,
+                      obscureText: true,
+                      textInputAction: TextInputAction.next,
+                      style: const TextStyle(color: Colors.white),
+                      decoration: const InputDecoration(
+                        labelText: 'Password',
+                        labelStyle: TextStyle(color: Colors.grey, fontSize: 14),
+                        enabledBorder: UnderlineInputBorder(
+                          borderSide: BorderSide(color: Colors.white),
+                        ),
+                      ),
                     ),
-                  ),
-                ],
-              ),
+                    const SizedBox(height: 15),
+                    ElevatedButton.icon(
+                      onPressed: decryptNote,
+                      icon: const Icon(Icons.lock_open),
+                      label: const Text('Decrypt'),
+                      style: ElevatedButton.styleFrom(
+                        minimumSize: const Size.fromHeight(45),
+                      ),
+                    ),
+                  ],
+                ),
+        ),
       ),
     );
   }

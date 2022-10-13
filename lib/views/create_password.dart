@@ -58,68 +58,71 @@ class _CreatePasswordPageState extends State<CreatePasswordPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(15),
-        physics: const BouncingScrollPhysics(),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            children: [
-              const Text(
-                'Create Password',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 24,
-                ),
-              ),
-              const SizedBox(height: 20),
-              TextFormField(
-                controller: _passwordController,
-                obscureText: true,
-                textInputAction: TextInputAction.next,
-                style: const TextStyle(color: Colors.white),
-                decoration: const InputDecoration(
-                  labelText: 'Password',
-                  labelStyle: TextStyle(color: Colors.grey, fontSize: 14),
-                  enabledBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(color: Colors.white),
+    return GestureDetector(
+      onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+      child: Scaffold(
+        body: SingleChildScrollView(
+          padding: const EdgeInsets.all(15),
+          physics: const BouncingScrollPhysics(),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              children: [
+                const Text(
+                  'Create Password',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 24,
                   ),
                 ),
-                autovalidateMode: AutovalidateMode.onUserInteraction,
-                validator: (value) => value != null && value.length < 6
-                    ? 'Enter min. 6 characters'
-                    : null,
-              ),
-              const SizedBox(height: 10),
-              TextFormField(
-                controller: _passwordRepeatController,
-                obscureText: true,
-                textInputAction: TextInputAction.next,
-                style: const TextStyle(color: Colors.white),
-                decoration: const InputDecoration(
-                  labelText: 'Repeat Password',
-                  labelStyle: TextStyle(color: Colors.grey, fontSize: 14),
-                  enabledBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(color: Colors.white),
+                const SizedBox(height: 20),
+                TextFormField(
+                  controller: _passwordController,
+                  obscureText: true,
+                  textInputAction: TextInputAction.next,
+                  style: const TextStyle(color: Colors.white),
+                  decoration: const InputDecoration(
+                    labelText: 'Password',
+                    labelStyle: TextStyle(color: Colors.grey, fontSize: 14),
+                    enabledBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(color: Colors.white),
+                    ),
+                  ),
+                  autovalidateMode: AutovalidateMode.onUserInteraction,
+                  validator: (value) => value != null && value.length < 6
+                      ? 'Enter min. 6 characters'
+                      : null,
+                ),
+                const SizedBox(height: 10),
+                TextFormField(
+                  controller: _passwordRepeatController,
+                  obscureText: true,
+                  textInputAction: TextInputAction.next,
+                  style: const TextStyle(color: Colors.white),
+                  decoration: const InputDecoration(
+                    labelText: 'Repeat Password',
+                    labelStyle: TextStyle(color: Colors.grey, fontSize: 14),
+                    enabledBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(color: Colors.white),
+                    ),
+                  ),
+                  autovalidateMode: AutovalidateMode.onUserInteraction,
+                  validator: (value) =>
+                      value != null && value != _passwordController.text
+                          ? 'Passwords must be the same'
+                          : null,
+                ),
+                const SizedBox(height: 15),
+                ElevatedButton.icon(
+                  onPressed: createPassword,
+                  icon: const Icon(Icons.arrow_forward),
+                  label: const Text('Create'),
+                  style: ElevatedButton.styleFrom(
+                    minimumSize: const Size.fromHeight(45),
                   ),
                 ),
-                autovalidateMode: AutovalidateMode.onUserInteraction,
-                validator: (value) =>
-                    value != null && value != _passwordController.text
-                        ? 'Passwords must be the same'
-                        : null,
-              ),
-              const SizedBox(height: 15),
-              ElevatedButton.icon(
-                onPressed: createPassword,
-                icon: const Icon(Icons.arrow_forward),
-                label: const Text('Create'),
-                style: ElevatedButton.styleFrom(
-                  minimumSize: const Size.fromHeight(45),
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

@@ -82,87 +82,90 @@ class _SettingsState extends State<Settings> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
-        title: const Text('Settings'),
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(15),
-        physics: const BouncingScrollPhysics(),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                'Change Password',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 24,
-                ),
-              ),
-              const SizedBox(height: 20),
-              TextFormField(
-                controller: _passwordController,
-                obscureText: true,
-                textInputAction: TextInputAction.next,
-                style: const TextStyle(color: Colors.white),
-                decoration: const InputDecoration(
-                  labelText: 'Old Password',
-                  labelStyle: TextStyle(color: Colors.grey, fontSize: 14),
-                  enabledBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(color: Colors.white),
+    return GestureDetector(
+      onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+      child: Scaffold(
+        appBar: AppBar(
+          centerTitle: true,
+          title: const Text('Settings'),
+        ),
+        body: SingleChildScrollView(
+          padding: const EdgeInsets.all(15),
+          physics: const BouncingScrollPhysics(),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Change Password',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 24,
                   ),
                 ),
-              ),
-              const SizedBox(height: 10),
-              TextFormField(
-                controller: _newPasswordController,
-                obscureText: true,
-                textInputAction: TextInputAction.next,
-                style: const TextStyle(color: Colors.white),
-                decoration: const InputDecoration(
-                  labelText: 'New Password',
-                  labelStyle: TextStyle(color: Colors.grey, fontSize: 14),
-                  enabledBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(color: Colors.white),
+                const SizedBox(height: 20),
+                TextFormField(
+                  controller: _passwordController,
+                  obscureText: true,
+                  textInputAction: TextInputAction.next,
+                  style: const TextStyle(color: Colors.white),
+                  decoration: const InputDecoration(
+                    labelText: 'Old Password',
+                    labelStyle: TextStyle(color: Colors.grey, fontSize: 14),
+                    enabledBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(color: Colors.white),
+                    ),
                   ),
                 ),
-                autovalidateMode: AutovalidateMode.onUserInteraction,
-                validator: (value) => value != null && value.length < 6
-                    ? 'Enter min. 6 characters'
-                    : null,
-              ),
-              const SizedBox(height: 10),
-              TextFormField(
-                controller: _newPasswordRepeatController,
-                obscureText: true,
-                textInputAction: TextInputAction.next,
-                style: const TextStyle(color: Colors.white),
-                decoration: const InputDecoration(
-                  labelText: 'Repeat New Password',
-                  labelStyle: TextStyle(color: Colors.grey, fontSize: 14),
-                  enabledBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(color: Colors.white),
+                const SizedBox(height: 10),
+                TextFormField(
+                  controller: _newPasswordController,
+                  obscureText: true,
+                  textInputAction: TextInputAction.next,
+                  style: const TextStyle(color: Colors.white),
+                  decoration: const InputDecoration(
+                    labelText: 'New Password',
+                    labelStyle: TextStyle(color: Colors.grey, fontSize: 14),
+                    enabledBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(color: Colors.white),
+                    ),
+                  ),
+                  autovalidateMode: AutovalidateMode.onUserInteraction,
+                  validator: (value) => value != null && value.length < 6
+                      ? 'Enter min. 6 characters'
+                      : null,
+                ),
+                const SizedBox(height: 10),
+                TextFormField(
+                  controller: _newPasswordRepeatController,
+                  obscureText: true,
+                  textInputAction: TextInputAction.next,
+                  style: const TextStyle(color: Colors.white),
+                  decoration: const InputDecoration(
+                    labelText: 'Repeat New Password',
+                    labelStyle: TextStyle(color: Colors.grey, fontSize: 14),
+                    enabledBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(color: Colors.white),
+                    ),
+                  ),
+                  autovalidateMode: AutovalidateMode.onUserInteraction,
+                  validator: (value) =>
+                      value != null && value != _newPasswordController.text
+                          ? 'Passwords must be the same'
+                          : null,
+                ),
+                const SizedBox(height: 15),
+                ElevatedButton.icon(
+                  onPressed: changePassword,
+                  icon: const Icon(Icons.arrow_forward),
+                  label: const Text('Change'),
+                  style: ElevatedButton.styleFrom(
+                    minimumSize: const Size.fromHeight(45),
                   ),
                 ),
-                autovalidateMode: AutovalidateMode.onUserInteraction,
-                validator: (value) =>
-                    value != null && value != _newPasswordController.text
-                        ? 'Passwords must be the same'
-                        : null,
-              ),
-              const SizedBox(height: 15),
-              ElevatedButton.icon(
-                onPressed: changePassword,
-                icon: const Icon(Icons.arrow_forward),
-                label: const Text('Change'),
-                style: ElevatedButton.styleFrom(
-                  minimumSize: const Size.fromHeight(45),
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
