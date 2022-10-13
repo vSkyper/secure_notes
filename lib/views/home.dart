@@ -1,5 +1,6 @@
 import 'dart:convert' show utf8;
 import 'package:crypto/crypto.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:encrypt/encrypt.dart' as encrypt_package;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -8,7 +9,8 @@ import 'package:secured_notes/utils.dart';
 import 'package:secured_notes/views/settings.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  final VoidCallback fetchNote;
+  const HomePage({super.key, required this.fetchNote});
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -100,6 +102,12 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
+  Future createNewNote() async {
+    const storage = FlutterSecureStorage();
+    storage.delete(key: 'note');
+    widget.fetchNote();
+  }
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -166,7 +174,6 @@ class _HomePageState extends State<HomePage> {
                   ],
                 )
               : Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     TextField(
                       controller: _passwordController,
@@ -188,6 +195,20 @@ class _HomePageState extends State<HomePage> {
                       label: const Text('Decrypt'),
                       style: ElevatedButton.styleFrom(
                         minimumSize: const Size.fromHeight(45),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    Text.rich(
+                      TextSpan(
+                        text: 'Forgot password? ',
+                        children: [
+                          TextSpan(
+                            text: 'Create new note :)',
+                            style: const TextStyle(color: Colors.blue),
+                            recognizer: TapGestureRecognizer()
+                              ..onTap = createNewNote,
+                          ),
+                        ],
                       ),
                     ),
                   ],

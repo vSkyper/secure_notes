@@ -6,7 +6,7 @@ import 'package:encrypt/encrypt.dart' as encrypt_package;
 import 'package:crypto/crypto.dart';
 
 class CreatePasswordPage extends StatefulWidget {
-  final Function() fetchNote;
+  final VoidCallback fetchNote;
   const CreatePasswordPage({super.key, required this.fetchNote});
 
   @override

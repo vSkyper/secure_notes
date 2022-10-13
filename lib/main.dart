@@ -52,7 +52,7 @@ class MyApp extends StatelessWidget {
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             if (snapshot.data == true) {
-              return const HomePage();
+              return HomePage(fetchNote: fetchNote);
             }
             return CreatePasswordPage(fetchNote: fetchNote);
           }
