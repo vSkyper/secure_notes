@@ -7,8 +7,8 @@ import 'package:secured_notes/main.dart';
 import 'package:secured_notes/utils.dart';
 
 class Settings extends StatefulWidget {
-  final Function() notifyParent;
-  const Settings({super.key, required this.notifyParent});
+  final Function() encryptNote;
+  const Settings({super.key, required this.encryptNote});
 
   @override
   State<Settings> createState() => _SettingsState();
@@ -70,7 +70,7 @@ class _SettingsState extends State<Settings> {
           key: 'note',
           value: newEncrypter.encrypt(noteDecrypted, iv: newIV).base64);
 
-      widget.notifyParent();
+      widget.encryptNote();
 
       Utils.showSnackBar('Password has been changed');
     } catch (e) {

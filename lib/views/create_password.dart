@@ -1,12 +1,13 @@
 import 'dart:convert' show utf8;
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:secured_notes/views/home.dart';
+import 'package:secured_notes/main.dart';
 import 'package:encrypt/encrypt.dart' as encrypt_package;
 import 'package:crypto/crypto.dart';
 
 class CreatePasswordPage extends StatefulWidget {
-  const CreatePasswordPage({super.key});
+  final Function() fetchNote;
+  const CreatePasswordPage({super.key, required this.fetchNote});
 
   @override
   State<CreatePasswordPage> createState() => _CreatePasswordPageState();
@@ -47,12 +48,8 @@ class _CreatePasswordPageState extends State<CreatePasswordPage> {
     await storage.write(
         key: 'note', value: encrypter.encrypt('Enter your message!', iv: iv).base64);
 
-    if (!mounted) return;
-
-    Navigator.of(context).pushAndRemoveUntil(
-      MaterialPageRoute(builder: (context) => const HomePage()),
-      (Route<dynamic> route) => false,
-    );
+    widget.fetchNote();
+    navigatorKey.currentState!.popUntil((route) => route.isFirst);
   }
 
   @override

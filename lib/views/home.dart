@@ -91,7 +91,7 @@ class _HomePageState extends State<HomePage> {
     navigatorKey.currentState!.pop();
   }
 
-  refresh() {
+  void encryptNote() {
     _noteController.text = '';
     _passwordController.text = '';
     password = '';
@@ -113,7 +113,7 @@ class _HomePageState extends State<HomePage> {
             icon: const Icon(Icons.settings),
             onPressed: () => Navigator.of(context).push(
               MaterialPageRoute(
-                  builder: (context) => Settings(notifyParent: refresh)),
+                  builder: (context) => Settings(encryptNote: encryptNote)),
             ),
           ),
         ],
@@ -123,7 +123,16 @@ class _HomePageState extends State<HomePage> {
         physics: const BouncingScrollPhysics(),
         child: _isDecrypted
             ? Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  const Text(
+                    'Your note',
+                    style: TextStyle(
+                      color: Colors.grey,
+                      fontWeight: FontWeight.w200,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
                   TextField(
                     controller: _noteController,
                     maxLines: 8,
@@ -147,6 +156,7 @@ class _HomePageState extends State<HomePage> {
                 ],
               )
             : Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   TextField(
                     controller: _passwordController,

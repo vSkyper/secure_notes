@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:secured_notes/utils.dart';
@@ -9,18 +10,23 @@ void main() {
 }
 
 final navigatorKey = GlobalKey<NavigatorState>();
+final StreamController<bool> _noteStreamCtrl =
+      StreamController<bool>.broadcast();
+  Stream<bool> get onNoteCreated => _noteStreamCtrl.stream;
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  Stream<bool?> fetchPassword() async* {
+  Future fetchNote() async {
     const storage = FlutterSecureStorage();
 
     String? value = await storage.read(key: 'note');
 
     if (value != null) {
-      yield true;
+      _noteStreamCtrl.sink.add(true);
+      return;
     }
+    _noteStreamCtrl.sink.add(false);
   }
 
   @override
@@ -41,16 +47,17 @@ class MyApp extends StatelessWidget {
         ),
       ),
       home: StreamBuilder(
-        stream: fetchPassword(),
+        initialData: fetchNote(),
+        stream: onNoteCreated,
         builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Scaffold(
-                body: Center(child: CircularProgressIndicator()));
-          } else if (snapshot.hasData) {
-            return const HomePage();
-          } else {
-            return const CreatePasswordPage();
+          if (snapshot.hasData) {
+            if (snapshot.data == true) {
+              return const HomePage();
+            }
+            return CreatePasswordPage(fetchNote: fetchNote);
           }
+          return const Scaffold(
+              body: Center(child: CircularProgressIndicator()));
         },
       ),
     );
