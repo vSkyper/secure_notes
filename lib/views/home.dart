@@ -44,7 +44,7 @@ class _HomePageState extends State<HomePage> {
     final hashPassword = md5.convert(utf8.encode(password)).toString();
 
     final key = encrypt_package.Key.fromUtf8(hashPassword);
-    final iv = encrypt_package.IV.fromLength(16);
+    final iv = encrypt_package.IV.fromUtf8(hashPassword.substring(0, 16));
     final encrypter = encrypt_package.Encrypter(encrypt_package.AES(key));
 
     const storage = FlutterSecureStorage();
@@ -69,7 +69,7 @@ class _HomePageState extends State<HomePage> {
         md5.convert(utf8.encode(_passwordController.text.trim())).toString();
 
     final key = encrypt_package.Key.fromUtf8(hashPassword);
-    final iv = encrypt_package.IV.fromLength(16);
+    final iv = encrypt_package.IV.fromUtf8(hashPassword.substring(0, 16));
     final encrypter = encrypt_package.Encrypter(encrypt_package.AES(key));
 
     const storage = FlutterSecureStorage();

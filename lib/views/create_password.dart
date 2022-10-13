@@ -43,7 +43,7 @@ class _CreatePasswordPageState extends State<CreatePasswordPage> {
         .toString();
 
     final key = encrypt_package.Key.fromUtf8(hashPassword);
-    final iv = encrypt_package.IV.fromLength(16);
+    final iv = encrypt_package.IV.fromUtf8(hashPassword.substring(0, 16));
     final encrypter = encrypt_package.Encrypter(encrypt_package.AES(key));
 
     const storage = FlutterSecureStorage();

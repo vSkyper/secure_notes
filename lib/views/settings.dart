@@ -46,7 +46,7 @@ class _SettingsState extends State<Settings> {
         md5.convert(utf8.encode(_passwordController.text.trim())).toString();
 
     final key = encrypt_package.Key.fromUtf8(hashPassword);
-    final iv = encrypt_package.IV.fromLength(16);
+    final iv = encrypt_package.IV.fromUtf8(hashPassword.substring(0, 16));
     final encrypter = encrypt_package.Encrypter(encrypt_package.AES(key));
 
     const storage = FlutterSecureStorage();
@@ -62,7 +62,7 @@ class _SettingsState extends State<Settings> {
           .toString();
 
       final newKey = encrypt_package.Key.fromUtf8(newHashPassword);
-      final newIV = encrypt_package.IV.fromLength(16);
+      final newIV = encrypt_package.IV.fromUtf8(newHashPassword.substring(0, 16));
       final newEncrypter =
           encrypt_package.Encrypter(encrypt_package.AES(newKey));
 
