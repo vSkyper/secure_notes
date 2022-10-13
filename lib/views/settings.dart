@@ -18,7 +18,7 @@ class _SettingsState extends State<Settings> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _newPasswordController = TextEditingController();
-  final TextEditingController _newRepeatPasswordController =
+  final TextEditingController _repeatNewPasswordController =
       TextEditingController();
 
   @override
@@ -27,10 +27,10 @@ class _SettingsState extends State<Settings> {
 
     _passwordController.text = '';
     _newPasswordController.text = '';
-    _newRepeatPasswordController.text = '';
+    _repeatNewPasswordController.text = '';
     _passwordController.dispose();
     _newPasswordController.dispose();
-    _newRepeatPasswordController.dispose();
+    _repeatNewPasswordController.dispose();
   }
 
   Future changePassword() async {
@@ -58,7 +58,7 @@ class _SettingsState extends State<Settings> {
           encrypter.decrypt(encrypt_package.Encrypted.fromBase64(note), iv: iv);
 
       final newHashPassword = md5
-          .convert(utf8.encode(_newRepeatPasswordController.text.trim()))
+          .convert(utf8.encode(_repeatNewPasswordController.text.trim()))
           .toString();
 
       final newKey = encrypt_package.Key.fromUtf8(newHashPassword);
@@ -138,7 +138,7 @@ class _SettingsState extends State<Settings> {
                 ),
                 const SizedBox(height: 10),
                 TextFormField(
-                  controller: _newRepeatPasswordController,
+                  controller: _repeatNewPasswordController,
                   obscureText: true,
                   textInputAction: TextInputAction.next,
                   style: const TextStyle(color: Colors.white),
