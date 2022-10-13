@@ -16,7 +16,7 @@ class CreatePasswordPage extends StatefulWidget {
 class _CreatePasswordPageState extends State<CreatePasswordPage> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _passwordRepeatController =
+  final TextEditingController _repeatPasswordController =
       TextEditingController();
 
   @override
@@ -24,9 +24,9 @@ class _CreatePasswordPageState extends State<CreatePasswordPage> {
     super.dispose();
 
     _passwordController.text = '';
-    _passwordRepeatController.text = '';
+    _repeatPasswordController.text = '';
     _passwordController.dispose();
-    _passwordRepeatController.dispose();
+    _repeatPasswordController.dispose();
   }
 
   Future createPassword() async {
@@ -39,7 +39,7 @@ class _CreatePasswordPageState extends State<CreatePasswordPage> {
         builder: (context) => const Center(child: CircularProgressIndicator()));
 
     final hashPassword = md5
-        .convert(utf8.encode(_passwordRepeatController.text.trim()))
+        .convert(utf8.encode(_repeatPasswordController.text.trim()))
         .toString();
 
     final key = encrypt_package.Key.fromUtf8(hashPassword);
@@ -95,7 +95,7 @@ class _CreatePasswordPageState extends State<CreatePasswordPage> {
                 ),
                 const SizedBox(height: 10),
                 TextFormField(
-                  controller: _passwordRepeatController,
+                  controller: _repeatPasswordController,
                   obscureText: true,
                   textInputAction: TextInputAction.next,
                   style: const TextStyle(color: Colors.white),
