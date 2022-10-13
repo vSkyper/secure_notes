@@ -11,8 +11,8 @@ void main() {
 
 final navigatorKey = GlobalKey<NavigatorState>();
 final StreamController<bool> _noteStreamCtrl =
-      StreamController<bool>.broadcast();
-  Stream<bool> get onNoteCreated => _noteStreamCtrl.stream;
+    StreamController<bool>.broadcast();
+Stream<bool> get onNoteCreated => _noteStreamCtrl.stream;
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});

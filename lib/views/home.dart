@@ -107,15 +107,23 @@ class _HomePageState extends State<HomePage> {
         centerTitle: true,
         title: const Text('Home'),
         actions: [
-          IconButton(
-            splashColor: Colors.transparent,
-            highlightColor: Colors.transparent,
-            icon: const Icon(Icons.settings),
-            onPressed: () => Navigator.of(context).push(
-              MaterialPageRoute(
-                  builder: (context) => Settings(encryptNote: encryptNote)),
+          if (_isDecrypted)
+            IconButton(
+              splashColor: Colors.transparent,
+              highlightColor: Colors.transparent,
+              icon: const Icon(Icons.settings),
+              onPressed: () => Navigator.of(context).push(
+                MaterialPageRoute(
+                    builder: (context) => Settings(encryptNote: encryptNote)),
+              ),
             ),
-          ),
+          if (_isDecrypted)
+            IconButton(
+              splashColor: Colors.transparent,
+              highlightColor: Colors.transparent,
+              icon: const Icon(Icons.logout, color: Colors.red),
+              onPressed: () => encryptNote(),
+            ),
         ],
       ),
       body: SingleChildScrollView(
