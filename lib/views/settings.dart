@@ -1,14 +1,14 @@
 import 'dart:convert' show utf8;
 import 'package:crypto/crypto.dart';
 import 'package:flutter/material.dart';
-import 'package:encrypt/encrypt.dart' as encrypt_package;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:secured_notes/encryption.dart';
 import 'package:secured_notes/main.dart';
 import 'package:secured_notes/utils.dart';
 
 class Settings extends StatefulWidget {
-  final Function() encryptNote;
-  const Settings({super.key, required this.encryptNote});
+  final Function() closeNote;
+  const Settings({super.key, required this.closeNote});
 
   @override
   State<Settings> createState() => _SettingsState();
@@ -54,30 +54,25 @@ class _SettingsState extends State<Settings> {
     final hashPassword =
         sha256.convert(utf8.encode(_passwordController.text.trim())).toString();
 
-    final key = encrypt_package.Key.fromBase16(hashPassword);
-    final iv = encrypt_package.IV.fromBase64(note.substring(0, 24));
-    final encrypter = encrypt_package.Encrypter(encrypt_package.AES(key));
+    final key = Encryption.fromBase16(hashPassword);
+    final iv = Encryption.fromBase64(note.substring(0, 24));
 
     try {
-      final noteDecrypted = encrypter.decrypt(
-          encrypt_package.Encrypted.fromBase64(note.substring(24)),
-          iv: iv);
+      final noteDecrypted = Encryption.decrypt(note.substring(24), key, iv);
 
       final newHashPassword = sha256
           .convert(utf8.encode(_repeatNewPasswordController.text.trim()))
           .toString();
 
-      final newKey = encrypt_package.Key.fromBase16(newHashPassword);
-      final newIV = encrypt_package.IV.fromSecureRandom(16);
-      final newEncrypter =
-          encrypt_package.Encrypter(encrypt_package.AES(newKey));
+      final newKey = Encryption.fromBase16(newHashPassword);
+      final newIV = Encryption.fromSecureRandom(16);
 
       await storage.write(
           key: 'note',
-          value: newIV.base64 +
-              newEncrypter.encrypt(noteDecrypted, iv: newIV).base64);
+          value: Encryption.toBase64(newIV) +
+              Encryption.encrypt(noteDecrypted, newKey, newIV));
 
-      widget.encryptNote();
+      widget.closeNote();
 
       Utils.showSnackBar('Password has been changed');
     } catch (e) {

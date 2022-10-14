@@ -1,0 +1,49 @@
+import 'dart:convert' as convert;
+import 'dart:math';
+import 'package:flutter/foundation.dart';
+import 'package:pointycastle/export.dart';
+import 'package:secured_notes/utils.dart';
+
+class Encryption {
+  static Uint8List fromSecureRandom(int length) {
+    return Uint8List.fromList(
+        List.generate(length, (i) => Random.secure().nextInt(256)));
+  }
+
+  static Uint8List fromBase64(String encoded) {
+    return convert.base64.decode(encoded);
+  }
+
+  static Uint8List fromBase16(String encoded) {
+    return decodeHexString(encoded);
+  }
+
+  static String toBase64(Uint8List decoded) {
+    return convert.base64.encode(decoded);
+  }
+
+  static String encrypt(String input, Uint8List key, Uint8List iv) {
+    final bytes = Uint8List.fromList(convert.utf8.encode(input));
+
+    final BlockCipher cipher = PaddedBlockCipher('AES/CTR/PKCS7')
+      ..init(
+          true,
+          PaddedBlockCipherParameters(
+              ParametersWithIV<KeyParameter>(KeyParameter(key), iv), null));
+
+    return toBase64(cipher.process(bytes));
+  }
+
+  static String decrypt(String encrypted, Uint8List key, Uint8List iv) {
+    final bytes = fromBase64(encrypted);
+
+    final BlockCipher cipher = PaddedBlockCipher('AES/CTR/PKCS7')
+      ..init(
+          false,
+          PaddedBlockCipherParameters(
+              ParametersWithIV<KeyParameter>(KeyParameter(key), iv), null));
+
+    return convert.utf8
+        .decode(cipher.process(bytes).toList(), allowMalformed: true);
+  }
+}

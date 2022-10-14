@@ -2,8 +2,8 @@ import 'dart:convert' show utf8;
 import 'package:crypto/crypto.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:encrypt/encrypt.dart' as encrypt_package;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:secured_notes/encryption.dart';
 import 'package:secured_notes/main.dart';
 import 'package:secured_notes/utils.dart';
 import 'package:secured_notes/views/settings.dart';
@@ -43,15 +43,14 @@ class _HomePageState extends State<HomePage> {
 
     final hashPassword = sha256.convert(utf8.encode(password)).toString();
 
-    final key = encrypt_package.Key.fromBase16(hashPassword);
-    final iv = encrypt_package.IV.fromSecureRandom(16);
-    final encrypter = encrypt_package.Encrypter(encrypt_package.AES(key));
+    final key = Encryption.fromBase16(hashPassword);
+    final iv = Encryption.fromSecureRandom(16);
 
     const storage = FlutterSecureStorage();
     await storage.write(
         key: 'note',
-        value: iv.base64 +
-            encrypter.encrypt(_noteController.text.trim(), iv: iv).base64);
+        value: Encryption.toBase64(iv) +
+            Encryption.encrypt(_noteController.text.trim(), key, iv));
 
     Utils.showSnackBar('Save note');
 
@@ -78,14 +77,11 @@ class _HomePageState extends State<HomePage> {
     final hashPassword =
         sha256.convert(utf8.encode(_passwordController.text.trim())).toString();
 
-    final key = encrypt_package.Key.fromBase16(hashPassword);
-    final iv = encrypt_package.IV.fromBase64(note.substring(0, 24));
-    final encrypter = encrypt_package.Encrypter(encrypt_package.AES(key));
+    final key = Encryption.fromBase16(hashPassword);
+    final iv = Encryption.fromBase64(note.substring(0, 24));
 
     try {
-      _noteController.text = encrypter.decrypt(
-          encrypt_package.Encrypted.fromBase64(note.substring(24)),
-          iv: iv);
+      _noteController.text = Encryption.decrypt(note.substring(24), key, iv);
 
       password = _passwordController.text;
       _passwordController.text = '';
@@ -100,7 +96,7 @@ class _HomePageState extends State<HomePage> {
     navigatorKey.currentState!.pop();
   }
 
-  void encryptNote() {
+  void closeNote() {
     _noteController.text = '';
     _passwordController.text = '';
     password = '';
@@ -131,7 +127,7 @@ class _HomePageState extends State<HomePage> {
                 icon: const Icon(Icons.settings),
                 onPressed: () => Navigator.of(context).push(
                   MaterialPageRoute(
-                      builder: (context) => Settings(encryptNote: encryptNote)),
+                      builder: (context) => Settings(closeNote: closeNote)),
                 ),
               ),
             if (_isDecrypted)
@@ -139,7 +135,7 @@ class _HomePageState extends State<HomePage> {
                 splashColor: Colors.transparent,
                 highlightColor: Colors.transparent,
                 icon: const Icon(Icons.logout, color: Colors.red),
-                onPressed: () => encryptNote(),
+                onPressed: () => closeNote(),
               ),
           ],
         ),
