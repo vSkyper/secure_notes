@@ -51,6 +51,10 @@ class _CreatePasswordPageState extends State<CreatePasswordPage> {
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child: Scaffold(
+        appBar: AppBar(
+          centerTitle: true,
+          title: const Text('Create Password'),
+        ),
         body: SingleChildScrollView(
           padding: const EdgeInsets.all(15),
           physics: const BouncingScrollPhysics(),
@@ -58,14 +62,6 @@ class _CreatePasswordPageState extends State<CreatePasswordPage> {
             key: _formKey,
             child: Column(
               children: [
-                const Text(
-                  'Create Password',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 24,
-                  ),
-                ),
-                const SizedBox(height: 20),
                 TextFormField(
                   controller: _passwordController,
                   obscureText: true,

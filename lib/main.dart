@@ -9,9 +9,9 @@ void main() {
   runApp(const MyApp());
 }
 
-final StreamController<bool> _noteStreamCtrl =
-    StreamController<bool>.broadcast();
-Stream<bool> get onNoteCreated => _noteStreamCtrl.stream;
+final StreamController<String> _noteStreamCtrl =
+    StreamController<String>.broadcast();
+Stream<String> get onNoteCreated => _noteStreamCtrl.stream;
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -22,10 +22,10 @@ class MyApp extends StatelessWidget {
     String? value = await storage.read(key: 'note');
 
     if (value != null) {
-      _noteStreamCtrl.sink.add(true);
+      _noteStreamCtrl.sink.add('noteAvailable');
       return;
     }
-    _noteStreamCtrl.sink.add(false);
+    _noteStreamCtrl.sink.add('noteNotAvailable');
   }
 
   @override
@@ -49,10 +49,15 @@ class MyApp extends StatelessWidget {
         stream: onNoteCreated,
         builder: (context, snapshot) {
           if (snapshot.hasData) {
-            if (snapshot.data == true) {
-              return HomePage(fetchNote: fetchNote);
+            switch (snapshot.data) {
+              case 'noteAvailable':
+                return HomePage(fetchNote: fetchNote);
+              case 'noteNotAvailable':
+                return CreatePasswordPage(fetchNote: fetchNote);
+              default:
+                return const Scaffold(
+                    body: Center(child: CircularProgressIndicator()));
             }
-            return CreatePasswordPage(fetchNote: fetchNote);
           }
           return const Scaffold(
               body: Center(child: CircularProgressIndicator()));

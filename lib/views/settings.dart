@@ -4,7 +4,7 @@ import 'package:secured_notes/encryption.dart';
 import 'package:secured_notes/utils.dart';
 
 class Settings extends StatefulWidget {
-  final Function() closeNote;
+  final VoidCallback closeNote;
   const Settings({super.key, required this.closeNote});
 
   @override
