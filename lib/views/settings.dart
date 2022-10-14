@@ -42,33 +42,40 @@ class _SettingsState extends State<Settings> {
         barrierDismissible: false,
         builder: (context) => const Center(child: CircularProgressIndicator()));
 
-    final hashPassword =
-        md5.convert(utf8.encode(_passwordController.text.trim())).toString();
-
-    final key = encrypt_package.Key.fromUtf8(hashPassword);
-    final iv = encrypt_package.IV.fromUtf8(hashPassword.substring(0, 16));
-    final encrypter = encrypt_package.Encrypter(encrypt_package.AES(key));
-
     const storage = FlutterSecureStorage();
 
-    String note = await storage.read(key: 'note') ?? '';
+    String? note = await storage.read(key: 'note');
+
+    if (note == null) {
+      navigatorKey.currentState!.pop();
+      return;
+    }
+
+    final hashPassword =
+        sha256.convert(utf8.encode(_passwordController.text.trim())).toString();
+
+    final key = encrypt_package.Key.fromBase16(hashPassword);
+    final iv = encrypt_package.IV.fromBase64(note.substring(0, 24));
+    final encrypter = encrypt_package.Encrypter(encrypt_package.AES(key));
 
     try {
-      final noteDecrypted =
-          encrypter.decrypt(encrypt_package.Encrypted.fromBase64(note), iv: iv);
+      final noteDecrypted = encrypter.decrypt(
+          encrypt_package.Encrypted.fromBase64(note.substring(24)),
+          iv: iv);
 
-      final newHashPassword = md5
+      final newHashPassword = sha256
           .convert(utf8.encode(_repeatNewPasswordController.text.trim()))
           .toString();
 
-      final newKey = encrypt_package.Key.fromUtf8(newHashPassword);
-      final newIV = encrypt_package.IV.fromUtf8(newHashPassword.substring(0, 16));
+      final newKey = encrypt_package.Key.fromBase16(newHashPassword);
+      final newIV = encrypt_package.IV.fromSecureRandom(16);
       final newEncrypter =
           encrypt_package.Encrypter(encrypt_package.AES(newKey));
 
       await storage.write(
           key: 'note',
-          value: newEncrypter.encrypt(noteDecrypted, iv: newIV).base64);
+          value: newIV.base64 +
+              newEncrypter.encrypt(noteDecrypted, iv: newIV).base64);
 
       widget.encryptNote();
 

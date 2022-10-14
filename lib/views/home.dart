@@ -41,16 +41,17 @@ class _HomePageState extends State<HomePage> {
         barrierDismissible: false,
         builder: (context) => const Center(child: CircularProgressIndicator()));
 
-    final hashPassword = md5.convert(utf8.encode(password)).toString();
+    final hashPassword = sha256.convert(utf8.encode(password)).toString();
 
-    final key = encrypt_package.Key.fromUtf8(hashPassword);
-    final iv = encrypt_package.IV.fromUtf8(hashPassword.substring(0, 16));
+    final key = encrypt_package.Key.fromBase16(hashPassword);
+    final iv = encrypt_package.IV.fromSecureRandom(16);
     final encrypter = encrypt_package.Encrypter(encrypt_package.AES(key));
 
     const storage = FlutterSecureStorage();
     await storage.write(
         key: 'note',
-        value: encrypter.encrypt(_noteController.text.trim(), iv: iv).base64);
+        value: iv.base64 +
+            encrypter.encrypt(_noteController.text.trim(), iv: iv).base64);
 
     Utils.showSnackBar('Save note');
 
@@ -65,20 +66,26 @@ class _HomePageState extends State<HomePage> {
         barrierDismissible: false,
         builder: (context) => const Center(child: CircularProgressIndicator()));
 
-    final hashPassword =
-        md5.convert(utf8.encode(_passwordController.text.trim())).toString();
-
-    final key = encrypt_package.Key.fromUtf8(hashPassword);
-    final iv = encrypt_package.IV.fromUtf8(hashPassword.substring(0, 16));
-    final encrypter = encrypt_package.Encrypter(encrypt_package.AES(key));
-
     const storage = FlutterSecureStorage();
 
-    String note = await storage.read(key: 'note') ?? '';
+    String? note = await storage.read(key: 'note');
+
+    if (note == null) {
+      navigatorKey.currentState!.pop();
+      return;
+    }
+
+    final hashPassword =
+        sha256.convert(utf8.encode(_passwordController.text.trim())).toString();
+
+    final key = encrypt_package.Key.fromBase16(hashPassword);
+    final iv = encrypt_package.IV.fromBase64(note.substring(0, 24));
+    final encrypter = encrypt_package.Encrypter(encrypt_package.AES(key));
 
     try {
-      _noteController.text =
-          encrypter.decrypt(encrypt_package.Encrypted.fromBase64(note), iv: iv);
+      _noteController.text = encrypter.decrypt(
+          encrypt_package.Encrypted.fromBase64(note.substring(24)),
+          iv: iv);
 
       password = _passwordController.text;
       _passwordController.text = '';

@@ -38,19 +38,20 @@ class _CreatePasswordPageState extends State<CreatePasswordPage> {
         barrierDismissible: false,
         builder: (context) => const Center(child: CircularProgressIndicator()));
 
-    final hashPassword = md5
+    final hashPassword = sha256
         .convert(utf8.encode(_repeatPasswordController.text.trim()))
         .toString();
 
-    final key = encrypt_package.Key.fromUtf8(hashPassword);
-    final iv = encrypt_package.IV.fromUtf8(hashPassword.substring(0, 16));
+    final key = encrypt_package.Key.fromBase16(hashPassword);
+    final iv = encrypt_package.IV.fromSecureRandom(16);
     final encrypter = encrypt_package.Encrypter(encrypt_package.AES(key));
 
     const storage = FlutterSecureStorage();
 
     await storage.write(
         key: 'note',
-        value: encrypter.encrypt('Enter your message!', iv: iv).base64);
+        value: iv.base64 +
+            encrypter.encrypt('Enter your message!', iv: iv).base64);
 
     widget.fetchNote();
     navigatorKey.currentState!.popUntil((route) => route.isFirst);
