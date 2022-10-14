@@ -1,5 +1,3 @@
-import 'dart:convert' show utf8;
-import 'package:crypto/crypto.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -41,7 +39,7 @@ class _HomePageState extends State<HomePage> {
         barrierDismissible: false,
         builder: (context) => const Center(child: CircularProgressIndicator()));
 
-    final hashPassword = sha256.convert(utf8.encode(password)).toString();
+    final hashPassword = Encryption.encryptSHA256(password);
 
     final key = Encryption.fromBase16(hashPassword);
     final iv = Encryption.fromSecureRandom(16);
@@ -50,7 +48,7 @@ class _HomePageState extends State<HomePage> {
     await storage.write(
         key: 'note',
         value: Encryption.toBase64(iv) +
-            Encryption.encrypt(_noteController.text.trim(), key, iv));
+            Encryption.encryptAES(_noteController.text.trim(), key, iv));
 
     Utils.showSnackBar('Save note');
 
@@ -75,13 +73,13 @@ class _HomePageState extends State<HomePage> {
     }
 
     final hashPassword =
-        sha256.convert(utf8.encode(_passwordController.text.trim())).toString();
+        Encryption.encryptSHA256(_passwordController.text.trim());
 
     final key = Encryption.fromBase16(hashPassword);
     final iv = Encryption.fromBase64(note.substring(0, 24));
 
     try {
-      _noteController.text = Encryption.decrypt(note.substring(24), key, iv);
+      _noteController.text = Encryption.decryptAES(note.substring(24), key, iv);
 
       password = _passwordController.text;
       _passwordController.text = '';

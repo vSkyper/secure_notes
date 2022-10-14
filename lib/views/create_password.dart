@@ -1,9 +1,7 @@
-import 'dart:convert' show utf8;
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:secured_notes/encryption.dart';
 import 'package:secured_notes/main.dart';
-import 'package:crypto/crypto.dart';
 
 class CreatePasswordPage extends StatefulWidget {
   final VoidCallback fetchNote;
@@ -38,9 +36,8 @@ class _CreatePasswordPageState extends State<CreatePasswordPage> {
         barrierDismissible: false,
         builder: (context) => const Center(child: CircularProgressIndicator()));
 
-    final hashPassword = sha256
-        .convert(utf8.encode(_repeatPasswordController.text.trim()))
-        .toString();
+    final hashPassword =
+        Encryption.encryptSHA256(_repeatPasswordController.text.trim());
 
     final key = Encryption.fromBase16(hashPassword);
     final iv = Encryption.fromSecureRandom(16);
@@ -50,7 +47,7 @@ class _CreatePasswordPageState extends State<CreatePasswordPage> {
     await storage.write(
         key: 'note',
         value: Encryption.toBase64(iv) +
-            Encryption.encrypt('Enter your message :)', key, iv));
+            Encryption.encryptAES('Enter your message :)', key, iv));
 
     widget.fetchNote();
     navigatorKey.currentState!.popUntil((route) => route.isFirst);

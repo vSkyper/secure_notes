@@ -1,5 +1,3 @@
-import 'dart:convert' show utf8;
-import 'package:crypto/crypto.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:secured_notes/encryption.dart';
@@ -52,17 +50,16 @@ class _SettingsState extends State<Settings> {
     }
 
     final hashPassword =
-        sha256.convert(utf8.encode(_passwordController.text.trim())).toString();
+        Encryption.encryptSHA256(_passwordController.text.trim());
 
     final key = Encryption.fromBase16(hashPassword);
     final iv = Encryption.fromBase64(note.substring(0, 24));
 
     try {
-      final noteDecrypted = Encryption.decrypt(note.substring(24), key, iv);
+      final noteDecrypted = Encryption.decryptAES(note.substring(24), key, iv);
 
-      final newHashPassword = sha256
-          .convert(utf8.encode(_repeatNewPasswordController.text.trim()))
-          .toString();
+      final newHashPassword =
+          Encryption.encryptSHA256(_repeatNewPasswordController.text.trim());
 
       final newKey = Encryption.fromBase16(newHashPassword);
       final newIV = Encryption.fromSecureRandom(16);
@@ -70,7 +67,7 @@ class _SettingsState extends State<Settings> {
       await storage.write(
           key: 'note',
           value: Encryption.toBase64(newIV) +
-              Encryption.encrypt(noteDecrypted, newKey, newIV));
+              Encryption.encryptAES(noteDecrypted, newKey, newIV));
 
       widget.closeNote();
 

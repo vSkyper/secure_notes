@@ -1,5 +1,6 @@
 import 'dart:convert' as convert;
 import 'dart:math';
+import 'package:convert/convert.dart';
 import 'package:flutter/foundation.dart';
 import 'package:pointycastle/export.dart';
 import 'package:secured_notes/utils.dart';
@@ -15,14 +16,18 @@ class Encryption {
   }
 
   static Uint8List fromBase16(String encoded) {
-    return decodeHexString(encoded);
+    return Uint8List.fromList(hex.decode(encoded));
   }
 
   static String toBase64(Uint8List decoded) {
     return convert.base64.encode(decoded);
   }
 
-  static String encrypt(String input, Uint8List key, Uint8List iv) {
+  static String toBase16(Uint8List decoded) {
+    return hex.encode(decoded);
+  }
+
+  static String encryptAES(String input, Uint8List key, Uint8List iv) {
     final bytes = Uint8List.fromList(convert.utf8.encode(input));
 
     final BlockCipher cipher = PaddedBlockCipher('AES/CTR/PKCS7')
@@ -34,7 +39,7 @@ class Encryption {
     return toBase64(cipher.process(bytes));
   }
 
-  static String decrypt(String encrypted, Uint8List key, Uint8List iv) {
+  static String decryptAES(String encrypted, Uint8List key, Uint8List iv) {
     final bytes = fromBase64(encrypted);
 
     final BlockCipher cipher = PaddedBlockCipher('AES/CTR/PKCS7')
@@ -45,5 +50,13 @@ class Encryption {
 
     return convert.utf8
         .decode(cipher.process(bytes).toList(), allowMalformed: true);
+  }
+
+  static String encryptSHA256(String input) {
+    final bytes = Uint8List.fromList(convert.utf8.encode(input));
+
+    final hash = Digest("SHA-256");
+
+    return toBase16(hash.process(bytes));
   }
 }
