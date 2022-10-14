@@ -37,7 +37,7 @@ class _CreatePasswordPageState extends State<CreatePasswordPage> {
         builder: (context) => const Center(child: CircularProgressIndicator()));
 
     final hashPassword =
-        Encryption.encryptSHA256(_repeatPasswordController.text.trim());
+        Encryption.encryptSHA3(_repeatPasswordController.text.trim());
 
     final key = Encryption.fromBase16(hashPassword);
     final iv = Encryption.fromSecureRandom(16);

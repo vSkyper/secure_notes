@@ -50,7 +50,7 @@ class _SettingsState extends State<Settings> {
     }
 
     final hashPassword =
-        Encryption.encryptSHA256(_passwordController.text.trim());
+        Encryption.encryptSHA3(_passwordController.text.trim());
 
     final key = Encryption.fromBase16(hashPassword);
     final iv = Encryption.fromBase64(note.substring(0, 24));
@@ -59,7 +59,7 @@ class _SettingsState extends State<Settings> {
       final noteDecrypted = Encryption.decryptAES(note.substring(24), key, iv);
 
       final newHashPassword =
-          Encryption.encryptSHA256(_repeatNewPasswordController.text.trim());
+          Encryption.encryptSHA3(_repeatNewPasswordController.text.trim());
 
       final newKey = Encryption.fromBase16(newHashPassword);
       final newIV = Encryption.fromSecureRandom(16);

@@ -52,10 +52,10 @@ class Encryption {
         .decode(cipher.process(bytes).toList(), allowMalformed: true);
   }
 
-  static String encryptSHA256(String input) {
+  static String encryptSHA3(String input) {
     final bytes = Uint8List.fromList(convert.utf8.encode(input));
 
-    final hash = Digest("SHA-256");
+    final hash = Digest("SHA3-256");
 
     return toBase16(hash.process(bytes));
   }

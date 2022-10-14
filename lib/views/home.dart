@@ -39,7 +39,7 @@ class _HomePageState extends State<HomePage> {
         barrierDismissible: false,
         builder: (context) => const Center(child: CircularProgressIndicator()));
 
-    final hashPassword = Encryption.encryptSHA256(password);
+    final hashPassword = Encryption.encryptSHA3(password);
 
     final key = Encryption.fromBase16(hashPassword);
     final iv = Encryption.fromSecureRandom(16);
@@ -73,7 +73,7 @@ class _HomePageState extends State<HomePage> {
     }
 
     final hashPassword =
-        Encryption.encryptSHA256(_passwordController.text.trim());
+        Encryption.encryptSHA3(_passwordController.text.trim());
 
     final key = Encryption.fromBase16(hashPassword);
     final iv = Encryption.fromBase64(note.substring(0, 24));
