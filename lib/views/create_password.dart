@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:secured_notes/encryption.dart';
-import 'package:secured_notes/main.dart';
 
 class CreatePasswordPage extends StatefulWidget {
   final VoidCallback fetchNote;
@@ -31,16 +30,11 @@ class _CreatePasswordPageState extends State<CreatePasswordPage> {
     final isValid = _formKey.currentState!.validate();
     if (!isValid) return;
 
-    showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (context) => const Center(child: CircularProgressIndicator()));
-
-    final hashPassword =
-        Encryption.encryptSHA3(_repeatPasswordController.text.trim());
+    final hashPassword = Encryption.encryptPBKDF2withHMACSHA3(
+        _repeatPasswordController.text.trim());
 
     final key = Encryption.fromBase16(hashPassword);
-    final iv = Encryption.fromSecureRandom(16);
+    final iv = Encryption.secureRandom(16);
 
     const storage = FlutterSecureStorage();
 
@@ -50,7 +44,6 @@ class _CreatePasswordPageState extends State<CreatePasswordPage> {
             Encryption.encryptAES('Enter your message :)', key, iv));
 
     widget.fetchNote();
-    navigatorKey.currentState!.popUntil((route) => route.isFirst);
   }
 
   @override

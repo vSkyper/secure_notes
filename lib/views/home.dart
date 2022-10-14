@@ -2,7 +2,6 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:secured_notes/encryption.dart';
-import 'package:secured_notes/main.dart';
 import 'package:secured_notes/utils.dart';
 import 'package:secured_notes/views/settings.dart';
 
@@ -34,15 +33,10 @@ class _HomePageState extends State<HomePage> {
   Future saveNote() async {
     if (_noteController.text.isEmpty) return;
 
-    showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (context) => const Center(child: CircularProgressIndicator()));
-
-    final hashPassword = Encryption.encryptSHA3(password);
+    final hashPassword = Encryption.encryptPBKDF2withHMACSHA3(password);
 
     final key = Encryption.fromBase16(hashPassword);
-    final iv = Encryption.fromSecureRandom(16);
+    final iv = Encryption.secureRandom(16);
 
     const storage = FlutterSecureStorage();
     await storage.write(
@@ -51,29 +45,21 @@ class _HomePageState extends State<HomePage> {
             Encryption.encryptAES(_noteController.text.trim(), key, iv));
 
     Utils.showSnackBar('Save note');
-
-    navigatorKey.currentState!.pop();
   }
 
   Future decryptNote() async {
     if (_passwordController.text.isEmpty) return;
-
-    showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (context) => const Center(child: CircularProgressIndicator()));
 
     const storage = FlutterSecureStorage();
 
     String? note = await storage.read(key: 'note');
 
     if (note == null) {
-      navigatorKey.currentState!.pop();
       return;
     }
 
     final hashPassword =
-        Encryption.encryptSHA3(_passwordController.text.trim());
+        Encryption.encryptPBKDF2withHMACSHA3(_passwordController.text.trim());
 
     final key = Encryption.fromBase16(hashPassword);
     final iv = Encryption.fromBase64(note.substring(0, 24));
@@ -90,8 +76,6 @@ class _HomePageState extends State<HomePage> {
     } catch (e) {
       Utils.showSnackBar('Wrong Password');
     }
-
-    navigatorKey.currentState!.pop();
   }
 
   void closeNote() {

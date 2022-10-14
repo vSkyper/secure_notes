@@ -3,10 +3,9 @@ import 'dart:math';
 import 'package:convert/convert.dart';
 import 'package:flutter/foundation.dart';
 import 'package:pointycastle/export.dart';
-import 'package:secured_notes/utils.dart';
 
 class Encryption {
-  static Uint8List fromSecureRandom(int length) {
+  static Uint8List secureRandom(int length) {
     return Uint8List.fromList(
         List.generate(length, (i) => Random.secure().nextInt(256)));
   }
@@ -52,10 +51,12 @@ class Encryption {
         .decode(cipher.process(bytes).toList(), allowMalformed: true);
   }
 
-  static String encryptSHA3(String input) {
+  static String encryptPBKDF2withHMACSHA3(String input) {
     final bytes = Uint8List.fromList(convert.utf8.encode(input));
+    final salt = Uint8List.fromList(convert.utf8.encode('VeryHardToGuessSalt'));
 
-    final hash = Digest("SHA3-256");
+    final KeyDerivator hash = KeyDerivator('SHA3-256/HMAC/PBKDF2')
+      ..init(Pbkdf2Parameters(salt, 1028, 32));
 
     return toBase16(hash.process(bytes));
   }

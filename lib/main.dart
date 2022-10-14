@@ -9,7 +9,6 @@ void main() {
   runApp(const MyApp());
 }
 
-final navigatorKey = GlobalKey<NavigatorState>();
 final StreamController<bool> _noteStreamCtrl =
     StreamController<bool>.broadcast();
 Stream<bool> get onNoteCreated => _noteStreamCtrl.stream;
@@ -34,7 +33,6 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Secured Notes',
       debugShowCheckedModeBanner: false,
-      navigatorKey: navigatorKey,
       scaffoldMessengerKey: Utils.messengerKey,
       theme: ThemeData(
         scaffoldBackgroundColor: const Color(0xFF18181B),

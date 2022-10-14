@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:secured_notes/encryption.dart';
-import 'package:secured_notes/main.dart';
 import 'package:secured_notes/utils.dart';
 
 class Settings extends StatefulWidget {
@@ -35,22 +34,16 @@ class _SettingsState extends State<Settings> {
     final isValid = _formKey.currentState!.validate();
     if (!isValid) return;
 
-    showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (context) => const Center(child: CircularProgressIndicator()));
-
     const storage = FlutterSecureStorage();
 
     String? note = await storage.read(key: 'note');
 
     if (note == null) {
-      navigatorKey.currentState!.pop();
       return;
     }
 
     final hashPassword =
-        Encryption.encryptSHA3(_passwordController.text.trim());
+        Encryption.encryptPBKDF2withHMACSHA3(_passwordController.text.trim());
 
     final key = Encryption.fromBase16(hashPassword);
     final iv = Encryption.fromBase64(note.substring(0, 24));
@@ -58,11 +51,11 @@ class _SettingsState extends State<Settings> {
     try {
       final noteDecrypted = Encryption.decryptAES(note.substring(24), key, iv);
 
-      final newHashPassword =
-          Encryption.encryptSHA3(_repeatNewPasswordController.text.trim());
+      final newHashPassword = Encryption.encryptPBKDF2withHMACSHA3(
+          _repeatNewPasswordController.text.trim());
 
       final newKey = Encryption.fromBase16(newHashPassword);
-      final newIV = Encryption.fromSecureRandom(16);
+      final newIV = Encryption.secureRandom(16);
 
       await storage.write(
           key: 'note',
@@ -75,8 +68,6 @@ class _SettingsState extends State<Settings> {
     } catch (e) {
       Utils.showSnackBar('Wrong Password');
     }
-
-    navigatorKey.currentState!.pop();
   }
 
   @override
