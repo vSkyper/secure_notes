@@ -51,9 +51,8 @@ class Encryption {
         .decode(cipher.process(bytes).toList(), allowMalformed: true);
   }
 
-  static String encryptPBKDF2(String input) {
+  static String encryptPBKDF2(String input, Uint8List salt) {
     final bytes = Uint8List.fromList(convert.utf8.encode(input));
-    final salt = Uint8List.fromList(convert.utf8.encode('VeryHardToGuessSalt'));
 
     final KeyDerivator hash = KeyDerivator('SHA3-256/HMAC/PBKDF2')
       ..init(Pbkdf2Parameters(salt, 1000, 32));

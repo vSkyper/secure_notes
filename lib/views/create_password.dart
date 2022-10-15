@@ -30,8 +30,9 @@ class _CreatePasswordPageState extends State<CreatePasswordPage> {
     final isValid = _formKey.currentState!.validate();
     if (!isValid) return;
 
+    final salt = Encryption.secureRandom(32);
     final hashPassword =
-        Encryption.encryptPBKDF2(_repeatPasswordController.text.trim());
+        Encryption.encryptPBKDF2(_repeatPasswordController.text.trim(), salt);
 
     final key = Encryption.fromBase16(hashPassword);
     final iv = Encryption.secureRandom(16);
@@ -40,7 +41,8 @@ class _CreatePasswordPageState extends State<CreatePasswordPage> {
 
     await storage.write(
         key: 'note',
-        value: Encryption.toBase64(iv) +
+        value: Encryption.toBase64(salt) +
+            Encryption.toBase64(iv) +
             Encryption.encryptAES('Enter your message :)', key, iv));
 
     widget.fetchNote();
