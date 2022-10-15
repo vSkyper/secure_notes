@@ -44,7 +44,7 @@ class _SettingsState extends State<Settings> {
 
     final salt = Encryption.fromBase64(note.substring(0, 44));
     final hashPassword =
-        Encryption.encryptPBKDF2(_passwordController.text.trim(), salt);
+        Encryption.encryptArgon2(_passwordController.text.trim(), salt);
 
     final key = Encryption.fromBase16(hashPassword);
     final iv = Encryption.fromBase64(note.substring(44, 60));
@@ -54,7 +54,7 @@ class _SettingsState extends State<Settings> {
           Encryption.decryptChaCha20Poly1305(note.substring(60), key, iv);
 
       final newSalt = Encryption.secureRandom(32);
-      final newHashPassword = Encryption.encryptPBKDF2(
+      final newHashPassword = Encryption.encryptArgon2(
           _repeatNewPasswordController.text.trim(), newSalt);
 
       final newKey = Encryption.fromBase16(newHashPassword);

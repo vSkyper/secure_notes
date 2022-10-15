@@ -32,7 +32,7 @@ class _CreatePasswordPageState extends State<CreatePasswordPage> {
 
     final salt = Encryption.secureRandom(32);
     final hashPassword =
-        Encryption.encryptPBKDF2(_repeatPasswordController.text.trim(), salt);
+        Encryption.encryptArgon2(_repeatPasswordController.text.trim(), salt);
 
     final key = Encryption.fromBase16(hashPassword);
     final iv = Encryption.secureRandom(12);

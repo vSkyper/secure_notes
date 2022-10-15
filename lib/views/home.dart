@@ -34,7 +34,7 @@ class _HomePageState extends State<HomePage> {
     if (_noteController.text.isEmpty) return;
 
     final salt = Encryption.secureRandom(32);
-    final hashPassword = Encryption.encryptPBKDF2(password, salt);
+    final hashPassword = Encryption.encryptArgon2(password, salt);
 
     final key = Encryption.fromBase16(hashPassword);
     final iv = Encryption.secureRandom(12);
@@ -62,7 +62,7 @@ class _HomePageState extends State<HomePage> {
 
     final salt = Encryption.fromBase64(note.substring(0, 44));
     final hashPassword =
-        Encryption.encryptPBKDF2(_passwordController.text.trim(), salt);
+        Encryption.encryptArgon2(_passwordController.text.trim(), salt);
 
     final key = Encryption.fromBase16(hashPassword);
     final iv = Encryption.fromBase64(note.substring(44, 60));
