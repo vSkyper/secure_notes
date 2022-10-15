@@ -26,11 +26,14 @@ class Encryption {
     return hex.encode(decoded);
   }
 
-  static String encryptChaCha20(String input, Uint8List key, Uint8List iv) {
+  static String encryptAES(String input, Uint8List key, Uint8List iv) {
     final bytes = Uint8List.fromList(convert.utf8.encode(input));
 
-    final StreamCipher cipher = StreamCipher('ChaCha20/20')
-      ..init(true, ParametersWithIV(KeyParameter(key), iv));
+    final BlockCipher cipher = PaddedBlockCipher('AES/CTR/PKCS7')
+      ..init(
+          true,
+          PaddedBlockCipherParameters(
+              ParametersWithIV<KeyParameter>(KeyParameter(key), iv), null));
 
     return toBase64(cipher.process(bytes));
   }
@@ -38,8 +41,11 @@ class Encryption {
   static String decryptChaCha20(String encrypted, Uint8List key, Uint8List iv) {
     final bytes = fromBase64(encrypted);
 
-    final StreamCipher cipher = StreamCipher('ChaCha20/20')
-      ..init(false, ParametersWithIV(KeyParameter(key), iv));
+    final BlockCipher cipher = PaddedBlockCipher('AES/CTR/PKCS7')
+      ..init(
+          false,
+          PaddedBlockCipherParameters(
+              ParametersWithIV<KeyParameter>(KeyParameter(key), iv), null));
 
     return convert.utf8
         .decode(cipher.process(bytes).toList(), allowMalformed: true);

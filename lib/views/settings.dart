@@ -46,22 +46,22 @@ class _SettingsState extends State<Settings> {
         Encryption.encryptPBKDF2(_passwordController.text.trim());
 
     final key = Encryption.fromBase16(hashPassword);
-    final iv = Encryption.fromBase64(note.substring(0, 12));
+    final iv = Encryption.fromBase64(note.substring(0, 24));
 
     try {
       final noteDecrypted =
-          Encryption.decryptChaCha20(note.substring(12), key, iv);
+          Encryption.decryptChaCha20(note.substring(24), key, iv);
 
       final newHashPassword =
           Encryption.encryptPBKDF2(_repeatNewPasswordController.text.trim());
 
       final newKey = Encryption.fromBase16(newHashPassword);
-      final newIV = Encryption.secureRandom(8);
+      final newIV = Encryption.secureRandom(16);
 
       await storage.write(
           key: 'note',
           value: Encryption.toBase64(newIV) +
-              Encryption.encryptChaCha20(noteDecrypted, newKey, newIV));
+              Encryption.encryptAES(noteDecrypted, newKey, newIV));
 
       widget.closeNote();
 
