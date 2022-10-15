@@ -30,18 +30,18 @@ class _CreatePasswordPageState extends State<CreatePasswordPage> {
     final isValid = _formKey.currentState!.validate();
     if (!isValid) return;
 
-    final hashPassword = Encryption.encryptPBKDF2withHMACSHA3(
-        _repeatPasswordController.text.trim());
+    final hashPassword =
+        Encryption.encryptPBKDF2(_repeatPasswordController.text.trim());
 
     final key = Encryption.fromBase16(hashPassword);
-    final iv = Encryption.secureRandom(16);
+    final iv = Encryption.secureRandom(8);
 
     const storage = FlutterSecureStorage();
 
     await storage.write(
         key: 'note',
         value: Encryption.toBase64(iv) +
-            Encryption.encryptAES('Enter your message :)', key, iv));
+            Encryption.encryptChaCha20('Enter your message :)', key, iv));
 
     widget.fetchNote();
   }

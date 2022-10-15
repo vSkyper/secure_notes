@@ -26,37 +26,31 @@ class Encryption {
     return hex.encode(decoded);
   }
 
-  static String encryptAES(String input, Uint8List key, Uint8List iv) {
+  static String encryptChaCha20(String input, Uint8List key, Uint8List iv) {
     final bytes = Uint8List.fromList(convert.utf8.encode(input));
 
-    final BlockCipher cipher = PaddedBlockCipher('AES/CTR/PKCS7')
-      ..init(
-          true,
-          PaddedBlockCipherParameters(
-              ParametersWithIV<KeyParameter>(KeyParameter(key), iv), null));
+    final StreamCipher cipher = StreamCipher('ChaCha20/20')
+      ..init(true, ParametersWithIV(KeyParameter(key), iv));
 
     return toBase64(cipher.process(bytes));
   }
 
-  static String decryptAES(String encrypted, Uint8List key, Uint8List iv) {
+  static String decryptChaCha20(String encrypted, Uint8List key, Uint8List iv) {
     final bytes = fromBase64(encrypted);
 
-    final BlockCipher cipher = PaddedBlockCipher('AES/CTR/PKCS7')
-      ..init(
-          false,
-          PaddedBlockCipherParameters(
-              ParametersWithIV<KeyParameter>(KeyParameter(key), iv), null));
+    final StreamCipher cipher = StreamCipher('ChaCha20/20')
+      ..init(false, ParametersWithIV(KeyParameter(key), iv));
 
     return convert.utf8
         .decode(cipher.process(bytes).toList(), allowMalformed: true);
   }
 
-  static String encryptPBKDF2withHMACSHA3(String input) {
+  static String encryptPBKDF2(String input) {
     final bytes = Uint8List.fromList(convert.utf8.encode(input));
     final salt = Uint8List.fromList(convert.utf8.encode('VeryHardToGuessSalt'));
 
     final KeyDerivator hash = KeyDerivator('SHA3-256/HMAC/PBKDF2')
-      ..init(Pbkdf2Parameters(salt, 1028, 32));
+      ..init(Pbkdf2Parameters(salt, 1000, 32));
 
     return toBase16(hash.process(bytes));
   }

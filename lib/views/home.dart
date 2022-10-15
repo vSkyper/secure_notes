@@ -33,16 +33,16 @@ class _HomePageState extends State<HomePage> {
   Future saveNote() async {
     if (_noteController.text.isEmpty) return;
 
-    final hashPassword = Encryption.encryptPBKDF2withHMACSHA3(password);
+    final hashPassword = Encryption.encryptPBKDF2(password);
 
     final key = Encryption.fromBase16(hashPassword);
-    final iv = Encryption.secureRandom(16);
+    final iv = Encryption.secureRandom(8);
 
     const storage = FlutterSecureStorage();
     await storage.write(
         key: 'note',
         value: Encryption.toBase64(iv) +
-            Encryption.encryptAES(_noteController.text.trim(), key, iv));
+            Encryption.encryptChaCha20(_noteController.text.trim(), key, iv));
 
     Utils.showSnackBar('Save note');
   }
@@ -59,13 +59,14 @@ class _HomePageState extends State<HomePage> {
     }
 
     final hashPassword =
-        Encryption.encryptPBKDF2withHMACSHA3(_passwordController.text.trim());
+        Encryption.encryptPBKDF2(_passwordController.text.trim());
 
     final key = Encryption.fromBase16(hashPassword);
-    final iv = Encryption.fromBase64(note.substring(0, 24));
+    final iv = Encryption.fromBase64(note.substring(0, 12));
 
     try {
-      _noteController.text = Encryption.decryptAES(note.substring(24), key, iv);
+      _noteController.text =
+          Encryption.decryptChaCha20(note.substring(12), key, iv);
 
       password = _passwordController.text;
       _passwordController.text = '';
