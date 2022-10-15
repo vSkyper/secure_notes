@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:secured_notes/encrypted.dart';
 import 'package:secured_notes/encryption.dart';
 import 'package:secured_notes/utils.dart';
 
@@ -42,16 +43,18 @@ class _SettingsState extends State<Settings> {
       return;
     }
 
-    final salt = Encryption.fromBase64(note.substring(0, 44));
+    Encrypted encrypted = Encrypted.deserialize(note);
+
+    final salt = Encryption.fromBase64(encrypted.salt);
     final hashPassword =
         Encryption.encryptArgon2(_passwordController.text.trim(), salt);
 
     final key = Encryption.fromBase16(hashPassword);
-    final iv = Encryption.fromBase64(note.substring(44, 60));
+    final iv = Encryption.fromBase64(encrypted.iv);
 
     try {
       final noteDecrypted =
-          Encryption.decryptChaCha20Poly1305(note.substring(60), key, iv);
+          Encryption.decryptChaCha20Poly1305(encrypted.note, key, iv);
 
       final newSalt = Encryption.secureRandom(32);
       final newHashPassword = Encryption.encryptArgon2(
@@ -60,11 +63,14 @@ class _SettingsState extends State<Settings> {
       final newKey = Encryption.fromBase16(newHashPassword);
       final newIV = Encryption.secureRandom(12);
 
-      await storage.write(
-          key: 'note',
-          value: Encryption.toBase64(newSalt) +
-              Encryption.toBase64(newIV) +
+      Encrypted newEncrypted = Encrypted(
+          salt: Encryption.toBase64(newSalt),
+          iv: Encryption.toBase64(newIV),
+          note:
               Encryption.encryptChaCha20Poly1305(noteDecrypted, newKey, newIV));
+
+      await storage.write(
+          key: 'note', value: Encrypted.serialize(newEncrypted));
 
       widget.closeNote();
 

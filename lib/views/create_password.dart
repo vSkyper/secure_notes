@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:secured_notes/encrypted.dart';
 import 'package:secured_notes/encryption.dart';
 
 class CreatePasswordPage extends StatefulWidget {
@@ -37,13 +38,15 @@ class _CreatePasswordPageState extends State<CreatePasswordPage> {
     final key = Encryption.fromBase16(hashPassword);
     final iv = Encryption.secureRandom(12);
 
+    Encrypted encrypted = Encrypted(
+        salt: Encryption.toBase64(salt),
+        iv: Encryption.toBase64(iv),
+        note: Encryption.encryptChaCha20Poly1305(
+            'Enter your message :)', key, iv));
+
     const storage = FlutterSecureStorage();
 
-    await storage.write(
-        key: 'note',
-        value: Encryption.toBase64(salt) +
-            Encryption.toBase64(iv) +
-            Encryption.encryptChaCha20Poly1305('Enter your message :)', key, iv));
+    await storage.write(key: 'note', value: Encrypted.serialize(encrypted));
 
     widget.fetchNote();
   }

@@ -1,6 +1,7 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:secured_notes/encrypted.dart';
 import 'package:secured_notes/encryption.dart';
 import 'package:secured_notes/utils.dart';
 import 'package:secured_notes/views/settings.dart';
@@ -39,12 +40,15 @@ class _HomePageState extends State<HomePage> {
     final key = Encryption.fromBase16(hashPassword);
     final iv = Encryption.secureRandom(12);
 
+    Encrypted encrypted = Encrypted(
+        salt: Encryption.toBase64(salt),
+        iv: Encryption.toBase64(iv),
+        note: Encryption.encryptChaCha20Poly1305(
+            _noteController.text.trim(), key, iv));
+
     const storage = FlutterSecureStorage();
-    await storage.write(
-        key: 'note',
-        value: Encryption.toBase64(salt) +
-            Encryption.toBase64(iv) +
-            Encryption.encryptChaCha20Poly1305(_noteController.text.trim(), key, iv));
+
+    await storage.write(key: 'note', value: Encrypted.serialize(encrypted));
 
     Utils.showSnackBar('Save note');
   }
@@ -60,16 +64,18 @@ class _HomePageState extends State<HomePage> {
       return;
     }
 
-    final salt = Encryption.fromBase64(note.substring(0, 44));
+    Encrypted encrypted = Encrypted.deserialize(note);
+
+    final salt = Encryption.fromBase64(encrypted.salt);
     final hashPassword =
         Encryption.encryptArgon2(_passwordController.text.trim(), salt);
 
     final key = Encryption.fromBase16(hashPassword);
-    final iv = Encryption.fromBase64(note.substring(44, 60));
+    final iv = Encryption.fromBase64(encrypted.iv);
 
     try {
       _noteController.text =
-          Encryption.decryptChaCha20Poly1305(note.substring(60), key, iv);
+          Encryption.decryptChaCha20Poly1305(encrypted.note, key, iv);
 
       password = _passwordController.text;
       _passwordController.text = '';
