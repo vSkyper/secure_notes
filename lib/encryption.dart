@@ -26,29 +26,37 @@ class Encryption {
     return hex.encode(decoded);
   }
 
-  static String encryptAES(String input, Uint8List key, Uint8List iv) {
+  static String encryptChaCha20Poly1305(String input, Uint8List key, Uint8List iv) {
     final bytes = Uint8List.fromList(convert.utf8.encode(input));
 
-    final BlockCipher cipher = PaddedBlockCipher('AES/CTR/PKCS7')
+    final AEADCipher cipher = AEADCipher('ChaCha20-Poly1305')
       ..init(
           true,
-          PaddedBlockCipherParameters(
-              ParametersWithIV<KeyParameter>(KeyParameter(key), iv), null));
+          AEADParameters(KeyParameter(key), 128, iv, Uint8List.fromList([])));
 
-    return toBase64(cipher.process(bytes));
+    final cipherText = Uint8List.fromList(List.filled(cipher.getOutputSize(bytes.length), 0));
+    final len = cipher.processBytes(bytes, 0, bytes.length, cipherText, 0);
+
+    cipher.doFinal(cipherText, len);
+
+    return toBase64(cipherText);
   }
 
-  static String decryptChaCha20(String encrypted, Uint8List key, Uint8List iv) {
+  static String decryptChaCha20Poly1305(String encrypted, Uint8List key, Uint8List iv) {
     final bytes = fromBase64(encrypted);
 
-    final BlockCipher cipher = PaddedBlockCipher('AES/CTR/PKCS7')
+    final AEADCipher cipher = AEADCipher('ChaCha20-Poly1305')
       ..init(
           false,
-          PaddedBlockCipherParameters(
-              ParametersWithIV<KeyParameter>(KeyParameter(key), iv), null));
+          AEADParameters(KeyParameter(key), 128, iv, Uint8List.fromList([])));
+
+    final plainText = Uint8List.fromList(List.filled(cipher.getOutputSize(bytes.length), 0));
+    final len = cipher.processBytes(bytes, 0, bytes.length, plainText, 0);
+
+    cipher.doFinal(plainText, len);
 
     return convert.utf8
-        .decode(cipher.process(bytes).toList(), allowMalformed: true);
+        .decode(plainText.toList(), allowMalformed: true);
   }
 
   static String encryptPBKDF2(String input, Uint8List salt) {

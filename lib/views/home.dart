@@ -37,14 +37,14 @@ class _HomePageState extends State<HomePage> {
     final hashPassword = Encryption.encryptPBKDF2(password, salt);
 
     final key = Encryption.fromBase16(hashPassword);
-    final iv = Encryption.secureRandom(16);
+    final iv = Encryption.secureRandom(12);
 
     const storage = FlutterSecureStorage();
     await storage.write(
         key: 'note',
         value: Encryption.toBase64(salt) +
             Encryption.toBase64(iv) +
-            Encryption.encryptAES(_noteController.text.trim(), key, iv));
+            Encryption.encryptChaCha20Poly1305(_noteController.text.trim(), key, iv));
 
     Utils.showSnackBar('Save note');
   }
@@ -65,11 +65,11 @@ class _HomePageState extends State<HomePage> {
         Encryption.encryptPBKDF2(_passwordController.text.trim(), salt);
 
     final key = Encryption.fromBase16(hashPassword);
-    final iv = Encryption.fromBase64(note.substring(44, 68));
+    final iv = Encryption.fromBase64(note.substring(44, 60));
 
     try {
       _noteController.text =
-          Encryption.decryptChaCha20(note.substring(68), key, iv);
+          Encryption.decryptChaCha20Poly1305(note.substring(60), key, iv);
 
       password = _passwordController.text;
       _passwordController.text = '';
@@ -78,7 +78,7 @@ class _HomePageState extends State<HomePage> {
         _isDecrypted = true;
       });
     } catch (e) {
-      Utils.showSnackBar('Wrong Password');
+      Utils.showSnackBar(e.toString());
     }
   }
 

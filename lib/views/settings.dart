@@ -47,30 +47,30 @@ class _SettingsState extends State<Settings> {
         Encryption.encryptPBKDF2(_passwordController.text.trim(), salt);
 
     final key = Encryption.fromBase16(hashPassword);
-    final iv = Encryption.fromBase64(note.substring(44, 68));
+    final iv = Encryption.fromBase64(note.substring(44, 60));
 
     try {
       final noteDecrypted =
-          Encryption.decryptChaCha20(note.substring(68), key, iv);
+          Encryption.decryptChaCha20Poly1305(note.substring(60), key, iv);
 
       final newSalt = Encryption.secureRandom(32);
       final newHashPassword = Encryption.encryptPBKDF2(
           _repeatNewPasswordController.text.trim(), newSalt);
 
       final newKey = Encryption.fromBase16(newHashPassword);
-      final newIV = Encryption.secureRandom(16);
+      final newIV = Encryption.secureRandom(12);
 
       await storage.write(
           key: 'note',
           value: Encryption.toBase64(newSalt) +
               Encryption.toBase64(newIV) +
-              Encryption.encryptAES(noteDecrypted, newKey, newIV));
+              Encryption.encryptChaCha20Poly1305(noteDecrypted, newKey, newIV));
 
       widget.closeNote();
 
       Utils.showSnackBar('Password has been changed');
     } catch (e) {
-      Utils.showSnackBar('Wrong Password');
+      Utils.showSnackBar(e.toString());
     }
   }
 

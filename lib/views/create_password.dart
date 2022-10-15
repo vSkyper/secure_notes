@@ -35,7 +35,7 @@ class _CreatePasswordPageState extends State<CreatePasswordPage> {
         Encryption.encryptPBKDF2(_repeatPasswordController.text.trim(), salt);
 
     final key = Encryption.fromBase16(hashPassword);
-    final iv = Encryption.secureRandom(16);
+    final iv = Encryption.secureRandom(12);
 
     const storage = FlutterSecureStorage();
 
@@ -43,7 +43,7 @@ class _CreatePasswordPageState extends State<CreatePasswordPage> {
         key: 'note',
         value: Encryption.toBase64(salt) +
             Encryption.toBase64(iv) +
-            Encryption.encryptAES('Enter your message :)', key, iv));
+            Encryption.encryptChaCha20Poly1305('Enter your message :)', key, iv));
 
     widget.fetchNote();
   }
