@@ -50,7 +50,7 @@ class _HomePageState extends State<HomePage> {
 
     await storage.write(key: 'note', value: Encrypted.serialize(encrypted));
 
-    Utils.showSnackBar('Save note');
+    Utils.showSnackBar('The note has been saved');
   }
 
   Future decryptNote() async {
@@ -83,8 +83,8 @@ class _HomePageState extends State<HomePage> {
       setState(() {
         _isDecrypted = true;
       });
-    } catch (e) {
-      Utils.showSnackBar(e.toString());
+    } on ArgumentError {
+      Utils.showSnackBar('Incorrect password');
     }
   }
 

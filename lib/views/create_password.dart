@@ -42,7 +42,7 @@ class _CreatePasswordPageState extends State<CreatePasswordPage> {
         salt: Encryption.toBase64(salt),
         iv: Encryption.toBase64(iv),
         note: Encryption.encryptChaCha20Poly1305(
-            'Enter your message :)', key, iv));
+            'Enter your message', key, iv));
 
     const storage = FlutterSecureStorage();
 

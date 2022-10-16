@@ -74,9 +74,9 @@ class _SettingsState extends State<Settings> {
 
       widget.closeNote();
 
-      Utils.showSnackBar('Password has been changed');
-    } catch (e) {
-      Utils.showSnackBar(e.toString());
+      Utils.showSnackBar('The password has been changed');
+    } on ArgumentError {
+      Utils.showSnackBar('Incorrect password');
     }
   }
 
