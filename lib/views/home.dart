@@ -197,7 +197,7 @@ class _HomePageState extends State<HomePage> {
                         text: 'Forgot password? ',
                         children: [
                           TextSpan(
-                            text: 'Create new note :)',
+                            text: 'Create new note ✨',
                             style: const TextStyle(color: Colors.blue),
                             recognizer: TapGestureRecognizer()
                               ..onTap = createNewNote,
