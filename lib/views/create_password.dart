@@ -46,7 +46,7 @@ class _CreatePasswordPageState extends State<CreatePasswordPage> {
 
     const storage = FlutterSecureStorage();
 
-    await storage.write(key: 'note', value: Encrypted.serialize(encrypted));
+    await storage.write(key: 'data', value: Encrypted.serialize(encrypted));
 
     widget.fetchNote();
   }

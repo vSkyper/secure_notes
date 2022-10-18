@@ -28,7 +28,6 @@ class _HomePageState extends State<HomePage> {
     _passwordController.text = '';
     _noteController.dispose();
     _passwordController.dispose();
-    password = '';
   }
 
   Future saveNote() async {
@@ -48,7 +47,7 @@ class _HomePageState extends State<HomePage> {
 
     const storage = FlutterSecureStorage();
 
-    await storage.write(key: 'note', value: Encrypted.serialize(encrypted));
+    await storage.write(key: 'data', value: Encrypted.serialize(encrypted));
 
     Utils.showSnackBar('The note has been saved');
   }
@@ -58,7 +57,7 @@ class _HomePageState extends State<HomePage> {
 
     const storage = FlutterSecureStorage();
 
-    String? note = await storage.read(key: 'note');
+    String? note = await storage.read(key: 'data');
 
     if (note == null) {
       return;
@@ -99,7 +98,7 @@ class _HomePageState extends State<HomePage> {
 
   Future createNewNote() async {
     const storage = FlutterSecureStorage();
-    storage.delete(key: 'note');
+    storage.delete(key: 'data');
     widget.fetchNote();
   }
 

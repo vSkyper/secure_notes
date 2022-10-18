@@ -37,7 +37,7 @@ class _SettingsState extends State<Settings> {
 
     const storage = FlutterSecureStorage();
 
-    String? note = await storage.read(key: 'note');
+    String? note = await storage.read(key: 'data');
 
     if (note == null) {
       return;
@@ -70,11 +70,14 @@ class _SettingsState extends State<Settings> {
               Encryption.encryptChaCha20Poly1305(noteDecrypted, newKey, newIV));
 
       await storage.write(
-          key: 'note', value: Encrypted.serialize(newEncrypted));
+          key: 'data', value: Encrypted.serialize(newEncrypted));
 
       widget.closeNote();
 
       Utils.showSnackBar('The password has been changed');
+
+      if (!mounted) return;
+      Navigator.of(context).pop();
     } on ArgumentError {
       Utils.showSnackBar('Incorrect password');
     }
@@ -132,9 +135,19 @@ class _SettingsState extends State<Settings> {
                     ),
                   ),
                   autovalidateMode: AutovalidateMode.onUserInteraction,
-                  validator: (value) => value != null && value.length < 6
-                      ? 'Enter min. 6 characters'
-                      : null,
+                  validator: (value) {
+                    if (value == null) return null;
+
+                    if (value.length < 6) {
+                      return 'Enter min. 6 characters';
+                    } 
+
+                    if (value == _passwordController.text) {
+                      return 'The new password must be different';
+                    }
+
+                    return null;
+                  },
                 ),
                 const SizedBox(height: 10),
                 TextFormField(
