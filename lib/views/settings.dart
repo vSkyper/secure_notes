@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:secured_notes/encrypted.dart';
@@ -13,7 +14,7 @@ class Settings extends StatefulWidget {
 }
 
 class _SettingsState extends State<Settings> {
-  final _formKey = GlobalKey<FormState>();
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _newPasswordController = TextEditingController();
   final TextEditingController _repeatNewPasswordController =
@@ -32,32 +33,29 @@ class _SettingsState extends State<Settings> {
   }
 
   Future changePassword() async {
-    final isValid = _formKey.currentState!.validate();
+    final bool isValid = _formKey.currentState!.validate();
     if (!isValid) return;
 
-    const storage = FlutterSecureStorage();
+    const FlutterSecureStorage storage = FlutterSecureStorage();
 
     String? note = await storage.read(key: 'data');
-
-    if (note == null) {
-      return;
-    }
+    if (note == null) return;
 
     Encrypted encrypted = Encrypted.deserialize(note);
 
-    final salt = Encryption.fromBase64(encrypted.salt);
-    final hashPassword =
+    final Uint8List salt = Encryption.fromBase64(encrypted.salt);
+    final Uint8List hashPassword =
         Encryption.encryptArgon2(_passwordController.text.trim(), salt);
-    final iv = Encryption.fromBase64(encrypted.iv);
+    final Uint8List iv = Encryption.fromBase64(encrypted.iv);
 
     try {
-      final noteDecrypted =
+      final String noteDecrypted =
           Encryption.decryptChaCha20Poly1305(encrypted.note, hashPassword, iv);
 
-      final newSalt = Encryption.secureRandom(32);
-      final newHashPassword = Encryption.encryptArgon2(
+      final Uint8List newSalt = Encryption.secureRandom(32);
+      final Uint8List newHashPassword = Encryption.encryptArgon2(
           _repeatNewPasswordController.text.trim(), newSalt);
-      final newIV = Encryption.secureRandom(12);
+      final Uint8List newIV = Encryption.secureRandom(12);
 
       Encrypted newEncrypted = Encrypted(
           salt: Encryption.toBase64(newSalt),

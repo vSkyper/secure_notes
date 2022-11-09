@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -33,9 +34,9 @@ class _HomePageState extends State<HomePage> {
   Future saveNote() async {
     if (_noteController.text.isEmpty) return;
 
-    final salt = Encryption.secureRandom(32);
-    final hashPassword = Encryption.encryptArgon2(_password, salt);
-    final iv = Encryption.secureRandom(12);
+    final Uint8List salt = Encryption.secureRandom(32);
+    final Uint8List hashPassword = Encryption.encryptArgon2(_password, salt);
+    final Uint8List iv = Encryption.secureRandom(12);
 
     Encrypted encrypted = Encrypted(
         salt: Encryption.toBase64(salt),
@@ -43,7 +44,7 @@ class _HomePageState extends State<HomePage> {
         note: Encryption.encryptChaCha20Poly1305(
             _noteController.text.trim(), hashPassword, iv));
 
-    const storage = FlutterSecureStorage();
+    const FlutterSecureStorage storage = FlutterSecureStorage();
 
     await storage.write(key: 'data', value: Encrypted.serialize(encrypted));
 
@@ -53,20 +54,17 @@ class _HomePageState extends State<HomePage> {
   Future decryptNote() async {
     if (_passwordController.text.isEmpty) return;
 
-    const storage = FlutterSecureStorage();
+    const FlutterSecureStorage storage = FlutterSecureStorage();
 
     String? note = await storage.read(key: 'data');
-
-    if (note == null) {
-      return;
-    }
+    if (note == null) return;
 
     Encrypted encrypted = Encrypted.deserialize(note);
 
-    final salt = Encryption.fromBase64(encrypted.salt);
-    final hashPassword =
+    final Uint8List salt = Encryption.fromBase64(encrypted.salt);
+    final Uint8List hashPassword =
         Encryption.encryptArgon2(_passwordController.text.trim(), salt);
-    final iv = Encryption.fromBase64(encrypted.iv);
+    final Uint8List iv = Encryption.fromBase64(encrypted.iv);
 
     try {
       _noteController.text =
@@ -85,7 +83,6 @@ class _HomePageState extends State<HomePage> {
 
   void closeNote() {
     _noteController.text = '';
-    _passwordController.text = '';
     _password = '';
     setState(() {
       _isDecrypted = false;
@@ -93,7 +90,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future createNewNote() async {
-    const storage = FlutterSecureStorage();
+    const FlutterSecureStorage storage = FlutterSecureStorage();
     storage.delete(key: 'data');
     widget.fetchNote();
   }

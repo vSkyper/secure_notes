@@ -1,6 +1,5 @@
 import 'dart:convert' as convert;
 import 'dart:math';
-import 'package:convert/convert.dart';
 import 'package:flutter/foundation.dart';
 import 'package:pointycastle/pointycastle.dart';
 
@@ -20,15 +19,15 @@ class Encryption {
 
   static String encryptChaCha20Poly1305(
       String input, Uint8List key, Uint8List iv) {
-    final bytes = Uint8List.fromList(convert.utf8.encode(input));
+    final Uint8List bytes = Uint8List.fromList(convert.utf8.encode(input));
 
     final AEADCipher cipher = AEADCipher('ChaCha20-Poly1305')
       ..init(true,
           AEADParameters(KeyParameter(key), 128, iv, Uint8List.fromList([])));
 
-    final cipherText =
+    final Uint8List cipherText =
         Uint8List.fromList(List.filled(cipher.getOutputSize(bytes.length), 0));
-    final len = cipher.processBytes(bytes, 0, bytes.length, cipherText, 0);
+    final int len = cipher.processBytes(bytes, 0, bytes.length, cipherText, 0);
 
     cipher.doFinal(cipherText, len);
 
@@ -37,15 +36,15 @@ class Encryption {
 
   static String decryptChaCha20Poly1305(
       String encrypted, Uint8List key, Uint8List iv) {
-    final bytes = fromBase64(encrypted);
+    final Uint8List bytes = fromBase64(encrypted);
 
     final AEADCipher cipher = AEADCipher('ChaCha20-Poly1305')
       ..init(false,
           AEADParameters(KeyParameter(key), 128, iv, Uint8List.fromList([])));
 
-    final plainText =
+    final Uint8List plainText =
         Uint8List.fromList(List.filled(cipher.getOutputSize(bytes.length), 0));
-    final len = cipher.processBytes(bytes, 0, bytes.length, plainText, 0);
+    final int len = cipher.processBytes(bytes, 0, bytes.length, plainText, 0);
 
     cipher.doFinal(plainText, len);
 
@@ -53,7 +52,7 @@ class Encryption {
   }
 
   static Uint8List encryptArgon2(String input, Uint8List salt) {
-    final bytes = Uint8List.fromList(convert.utf8.encode(input));
+    final Uint8List bytes = Uint8List.fromList(convert.utf8.encode(input));
 
     final KeyDerivator hash = KeyDerivator('argon2')
       ..init(Argon2Parameters(2, salt, desiredKeyLength: 32));

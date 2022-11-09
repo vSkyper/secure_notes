@@ -17,7 +17,7 @@ class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
   Future fetchNote() async {
-    const storage = FlutterSecureStorage();
+    const FlutterSecureStorage storage = FlutterSecureStorage();
 
     String? value = await storage.read(key: 'data');
 

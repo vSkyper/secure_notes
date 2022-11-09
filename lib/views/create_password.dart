@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:secured_notes/encrypted.dart';
@@ -12,7 +13,7 @@ class CreatePasswordPage extends StatefulWidget {
 }
 
 class _CreatePasswordPageState extends State<CreatePasswordPage> {
-  final _formKey = GlobalKey<FormState>();
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _repeatPasswordController =
       TextEditingController();
@@ -28,13 +29,13 @@ class _CreatePasswordPageState extends State<CreatePasswordPage> {
   }
 
   Future createPassword() async {
-    final isValid = _formKey.currentState!.validate();
+    final bool isValid = _formKey.currentState!.validate();
     if (!isValid) return;
 
-    final salt = Encryption.secureRandom(32);
-    final hashPassword =
+    final Uint8List salt = Encryption.secureRandom(32);
+    final Uint8List hashPassword =
         Encryption.encryptArgon2(_repeatPasswordController.text.trim(), salt);
-    final iv = Encryption.secureRandom(12);
+    final Uint8List iv = Encryption.secureRandom(12);
 
     Encrypted encrypted = Encrypted(
         salt: Encryption.toBase64(salt),
@@ -42,7 +43,7 @@ class _CreatePasswordPageState extends State<CreatePasswordPage> {
         note: Encryption.encryptChaCha20Poly1305(
             'Enter your message', hashPassword, iv));
 
-    const storage = FlutterSecureStorage();
+    const FlutterSecureStorage storage = FlutterSecureStorage();
 
     await storage.write(key: 'data', value: Encrypted.serialize(encrypted));
 
