@@ -5,8 +5,7 @@ import 'package:pointycastle/pointycastle.dart';
 
 class Encryption {
   static Uint8List secureRandom(int length) {
-    return Uint8List.fromList(
-        List.generate(length, (i) => Random.secure().nextInt(256)));
+    return Uint8List.fromList(List.generate(length, (i) => Random.secure().nextInt(256)));
   }
 
   static Uint8List fromBase64(String encoded) {
@@ -17,16 +16,13 @@ class Encryption {
     return convert.base64.encode(decoded);
   }
 
-  static String encryptChaCha20Poly1305(
-      String input, Uint8List key, Uint8List iv) {
+  static String encryptChaCha20Poly1305(String input, Uint8List key, Uint8List iv) {
     final Uint8List bytes = Uint8List.fromList(convert.utf8.encode(input));
 
     final AEADCipher cipher = AEADCipher('ChaCha20-Poly1305')
-      ..init(true,
-          AEADParameters(KeyParameter(key), 128, iv, Uint8List.fromList([])));
+      ..init(true, AEADParameters(KeyParameter(key), 128, iv, Uint8List.fromList([])));
 
-    final Uint8List cipherText =
-        Uint8List.fromList(List.filled(cipher.getOutputSize(bytes.length), 0));
+    final Uint8List cipherText = Uint8List.fromList(List.filled(cipher.getOutputSize(bytes.length), 0));
     final int len = cipher.processBytes(bytes, 0, bytes.length, cipherText, 0);
 
     cipher.doFinal(cipherText, len);
@@ -34,16 +30,13 @@ class Encryption {
     return toBase64(cipherText);
   }
 
-  static String decryptChaCha20Poly1305(
-      String encrypted, Uint8List key, Uint8List iv) {
+  static String decryptChaCha20Poly1305(String encrypted, Uint8List key, Uint8List iv) {
     final Uint8List bytes = fromBase64(encrypted);
 
     final AEADCipher cipher = AEADCipher('ChaCha20-Poly1305')
-      ..init(false,
-          AEADParameters(KeyParameter(key), 128, iv, Uint8List.fromList([])));
+      ..init(false, AEADParameters(KeyParameter(key), 128, iv, Uint8List.fromList([])));
 
-    final Uint8List plainText =
-        Uint8List.fromList(List.filled(cipher.getOutputSize(bytes.length), 0));
+    final Uint8List plainText = Uint8List.fromList(List.filled(cipher.getOutputSize(bytes.length), 0));
     final int len = cipher.processBytes(bytes, 0, bytes.length, plainText, 0);
 
     cipher.doFinal(plainText, len);
@@ -54,8 +47,7 @@ class Encryption {
   static Uint8List encryptArgon2(String input, Uint8List salt) {
     final Uint8List bytes = Uint8List.fromList(convert.utf8.encode(input));
 
-    final KeyDerivator hash = KeyDerivator('argon2')
-      ..init(Argon2Parameters(2, salt, desiredKeyLength: 32));
+    final KeyDerivator hash = KeyDerivator('argon2')..init(Argon2Parameters(2, salt, desiredKeyLength: 32));
 
     return hash.process(bytes);
   }

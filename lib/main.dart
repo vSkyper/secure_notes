@@ -9,8 +9,7 @@ void main() {
   runApp(const MyApp());
 }
 
-final StreamController<String> _noteStreamCtrl =
-    StreamController<String>.broadcast();
+final StreamController<String> _noteStreamCtrl = StreamController<String>.broadcast();
 Stream<String> get onNoteCreated => _noteStreamCtrl.stream;
 
 class MyApp extends StatelessWidget {
@@ -55,12 +54,10 @@ class MyApp extends StatelessWidget {
               case 'noteNotAvailable':
                 return CreatePasswordPage(fetchNote: fetchNote);
               default:
-                return const Scaffold(
-                    body: Center(child: CircularProgressIndicator()));
+                return const Scaffold(body: Center(child: CircularProgressIndicator()));
             }
           }
-          return const Scaffold(
-              body: Center(child: CircularProgressIndicator()));
+          return const Scaffold(body: Center(child: CircularProgressIndicator()));
         },
       ),
     );

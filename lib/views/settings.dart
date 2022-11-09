@@ -17,8 +17,7 @@ class _SettingsState extends State<Settings> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _newPasswordController = TextEditingController();
-  final TextEditingController _repeatNewPasswordController =
-      TextEditingController();
+  final TextEditingController _repeatNewPasswordController = TextEditingController();
 
   @override
   void dispose() {
@@ -44,27 +43,22 @@ class _SettingsState extends State<Settings> {
     Encrypted encrypted = Encrypted.deserialize(note);
 
     final Uint8List salt = Encryption.fromBase64(encrypted.salt);
-    final Uint8List hashPassword =
-        Encryption.encryptArgon2(_passwordController.text.trim(), salt);
+    final Uint8List hashPassword = Encryption.encryptArgon2(_passwordController.text.trim(), salt);
     final Uint8List iv = Encryption.fromBase64(encrypted.iv);
 
     try {
-      final String noteDecrypted =
-          Encryption.decryptChaCha20Poly1305(encrypted.note, hashPassword, iv);
+      final String noteDecrypted = Encryption.decryptChaCha20Poly1305(encrypted.note, hashPassword, iv);
 
       final Uint8List newSalt = Encryption.secureRandom(32);
-      final Uint8List newHashPassword = Encryption.encryptArgon2(
-          _repeatNewPasswordController.text.trim(), newSalt);
+      final Uint8List newHashPassword = Encryption.encryptArgon2(_repeatNewPasswordController.text.trim(), newSalt);
       final Uint8List newIV = Encryption.secureRandom(12);
 
       Encrypted newEncrypted = Encrypted(
           salt: Encryption.toBase64(newSalt),
           iv: Encryption.toBase64(newIV),
-          note: Encryption.encryptChaCha20Poly1305(
-              noteDecrypted, newHashPassword, newIV));
+          note: Encryption.encryptChaCha20Poly1305(noteDecrypted, newHashPassword, newIV));
 
-      await storage.write(
-          key: 'data', value: Encrypted.serialize(newEncrypted));
+      await storage.write(key: 'data', value: Encrypted.serialize(newEncrypted));
 
       widget.closeNote();
 
@@ -158,9 +152,7 @@ class _SettingsState extends State<Settings> {
                   ),
                   autovalidateMode: AutovalidateMode.onUserInteraction,
                   validator: (value) =>
-                      value != null && value != _newPasswordController.text
-                          ? 'Passwords must be the same'
-                          : null,
+                      value != null && value != _newPasswordController.text ? 'Passwords must be the same' : null,
                 ),
                 const SizedBox(height: 15),
                 ElevatedButton.icon(

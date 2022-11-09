@@ -15,8 +15,7 @@ class CreatePasswordPage extends StatefulWidget {
 class _CreatePasswordPageState extends State<CreatePasswordPage> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _repeatPasswordController =
-      TextEditingController();
+  final TextEditingController _repeatPasswordController = TextEditingController();
 
   @override
   void dispose() {
@@ -33,15 +32,13 @@ class _CreatePasswordPageState extends State<CreatePasswordPage> {
     if (!isValid) return;
 
     final Uint8List salt = Encryption.secureRandom(32);
-    final Uint8List hashPassword =
-        Encryption.encryptArgon2(_repeatPasswordController.text.trim(), salt);
+    final Uint8List hashPassword = Encryption.encryptArgon2(_repeatPasswordController.text.trim(), salt);
     final Uint8List iv = Encryption.secureRandom(12);
 
     Encrypted encrypted = Encrypted(
         salt: Encryption.toBase64(salt),
         iv: Encryption.toBase64(iv),
-        note: Encryption.encryptChaCha20Poly1305(
-            'Enter your message', hashPassword, iv));
+        note: Encryption.encryptChaCha20Poly1305('Enter your message', hashPassword, iv));
 
     const FlutterSecureStorage storage = FlutterSecureStorage();
 
@@ -79,9 +76,7 @@ class _CreatePasswordPageState extends State<CreatePasswordPage> {
                     ),
                   ),
                   autovalidateMode: AutovalidateMode.onUserInteraction,
-                  validator: (value) => value != null && value.length < 6
-                      ? 'Enter min. 6 characters'
-                      : null,
+                  validator: (value) => value != null && value.length < 6 ? 'Enter min. 6 characters' : null,
                 ),
                 const SizedBox(height: 10),
                 TextFormField(
@@ -98,9 +93,7 @@ class _CreatePasswordPageState extends State<CreatePasswordPage> {
                   ),
                   autovalidateMode: AutovalidateMode.onUserInteraction,
                   validator: (value) =>
-                      value != null && value != _passwordController.text
-                          ? 'Passwords must be the same'
-                          : null,
+                      value != null && value != _passwordController.text ? 'Passwords must be the same' : null,
                 ),
                 const SizedBox(height: 15),
                 ElevatedButton.icon(

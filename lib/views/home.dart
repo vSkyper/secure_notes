@@ -41,8 +41,7 @@ class _HomePageState extends State<HomePage> {
     Encrypted encrypted = Encrypted(
         salt: Encryption.toBase64(salt),
         iv: Encryption.toBase64(iv),
-        note: Encryption.encryptChaCha20Poly1305(
-            _noteController.text.trim(), hashPassword, iv));
+        note: Encryption.encryptChaCha20Poly1305(_noteController.text.trim(), hashPassword, iv));
 
     const FlutterSecureStorage storage = FlutterSecureStorage();
 
@@ -62,13 +61,11 @@ class _HomePageState extends State<HomePage> {
     Encrypted encrypted = Encrypted.deserialize(note);
 
     final Uint8List salt = Encryption.fromBase64(encrypted.salt);
-    final Uint8List hashPassword =
-        Encryption.encryptArgon2(_passwordController.text.trim(), salt);
+    final Uint8List hashPassword = Encryption.encryptArgon2(_passwordController.text.trim(), salt);
     final Uint8List iv = Encryption.fromBase64(encrypted.iv);
 
     try {
-      _noteController.text =
-          Encryption.decryptChaCha20Poly1305(encrypted.note, hashPassword, iv);
+      _noteController.text = Encryption.decryptChaCha20Poly1305(encrypted.note, hashPassword, iv);
 
       _password = _passwordController.text;
       _passwordController.text = '';
@@ -110,8 +107,7 @@ class _HomePageState extends State<HomePage> {
                 highlightColor: Colors.transparent,
                 icon: const Icon(Icons.settings),
                 onPressed: () => Navigator.of(context).push(
-                  MaterialPageRoute(
-                      builder: (context) => Settings(closeNote: closeNote)),
+                  MaterialPageRoute(builder: (context) => Settings(closeNote: closeNote)),
                 ),
               ),
             if (_isDecrypted)
@@ -192,8 +188,7 @@ class _HomePageState extends State<HomePage> {
                           TextSpan(
                             text: 'Create new note ✨',
                             style: const TextStyle(color: Colors.blue),
-                            recognizer: TapGestureRecognizer()
-                              ..onTap = createNewNote,
+                            recognizer: TapGestureRecognizer()..onTap = createNewNote,
                           ),
                         ],
                       ),
