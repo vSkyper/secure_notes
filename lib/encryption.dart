@@ -47,8 +47,8 @@ class Encryption {
   static Uint8List encryptArgon2(String input, Uint8List salt) {
     final Uint8List bytes = Uint8List.fromList(convert.utf8.encode(input));
 
-    final KeyDerivator hash = KeyDerivator('argon2')..init(Argon2Parameters(2, salt, desiredKeyLength: 32));
+    final KeyDerivator key = KeyDerivator('argon2')..init(Argon2Parameters(2, salt, desiredKeyLength: 32));
 
-    return hash.process(bytes);
+    return key.process(bytes);
   }
 }

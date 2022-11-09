@@ -43,20 +43,20 @@ class _SettingsState extends State<Settings> {
     Encrypted encrypted = Encrypted.deserialize(note);
 
     final Uint8List salt = Encryption.fromBase64(encrypted.salt);
-    final Uint8List hashPassword = Encryption.encryptArgon2(_passwordController.text.trim(), salt);
+    final Uint8List key = Encryption.encryptArgon2(_passwordController.text.trim(), salt);
     final Uint8List iv = Encryption.fromBase64(encrypted.iv);
 
     try {
-      final String noteDecrypted = Encryption.decryptChaCha20Poly1305(encrypted.note, hashPassword, iv);
+      final String noteDecrypted = Encryption.decryptChaCha20Poly1305(encrypted.note, key, iv);
 
       final Uint8List newSalt = Encryption.secureRandom(32);
-      final Uint8List newHashPassword = Encryption.encryptArgon2(_repeatNewPasswordController.text.trim(), newSalt);
-      final Uint8List newIV = Encryption.secureRandom(12);
+      final Uint8List newKey = Encryption.encryptArgon2(_repeatNewPasswordController.text.trim(), newSalt);
+      final Uint8List newIv = Encryption.secureRandom(12);
 
       Encrypted newEncrypted = Encrypted(
           salt: Encryption.toBase64(newSalt),
-          iv: Encryption.toBase64(newIV),
-          note: Encryption.encryptChaCha20Poly1305(noteDecrypted, newHashPassword, newIV));
+          iv: Encryption.toBase64(newIv),
+          note: Encryption.encryptChaCha20Poly1305(noteDecrypted, newKey, newIv));
 
       await storage.write(key: 'data', value: Encrypted.serialize(newEncrypted));
 

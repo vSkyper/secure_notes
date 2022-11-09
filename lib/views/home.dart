@@ -32,16 +32,14 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future saveNote() async {
-    if (_noteController.text.isEmpty) return;
-
     final Uint8List salt = Encryption.secureRandom(32);
-    final Uint8List hashPassword = Encryption.encryptArgon2(_password, salt);
+    final Uint8List key = Encryption.encryptArgon2(_password, salt);
     final Uint8List iv = Encryption.secureRandom(12);
 
     Encrypted encrypted = Encrypted(
         salt: Encryption.toBase64(salt),
         iv: Encryption.toBase64(iv),
-        note: Encryption.encryptChaCha20Poly1305(_noteController.text.trim(), hashPassword, iv));
+        note: Encryption.encryptChaCha20Poly1305(_noteController.text.trim(), key, iv));
 
     const FlutterSecureStorage storage = FlutterSecureStorage();
 
@@ -61,11 +59,11 @@ class _HomePageState extends State<HomePage> {
     Encrypted encrypted = Encrypted.deserialize(note);
 
     final Uint8List salt = Encryption.fromBase64(encrypted.salt);
-    final Uint8List hashPassword = Encryption.encryptArgon2(_passwordController.text.trim(), salt);
+    final Uint8List key = Encryption.encryptArgon2(_passwordController.text.trim(), salt);
     final Uint8List iv = Encryption.fromBase64(encrypted.iv);
 
     try {
-      _noteController.text = Encryption.decryptChaCha20Poly1305(encrypted.note, hashPassword, iv);
+      _noteController.text = Encryption.decryptChaCha20Poly1305(encrypted.note, key, iv);
 
       _password = _passwordController.text;
       _passwordController.text = '';

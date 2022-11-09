@@ -32,13 +32,13 @@ class _CreatePasswordPageState extends State<CreatePasswordPage> {
     if (!isValid) return;
 
     final Uint8List salt = Encryption.secureRandom(32);
-    final Uint8List hashPassword = Encryption.encryptArgon2(_repeatPasswordController.text.trim(), salt);
+    final Uint8List key = Encryption.encryptArgon2(_repeatPasswordController.text.trim(), salt);
     final Uint8List iv = Encryption.secureRandom(12);
 
     Encrypted encrypted = Encrypted(
         salt: Encryption.toBase64(salt),
         iv: Encryption.toBase64(iv),
-        note: Encryption.encryptChaCha20Poly1305('Enter your message', hashPassword, iv));
+        note: Encryption.encryptChaCha20Poly1305('', key, iv));
 
     const FlutterSecureStorage storage = FlutterSecureStorage();
 
