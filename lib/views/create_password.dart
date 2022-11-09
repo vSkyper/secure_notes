@@ -4,15 +4,15 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:secured_notes/encrypted.dart';
 import 'package:secured_notes/encryption.dart';
 
-class CreatePasswordPage extends StatefulWidget {
+class CreatePassword extends StatefulWidget {
   final VoidCallback fetchNote;
-  const CreatePasswordPage({super.key, required this.fetchNote});
+  const CreatePassword({super.key, required this.fetchNote});
 
   @override
-  State<CreatePasswordPage> createState() => _CreatePasswordPageState();
+  State<CreatePassword> createState() => _CreatePasswordState();
 }
 
-class _CreatePasswordPageState extends State<CreatePasswordPage> {
+class _CreatePasswordState extends State<CreatePassword> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _repeatPasswordController = TextEditingController();

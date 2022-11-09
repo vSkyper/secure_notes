@@ -2,8 +2,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:secured_notes/utils.dart';
+import 'package:secured_notes/views/auth.dart';
 import 'package:secured_notes/views/create_password.dart';
-import 'package:secured_notes/views/home.dart';
 
 void main() {
   runApp(const MyApp());
@@ -50,9 +50,9 @@ class MyApp extends StatelessWidget {
           if (snapshot.hasData) {
             switch (snapshot.data) {
               case 'noteAvailable':
-                return HomePage(fetchNote: fetchNote);
+                return Auth(fetchNote: fetchNote);
               case 'noteNotAvailable':
-                return CreatePasswordPage(fetchNote: fetchNote);
+                return CreatePassword(fetchNote: fetchNote);
               default:
                 return const Scaffold(body: Center(child: CircularProgressIndicator()));
             }
