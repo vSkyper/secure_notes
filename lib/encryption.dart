@@ -14,16 +14,8 @@ class Encryption {
     return convert.base64.decode(encoded);
   }
 
-  static Uint8List fromBase16(String encoded) {
-    return Uint8List.fromList(hex.decode(encoded));
-  }
-
   static String toBase64(Uint8List decoded) {
     return convert.base64.encode(decoded);
-  }
-
-  static String toBase16(Uint8List decoded) {
-    return hex.encode(decoded);
   }
 
   static String encryptChaCha20Poly1305(
@@ -60,12 +52,12 @@ class Encryption {
     return convert.utf8.decode(plainText.toList(), allowMalformed: true);
   }
 
-  static String encryptArgon2(String input, Uint8List salt) {
+  static Uint8List encryptArgon2(String input, Uint8List salt) {
     final bytes = Uint8List.fromList(convert.utf8.encode(input));
 
     final KeyDerivator hash = KeyDerivator('argon2')
       ..init(Argon2Parameters(2, salt, desiredKeyLength: 32));
 
-    return toBase16(hash.process(bytes));
+    return hash.process(bytes);
   }
 }

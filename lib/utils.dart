@@ -13,9 +13,3 @@ class Utils {
       ..showSnackBar(snackBar);
   }
 }
-
-extension BoolParsing on String {
-  bool parseBool() {
-    return toLowerCase() == 'true';
-  }
-}

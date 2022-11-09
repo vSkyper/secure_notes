@@ -16,7 +16,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   bool _isDecrypted = false;
-  String password = '';
+  String _password = '';
   final TextEditingController _noteController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
@@ -34,16 +34,14 @@ class _HomePageState extends State<HomePage> {
     if (_noteController.text.isEmpty) return;
 
     final salt = Encryption.secureRandom(32);
-    final hashPassword = Encryption.encryptArgon2(password, salt);
-
-    final key = Encryption.fromBase16(hashPassword);
+    final hashPassword = Encryption.encryptArgon2(_password, salt);
     final iv = Encryption.secureRandom(12);
 
     Encrypted encrypted = Encrypted(
         salt: Encryption.toBase64(salt),
         iv: Encryption.toBase64(iv),
         note: Encryption.encryptChaCha20Poly1305(
-            _noteController.text.trim(), key, iv));
+            _noteController.text.trim(), hashPassword, iv));
 
     const storage = FlutterSecureStorage();
 
@@ -68,15 +66,13 @@ class _HomePageState extends State<HomePage> {
     final salt = Encryption.fromBase64(encrypted.salt);
     final hashPassword =
         Encryption.encryptArgon2(_passwordController.text.trim(), salt);
-
-    final key = Encryption.fromBase16(hashPassword);
     final iv = Encryption.fromBase64(encrypted.iv);
 
     try {
       _noteController.text =
-          Encryption.decryptChaCha20Poly1305(encrypted.note, key, iv);
+          Encryption.decryptChaCha20Poly1305(encrypted.note, hashPassword, iv);
 
-      password = _passwordController.text;
+      _password = _passwordController.text;
       _passwordController.text = '';
 
       setState(() {
@@ -90,7 +86,7 @@ class _HomePageState extends State<HomePage> {
   void closeNote() {
     _noteController.text = '';
     _passwordController.text = '';
-    password = '';
+    _password = '';
     setState(() {
       _isDecrypted = false;
     });

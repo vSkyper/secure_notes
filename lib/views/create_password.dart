@@ -34,15 +34,13 @@ class _CreatePasswordPageState extends State<CreatePasswordPage> {
     final salt = Encryption.secureRandom(32);
     final hashPassword =
         Encryption.encryptArgon2(_repeatPasswordController.text.trim(), salt);
-
-    final key = Encryption.fromBase16(hashPassword);
     final iv = Encryption.secureRandom(12);
 
     Encrypted encrypted = Encrypted(
         salt: Encryption.toBase64(salt),
         iv: Encryption.toBase64(iv),
         note: Encryption.encryptChaCha20Poly1305(
-            'Enter your message', key, iv));
+            'Enter your message', hashPassword, iv));
 
     const storage = FlutterSecureStorage();
 

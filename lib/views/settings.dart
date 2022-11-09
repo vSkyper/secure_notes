@@ -48,26 +48,22 @@ class _SettingsState extends State<Settings> {
     final salt = Encryption.fromBase64(encrypted.salt);
     final hashPassword =
         Encryption.encryptArgon2(_passwordController.text.trim(), salt);
-
-    final key = Encryption.fromBase16(hashPassword);
     final iv = Encryption.fromBase64(encrypted.iv);
 
     try {
       final noteDecrypted =
-          Encryption.decryptChaCha20Poly1305(encrypted.note, key, iv);
+          Encryption.decryptChaCha20Poly1305(encrypted.note, hashPassword, iv);
 
       final newSalt = Encryption.secureRandom(32);
       final newHashPassword = Encryption.encryptArgon2(
           _repeatNewPasswordController.text.trim(), newSalt);
-
-      final newKey = Encryption.fromBase16(newHashPassword);
       final newIV = Encryption.secureRandom(12);
 
       Encrypted newEncrypted = Encrypted(
           salt: Encryption.toBase64(newSalt),
           iv: Encryption.toBase64(newIV),
-          note:
-              Encryption.encryptChaCha20Poly1305(noteDecrypted, newKey, newIV));
+          note: Encryption.encryptChaCha20Poly1305(
+              noteDecrypted, newHashPassword, newIV));
 
       await storage.write(
           key: 'data', value: Encrypted.serialize(newEncrypted));
@@ -140,7 +136,7 @@ class _SettingsState extends State<Settings> {
 
                     if (value.length < 6) {
                       return 'Enter min. 6 characters';
-                    } 
+                    }
 
                     if (value == _passwordController.text) {
                       return 'The new password must be different';
