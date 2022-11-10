@@ -30,10 +30,10 @@ class _SignInState extends State<SignIn> {
 
     const FlutterSecureStorage storage = FlutterSecureStorage();
 
-    String? note = await storage.read(key: 'data');
-    if (note == null) return;
+    String? data = await storage.read(key: 'data');
+    if (data == null) return;
 
-    Encrypted encrypted = Encrypted.deserialize(note);
+    Encrypted encrypted = Encrypted.deserialize(data);
 
     final Uint8List salt = Encryption.fromBase64(encrypted.salt);
     final Uint8List key = Encryption.encryptArgon2(_passwordController.text.trim(), salt);
@@ -42,7 +42,7 @@ class _SignInState extends State<SignIn> {
     try {
       final String note = Encryption.decryptChaCha20Poly1305(encrypted.note, key, iv);
 
-      widget.openNote(_passwordController.text, note);
+      widget.openNote(key, note);
     } on ArgumentError {
       Utils.showSnackBar('Incorrect password');
     }
@@ -50,7 +50,7 @@ class _SignInState extends State<SignIn> {
 
   Future createNewNote() async {
     const FlutterSecureStorage storage = FlutterSecureStorage();
-    storage.delete(key: 'data');
+    await storage.delete(key: 'data');
     widget.fetchNote();
   }
 

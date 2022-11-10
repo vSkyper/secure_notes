@@ -7,7 +7,7 @@ import 'package:secured_notes/utils.dart';
 import 'package:secured_notes/views/settings.dart';
 
 class Home extends StatefulWidget {
-  final String password;
+  final Uint8List password;
   final String note;
   final VoidCallback closeNote;
   const Home({super.key, required this.password, required this.note, required this.closeNote});
@@ -34,16 +34,17 @@ class _HomeState extends State<Home> {
   }
 
   Future saveNote() async {
-    final Uint8List salt = Encryption.secureRandom(32);
-    final Uint8List key = Encryption.encryptArgon2(widget.password, salt);
+    const FlutterSecureStorage storage = FlutterSecureStorage();
+
+    String? data = await storage.read(key: 'data');
+    if (data == null) return;
+
     final Uint8List iv = Encryption.secureRandom(12);
 
     Encrypted encrypted = Encrypted(
-        salt: Encryption.toBase64(salt),
+        salt: Encrypted.deserialize(data).salt,
         iv: Encryption.toBase64(iv),
-        note: Encryption.encryptChaCha20Poly1305(_noteController.text.trim(), key, iv));
-
-    const FlutterSecureStorage storage = FlutterSecureStorage();
+        note: Encryption.encryptChaCha20Poly1305(_noteController.text.trim(), widget.password, iv));
 
     await storage.write(key: 'data', value: Encrypted.serialize(encrypted));
 

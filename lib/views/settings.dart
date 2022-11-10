@@ -34,10 +34,10 @@ class _SettingsState extends State<Settings> {
 
     const FlutterSecureStorage storage = FlutterSecureStorage();
 
-    String? note = await storage.read(key: 'data');
-    if (note == null) return;
+    String? data = await storage.read(key: 'data');
+    if (data == null) return;
 
-    Encrypted encrypted = Encrypted.deserialize(note);
+    Encrypted encrypted = Encrypted.deserialize(data);
 
     final Uint8List salt = Encryption.fromBase64(encrypted.salt);
     final Uint8List key = Encryption.encryptArgon2(_passwordController.text.trim(), salt);
