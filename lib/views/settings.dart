@@ -23,9 +23,6 @@ class _SettingsState extends State<Settings> {
   void dispose() {
     super.dispose();
 
-    _passwordController.text = '';
-    _newPasswordController.text = '';
-    _repeatNewPasswordController.text = '';
     _passwordController.dispose();
     _newPasswordController.dispose();
     _repeatNewPasswordController.dispose();

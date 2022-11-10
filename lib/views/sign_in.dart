@@ -22,7 +22,6 @@ class _SignInState extends State<SignIn> {
   void dispose() {
     super.dispose();
 
-    _passwordController.text = '';
     _passwordController.dispose();
   }
 

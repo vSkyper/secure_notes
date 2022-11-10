@@ -30,7 +30,6 @@ class _HomeState extends State<Home> {
   void dispose() {
     super.dispose();
 
-    _noteController.text = '';
     _noteController.dispose();
   }
 

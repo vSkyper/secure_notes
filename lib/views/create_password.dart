@@ -21,8 +21,6 @@ class _CreatePasswordState extends State<CreatePassword> {
   void dispose() {
     super.dispose();
 
-    _passwordController.text = '';
-    _repeatPasswordController.text = '';
     _passwordController.dispose();
     _repeatPasswordController.dispose();
   }
