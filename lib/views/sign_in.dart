@@ -97,7 +97,7 @@ class _SignInState extends State<SignIn> {
                   children: [
                     TextSpan(
                       text: 'Create new note ✨',
-                      style: const TextStyle(color: Colors.blue),
+                      style: TextStyle(color: Theme.of(context).colorScheme.primary),
                       recognizer: TapGestureRecognizer()..onTap = createNewNote,
                     ),
                   ],
