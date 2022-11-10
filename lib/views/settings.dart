@@ -123,13 +123,8 @@ class _SettingsState extends State<Settings> {
                   validator: (value) {
                     if (value == null) return null;
 
-                    if (value.length < 6) {
-                      return 'Enter min. 6 characters';
-                    }
-
-                    if (value == _passwordController.text) {
-                      return 'The new password must be different';
-                    }
+                    if (value.length < 6) return 'Enter min. 6 characters';
+                    if (value == _passwordController.text) return 'The new password must be different';
 
                     return null;
                   },

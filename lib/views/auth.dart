@@ -15,21 +15,17 @@ class _AuthState extends State<Auth> {
   String _password = '';
   String _note = '';
 
-  void openNote(password, note) {
-    setState(() {
-      _password = password;
-      _note = note;
-      _isNoteEncrypted = false;
-    });
-  }
+  void openNote(password, note) => setState(() {
+        _password = password;
+        _note = note;
+        _isNoteEncrypted = false;
+      });
 
-  void closeNote() {
-    setState(() {
-      _password = '';
-      _note = '';
-      _isNoteEncrypted = true;
-    });
-  }
+  void closeNote() => setState(() {
+        _password = '';
+        _note = '';
+        _isNoteEncrypted = true;
+      });
 
   @override
   Widget build(BuildContext context) => _isNoteEncrypted

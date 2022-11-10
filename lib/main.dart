@@ -53,8 +53,6 @@ class MyApp extends StatelessWidget {
                 return Auth(fetchNote: fetchNote);
               case 'noteNotAvailable':
                 return CreatePassword(fetchNote: fetchNote);
-              default:
-                return const Scaffold(body: Center(child: CircularProgressIndicator()));
             }
           }
           return const Scaffold(body: Center(child: CircularProgressIndicator()));
