@@ -6,7 +6,13 @@ class Utils {
   static showSnackBar(String? text) {
     if (text == null) return;
 
-    final SnackBar snackBar = SnackBar(content: Text(text), backgroundColor: Colors.red);
+    final SnackBar snackBar = SnackBar(
+      content: Text(
+        text,
+        style: const TextStyle(color: Colors.white),
+      ),
+      backgroundColor: Colors.red,
+    );
 
     messengerKey.currentState!
       ..removeCurrentSnackBar()
