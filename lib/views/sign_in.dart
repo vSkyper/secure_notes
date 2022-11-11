@@ -1,8 +1,8 @@
+import 'package:biometric_storage/biometric_storage.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:local_auth/local_auth.dart';
 import 'package:secured_notes/encrypted.dart';
 import 'package:secured_notes/encryption.dart';
 import 'package:secured_notes/utils.dart';
@@ -50,38 +50,40 @@ class _SignInState extends State<SignIn> {
   }
 
   Future signInWithFingerprint() async {
-    final LocalAuthentication auth = LocalAuthentication();
+    final BiometricStorageFile biometricStorage = await BiometricStorage().getStorage('key');
+    final String? key;
+    try {
+      key = await biometricStorage.read();
+    } on AuthException catch (e) {
+      Utils.showSnackBar(e.message);
+      return;
+    }
+    if (key == null) return;
+
+    const FlutterSecureStorage storage = FlutterSecureStorage();
+    String? data = await storage.read(key: 'data');
+    if (data == null) return;
+
+    Encrypted encrypted = Encrypted.deserialize(data);
+
+    final Uint8List iv = Encryption.fromBase64(encrypted.iv);
 
     try {
-      final bool didAuthenticate = await auth.authenticate(
-          localizedReason: 'Please authenticate to show note',
-          options: const AuthenticationOptions(biometricOnly: true));
+      final String note = Encryption.decryptChaCha20Poly1305(encrypted.note, Encryption.fromBase64(key), iv);
 
-      if (didAuthenticate) {
-        const FlutterSecureStorage storage = FlutterSecureStorage();
-
-        String? data = await storage.read(key: 'data');
-        if (data == null) return;
-
-        String? key = await storage.read(key: 'key');
-        if (key == null) return;
-
-        Encrypted encrypted = Encrypted.deserialize(data);
-
-        final Uint8List iv = Encryption.fromBase64(encrypted.iv);
-
-        final String note = Encryption.decryptChaCha20Poly1305(encrypted.note, Encryption.fromBase64(key), iv);
-
-        widget.openNote(note);
-      }
-    } on PlatformException catch (e) {
-      Utils.showSnackBar(e.message);
+      widget.openNote(note);
+    } on ArgumentError {
+      Utils.showSnackBar('Error occurred');
     }
   }
 
   Future createNewNote() async {
+    final BiometricStorageFile biometricStorage = await BiometricStorage().getStorage('key');
+    biometricStorage.delete();
+
     const FlutterSecureStorage storage = FlutterSecureStorage();
     await storage.delete(key: 'data');
+
     widget.fetchNote();
   }
 

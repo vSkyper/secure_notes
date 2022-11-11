@@ -1,3 +1,4 @@
+import 'package:biometric_storage/biometric_storage.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -33,13 +34,19 @@ class _HomeState extends State<Home> {
   }
 
   Future saveNote() async {
-    const FlutterSecureStorage storage = FlutterSecureStorage();
+    final BiometricStorageFile biometricStorage = await BiometricStorage().getStorage('key');
+    final String? key;
+    try {
+      key = await biometricStorage.read();
+    } on AuthException catch (e) {
+      Utils.showSnackBar(e.message);
+      return;
+    }
+    if (key == null) return;
 
+    const FlutterSecureStorage storage = FlutterSecureStorage();
     String? data = await storage.read(key: 'data');
     if (data == null) return;
-
-    String? key = await storage.read(key: 'key');
-    if (key == null) return;
 
     final Uint8List iv = Encryption.secureRandom(12);
 

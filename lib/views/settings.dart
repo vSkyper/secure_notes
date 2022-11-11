@@ -1,3 +1,4 @@
+import 'package:biometric_storage/biometric_storage.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -43,30 +44,39 @@ class _SettingsState extends State<Settings> {
     final Uint8List key = Encryption.encryptArgon2(_passwordController.text.trim(), salt);
     final Uint8List iv = Encryption.fromBase64(encrypted.iv);
 
+    final String noteDecrypted;
     try {
-      final String noteDecrypted = Encryption.decryptChaCha20Poly1305(encrypted.note, key, iv);
-
-      final Uint8List newSalt = Encryption.secureRandom(32);
-      final Uint8List newKey = Encryption.encryptArgon2(_repeatNewPasswordController.text.trim(), newSalt);
-      final Uint8List newIv = Encryption.secureRandom(12);
-
-      Encrypted newEncrypted = Encrypted(
-          salt: Encryption.toBase64(newSalt),
-          iv: Encryption.toBase64(newIv),
-          note: Encryption.encryptChaCha20Poly1305(noteDecrypted, newKey, newIv));
-
-      await storage.write(key: 'data', value: Encrypted.serialize(newEncrypted));
-      await storage.write(key: 'key', value: Encryption.toBase64(newKey));
-
-      widget.closeNote();
-
-      Utils.showSnackBar('The password has been changed');
-
-      if (!mounted) return;
-      Navigator.of(context).pop();
+      noteDecrypted = Encryption.decryptChaCha20Poly1305(encrypted.note, key, iv);
     } on ArgumentError {
       Utils.showSnackBar('Incorrect password');
+      return;
     }
+
+    final Uint8List newSalt = Encryption.secureRandom(32);
+    final Uint8List newKey = Encryption.encryptArgon2(_repeatNewPasswordController.text.trim(), newSalt);
+    final Uint8List newIv = Encryption.secureRandom(12);
+
+    Encrypted newEncrypted = Encrypted(
+        salt: Encryption.toBase64(newSalt),
+        iv: Encryption.toBase64(newIv),
+        note: Encryption.encryptChaCha20Poly1305(noteDecrypted, newKey, newIv));
+
+    final BiometricStorageFile biometricStorage = await BiometricStorage().getStorage('key');
+    try {
+      await biometricStorage.write(Encryption.toBase64(newKey));
+    } on AuthException catch (e) {
+      Utils.showSnackBar(e.message);
+      return;
+    }
+
+    await storage.write(key: 'data', value: Encrypted.serialize(newEncrypted));
+
+    widget.closeNote();
+
+    Utils.showSnackBar('The password has been changed');
+
+    if (!mounted) return;
+    Navigator.of(context).pop();
   }
 
   @override

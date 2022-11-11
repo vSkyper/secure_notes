@@ -1,8 +1,10 @@
+import 'package:biometric_storage/biometric_storage.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:secured_notes/encrypted.dart';
 import 'package:secured_notes/encryption.dart';
+import 'package:secured_notes/utils.dart';
 
 class CreatePassword extends StatefulWidget {
   final VoidCallback fetchNote;
@@ -38,10 +40,16 @@ class _CreatePasswordState extends State<CreatePassword> {
         iv: Encryption.toBase64(iv),
         note: Encryption.encryptChaCha20Poly1305('', key, iv));
 
-    const FlutterSecureStorage storage = FlutterSecureStorage();
+    final BiometricStorageFile biometricStorage = await BiometricStorage().getStorage('key');
+    try {
+      await biometricStorage.write(Encryption.toBase64(key));
+    } on AuthException catch (e) {
+      Utils.showSnackBar(e.message);
+      return;
+    }
 
+    const FlutterSecureStorage storage = FlutterSecureStorage();
     await storage.write(key: 'data', value: Encrypted.serialize(encrypted));
-    await storage.write(key: 'key', value: Encryption.toBase64(key));
 
     widget.fetchNote();
   }
