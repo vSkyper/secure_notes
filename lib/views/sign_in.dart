@@ -54,8 +54,8 @@ class _SignInState extends State<SignIn> {
     final String? key;
     try {
       key = await biometricStorage.read();
-    } on AuthException catch (e) {
-      Utils.showSnackBar(e.message);
+    } on AuthException {
+      Utils.showSnackBar('Too many attempts or fingerprint reader error. Try again later');
       return;
     }
     if (key == null) return;
@@ -123,15 +123,6 @@ class _SignInState extends State<SignIn> {
                   minimumSize: const Size.fromHeight(45),
                 ),
               ),
-              const SizedBox(height: 15),
-              ElevatedButton.icon(
-                onPressed: signInWithFingerprint,
-                icon: const Icon(Icons.fingerprint),
-                label: const Text('Sign in with Fingerprint'),
-                style: ElevatedButton.styleFrom(
-                  minimumSize: const Size.fromHeight(45),
-                ),
-              ),
               const SizedBox(height: 20),
               Text.rich(
                 TextSpan(
@@ -143,6 +134,29 @@ class _SignInState extends State<SignIn> {
                       recognizer: TapGestureRecognizer()..onTap = createNewNote,
                     ),
                   ],
+                ),
+              ),
+              const SizedBox(height: 15),
+              Row(
+                children: const [
+                  Expanded(child: Divider()),
+                  Text(
+                    'OR',
+                    style: TextStyle(
+                      color: Colors.grey,
+                      fontWeight: FontWeight.w200,
+                    ),
+                  ),
+                  Expanded(child: Divider()),
+                ],
+              ),
+              const SizedBox(height: 15),
+              ElevatedButton.icon(
+                onPressed: signInWithFingerprint,
+                icon: const Icon(Icons.fingerprint),
+                label: const Text('Sign in with Fingerprint'),
+                style: ElevatedButton.styleFrom(
+                  minimumSize: const Size.fromHeight(45),
                 ),
               ),
             ],

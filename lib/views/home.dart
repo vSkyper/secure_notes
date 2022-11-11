@@ -38,8 +38,8 @@ class _HomeState extends State<Home> {
     final String? key;
     try {
       key = await biometricStorage.read();
-    } on AuthException catch (e) {
-      Utils.showSnackBar(e.message);
+    } on AuthException {
+      Utils.showSnackBar('Too many attempts or fingerprint reader error. Try again later');
       return;
     }
     if (key == null) return;

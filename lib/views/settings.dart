@@ -64,8 +64,8 @@ class _SettingsState extends State<Settings> {
     final BiometricStorageFile biometricStorage = await BiometricStorage().getStorage('key');
     try {
       await biometricStorage.write(Encryption.toBase64(newKey));
-    } on AuthException catch (e) {
-      Utils.showSnackBar(e.message);
+    } on AuthException {
+      Utils.showSnackBar('Too many attempts or fingerprint reader error. Try again later');
       return;
     }
 
@@ -100,10 +100,10 @@ class _SettingsState extends State<Settings> {
                   'Change Password',
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
-                    fontSize: 24,
+                    fontSize: 22,
                   ),
                 ),
-                const SizedBox(height: 20),
+                const SizedBox(height: 10),
                 TextFormField(
                   controller: _passwordController,
                   obscureText: true,

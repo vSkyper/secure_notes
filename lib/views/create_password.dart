@@ -43,8 +43,8 @@ class _CreatePasswordState extends State<CreatePassword> {
     final BiometricStorageFile biometricStorage = await BiometricStorage().getStorage('key');
     try {
       await biometricStorage.write(Encryption.toBase64(key));
-    } on AuthException catch (e) {
-      Utils.showSnackBar(e.message);
+    } on AuthException {
+      Utils.showSnackBar('Too many attempts or fingerprint reader error. Try again later');
       return;
     }
 
