@@ -43,7 +43,7 @@ class _SignInState extends State<SignIn> {
     try {
       final String note = Encryption.decryptChaCha20Poly1305(encrypted.note, key, iv);
 
-      widget.openNote(note);
+      widget.openNote(key, note);
     } on ArgumentError {
       Utils.showSnackBar('Incorrect password');
     }
@@ -66,12 +66,13 @@ class _SignInState extends State<SignIn> {
 
     Encrypted encrypted = Encrypted.deserialize(data);
 
+    final Uint8List keyDecoded = Encryption.fromBase64(key);
     final Uint8List iv = Encryption.fromBase64(encrypted.iv);
 
     try {
-      final String note = Encryption.decryptChaCha20Poly1305(encrypted.note, Encryption.fromBase64(key), iv);
+      final String note = Encryption.decryptChaCha20Poly1305(encrypted.note, keyDecoded, iv);
 
-      widget.openNote(note);
+      widget.openNote(keyDecoded, note);
     } on ArgumentError {
       Utils.showSnackBar('Error occurred');
     }
@@ -161,7 +162,7 @@ class _SignInState extends State<SignIn> {
               ),
               const SizedBox(height: 15),
               const Text(
-                'Note: After changing the fingerprint on the device, sign in with the password. You should also change the password to be able to change the saved note and sign in with the fingerprint.',
+                'Note: After changing the fingerprint on the device, sign in with the password. You should also change the password to be able to sign in with the fingerprint.',
                 style: TextStyle(
                   color: Colors.grey,
                   fontWeight: FontWeight.w200,

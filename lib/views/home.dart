@@ -1,4 +1,3 @@
-import 'package:biometric_storage/biometric_storage.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -8,9 +7,10 @@ import 'package:secured_notes/utils.dart';
 import 'package:secured_notes/views/settings.dart';
 
 class Home extends StatefulWidget {
+  final Uint8List password;
   final String note;
   final VoidCallback closeNote;
-  const Home({super.key, required this.note, required this.closeNote});
+  const Home({super.key, required this.password, required this.note, required this.closeNote});
 
   @override
   State<Home> createState() => _HomeState();
@@ -34,16 +34,6 @@ class _HomeState extends State<Home> {
   }
 
   Future saveNote() async {
-    final BiometricStorageFile biometricStorage = await BiometricStorage().getStorage('key');
-    final String? key;
-    try {
-      key = await biometricStorage.read();
-    } on AuthException {
-      Utils.showSnackBar('Too many attempts or fingerprint reader error. Try again later');
-      return;
-    }
-    if (key == null) return;
-
     const FlutterSecureStorage storage = FlutterSecureStorage();
     String? data = await storage.read(key: 'data');
     if (data == null) return;
@@ -53,7 +43,7 @@ class _HomeState extends State<Home> {
     Encrypted encrypted = Encrypted(
         salt: Encrypted.deserialize(data).salt,
         iv: Encryption.toBase64(iv),
-        note: Encryption.encryptChaCha20Poly1305(_noteController.text.trim(), Encryption.fromBase64(key), iv));
+        note: Encryption.encryptChaCha20Poly1305(_noteController.text.trim(), widget.password, iv));
 
     await storage.write(key: 'data', value: Encrypted.serialize(encrypted));
 
