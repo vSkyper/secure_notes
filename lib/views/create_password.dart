@@ -41,6 +41,7 @@ class _CreatePasswordState extends State<CreatePassword> {
     const FlutterSecureStorage storage = FlutterSecureStorage();
 
     await storage.write(key: 'data', value: Encrypted.serialize(encrypted));
+    await storage.write(key: 'key', value: Encryption.toBase64(key));
 
     widget.fetchNote();
   }
@@ -93,7 +94,7 @@ class _CreatePasswordState extends State<CreatePassword> {
                   validator: (value) =>
                       value != null && value != _passwordController.text ? 'Passwords must be the same' : null,
                 ),
-                const SizedBox(height: 15),
+                const SizedBox(height: 20),
                 ElevatedButton.icon(
                   onPressed: createPassword,
                   icon: const Icon(Icons.arrow_forward),

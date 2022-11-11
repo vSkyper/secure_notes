@@ -7,10 +7,9 @@ import 'package:secured_notes/utils.dart';
 import 'package:secured_notes/views/settings.dart';
 
 class Home extends StatefulWidget {
-  final Uint8List password;
   final String note;
   final VoidCallback closeNote;
-  const Home({super.key, required this.password, required this.note, required this.closeNote});
+  const Home({super.key, required this.note, required this.closeNote});
 
   @override
   State<Home> createState() => _HomeState();
@@ -39,12 +38,15 @@ class _HomeState extends State<Home> {
     String? data = await storage.read(key: 'data');
     if (data == null) return;
 
+    String? key = await storage.read(key: 'key');
+    if (key == null) return;
+
     final Uint8List iv = Encryption.secureRandom(12);
 
     Encrypted encrypted = Encrypted(
         salt: Encrypted.deserialize(data).salt,
         iv: Encryption.toBase64(iv),
-        note: Encryption.encryptChaCha20Poly1305(_noteController.text.trim(), widget.password, iv));
+        note: Encryption.encryptChaCha20Poly1305(_noteController.text.trim(), Encryption.fromBase64(key), iv));
 
     await storage.write(key: 'data', value: Encrypted.serialize(encrypted));
 
@@ -101,7 +103,7 @@ class _HomeState extends State<Home> {
                 ),
                 style: const TextStyle(color: Colors.white),
               ),
-              const SizedBox(height: 15),
+              const SizedBox(height: 20),
               ElevatedButton.icon(
                 onPressed: saveNote,
                 icon: const Icon(Icons.save),

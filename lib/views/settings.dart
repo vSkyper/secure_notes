@@ -56,6 +56,7 @@ class _SettingsState extends State<Settings> {
           note: Encryption.encryptChaCha20Poly1305(noteDecrypted, newKey, newIv));
 
       await storage.write(key: 'data', value: Encrypted.serialize(newEncrypted));
+      await storage.write(key: 'key', value: Encryption.toBase64(newKey));
 
       widget.closeNote();
 
@@ -146,7 +147,7 @@ class _SettingsState extends State<Settings> {
                   validator: (value) =>
                       value != null && value != _newPasswordController.text ? 'Passwords must be the same' : null,
                 ),
-                const SizedBox(height: 15),
+                const SizedBox(height: 20),
                 ElevatedButton.icon(
                   onPressed: changePassword,
                   icon: const Icon(Icons.arrow_forward),

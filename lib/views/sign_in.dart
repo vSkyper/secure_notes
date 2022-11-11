@@ -1,7 +1,8 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:local_auth/local_auth.dart';
 import 'package:secured_notes/encrypted.dart';
 import 'package:secured_notes/encryption.dart';
 import 'package:secured_notes/utils.dart';
@@ -25,7 +26,7 @@ class _SignInState extends State<SignIn> {
     _passwordController.dispose();
   }
 
-  Future decryptNote() async {
+  Future signIn() async {
     if (_passwordController.text.isEmpty) return;
 
     const FlutterSecureStorage storage = FlutterSecureStorage();
@@ -42,9 +43,39 @@ class _SignInState extends State<SignIn> {
     try {
       final String note = Encryption.decryptChaCha20Poly1305(encrypted.note, key, iv);
 
-      widget.openNote(key, note);
+      widget.openNote(note);
     } on ArgumentError {
       Utils.showSnackBar('Incorrect password');
+    }
+  }
+
+  Future signInWithFingerprint() async {
+    final LocalAuthentication auth = LocalAuthentication();
+
+    try {
+      final bool didAuthenticate = await auth.authenticate(
+          localizedReason: 'Please authenticate to show note',
+          options: const AuthenticationOptions(biometricOnly: true));
+
+      if (didAuthenticate) {
+        const FlutterSecureStorage storage = FlutterSecureStorage();
+
+        String? data = await storage.read(key: 'data');
+        if (data == null) return;
+
+        String? key = await storage.read(key: 'key');
+        if (key == null) return;
+
+        Encrypted encrypted = Encrypted.deserialize(data);
+
+        final Uint8List iv = Encryption.fromBase64(encrypted.iv);
+
+        final String note = Encryption.decryptChaCha20Poly1305(encrypted.note, Encryption.fromBase64(key), iv);
+
+        widget.openNote(note);
+      }
+    } on PlatformException catch (e) {
+      Utils.showSnackBar(e.message);
     }
   }
 
@@ -81,11 +112,20 @@ class _SignInState extends State<SignIn> {
                   ),
                 ),
               ),
+              const SizedBox(height: 20),
+              ElevatedButton.icon(
+                onPressed: signIn,
+                icon: const Icon(Icons.lock_open),
+                label: const Text('Sign in'),
+                style: ElevatedButton.styleFrom(
+                  minimumSize: const Size.fromHeight(45),
+                ),
+              ),
               const SizedBox(height: 15),
               ElevatedButton.icon(
-                onPressed: decryptNote,
-                icon: const Icon(Icons.lock_open),
-                label: const Text('Decrypt'),
+                onPressed: signInWithFingerprint,
+                icon: const Icon(Icons.fingerprint),
+                label: const Text('Sign in with Fingerprint'),
                 style: ElevatedButton.styleFrom(
                   minimumSize: const Size.fromHeight(45),
                 ),

@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:secured_notes/views/home.dart';
 import 'package:secured_notes/views/sign_in.dart';
@@ -13,17 +12,14 @@ class Auth extends StatefulWidget {
 
 class _AuthState extends State<Auth> {
   bool _isNoteEncrypted = true;
-  Uint8List _password = Uint8List.fromList([]);
   String _note = '';
 
-  void openNote(Uint8List password, String note) => setState(() {
-        _password = password;
+  void openNote(String note) => setState(() {
         _note = note;
         _isNoteEncrypted = false;
       });
 
   void closeNote() => setState(() {
-        _password = Uint8List.fromList([]);
         _note = '';
         _isNoteEncrypted = true;
       });
@@ -31,5 +27,5 @@ class _AuthState extends State<Auth> {
   @override
   Widget build(BuildContext context) => _isNoteEncrypted
       ? SignIn(fetchNote: widget.fetchNote, openNote: openNote)
-      : Home(password: _password, note: _note, closeNote: closeNote);
+      : Home(note: _note, closeNote: closeNote);
 }
