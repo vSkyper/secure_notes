@@ -159,6 +159,14 @@ class _SignInState extends State<SignIn> {
                   minimumSize: const Size.fromHeight(45),
                 ),
               ),
+              const SizedBox(height: 15),
+              const Text(
+                'Note: After changing the fingerprint on the device, sign in with the password. You should also change the password to be able to change the saved note and sign in with the fingerprint.',
+                style: TextStyle(
+                  color: Colors.grey,
+                  fontWeight: FontWeight.w200,
+                ),
+              ),
             ],
           ),
         ),

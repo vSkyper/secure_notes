@@ -111,6 +111,14 @@ class _CreatePasswordState extends State<CreatePassword> {
                     minimumSize: const Size.fromHeight(45),
                   ),
                 ),
+                const SizedBox(height: 15),
+                const Text(
+                  'Note: To use the app you must have a fingerprint configured on your phone.',
+                  style: TextStyle(
+                    color: Colors.grey,
+                    fontWeight: FontWeight.w200,
+                  ),
+                ),
               ],
             ),
           ),
