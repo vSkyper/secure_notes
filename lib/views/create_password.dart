@@ -100,7 +100,7 @@ class _CreatePasswordState extends State<CreatePassword> {
                 TextFormField(
                   controller: _repeatPasswordController,
                   obscureText: true,
-                  textInputAction: TextInputAction.next,
+                  textInputAction: TextInputAction.done,
                   style: const TextStyle(color: Colors.white),
                   decoration: const InputDecoration(
                     labelText: 'Repeat Password',

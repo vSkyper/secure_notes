@@ -62,6 +62,7 @@ class _HomeState extends State<Home> {
             IconButton(
               splashColor: Colors.transparent,
               highlightColor: Colors.transparent,
+              tooltip: 'Settings',
               icon: const Icon(Icons.settings),
               onPressed: () => Navigator.of(context).push(
                 MaterialPageRoute(builder: (context) => Settings(closeNote: widget.closeNote)),
@@ -70,46 +71,50 @@ class _HomeState extends State<Home> {
             IconButton(
               splashColor: Colors.transparent,
               highlightColor: Colors.transparent,
+              tooltip: 'Logout',
               icon: const Icon(Icons.logout, color: Colors.red),
               onPressed: widget.closeNote,
             ),
           ],
+          leadingWidth: 150,
+          leading: TextButton.icon(
+            onPressed: saveNote,
+            icon: const Icon(Icons.save),
+            label: const Text('Save note'),
+          ),
         ),
-        body: SingleChildScrollView(
-          padding: const EdgeInsets.all(15),
-          physics: const BouncingScrollPhysics(),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                'Your note',
-                style: TextStyle(
-                  color: Colors.grey,
-                  fontWeight: FontWeight.w200,
-                ),
-              ),
-              const SizedBox(height: 10),
-              TextField(
-                controller: _noteController,
-                maxLines: 8,
-                decoration: const InputDecoration.collapsed(
-                  hintText: "Enter your note here",
-                  hintStyle: TextStyle(
+        body: Scrollbar(
+          thumbVisibility: true,
+          radius: const Radius.circular(10),
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(15),
+            physics: const BouncingScrollPhysics(),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Your note',
+                  style: TextStyle(
                     color: Colors.grey,
+                    fontWeight: FontWeight.w200,
                   ),
                 ),
-                style: const TextStyle(color: Colors.white),
-              ),
-              const SizedBox(height: 20),
-              ElevatedButton.icon(
-                onPressed: saveNote,
-                icon: const Icon(Icons.save),
-                label: const Text('Save note'),
-                style: ElevatedButton.styleFrom(
-                  minimumSize: const Size.fromHeight(45),
+                const SizedBox(height: 10),
+                TextField(
+                  controller: _noteController,
+                  keyboardType: TextInputType.multiline,
+                  minLines: 8,
+                  maxLines: null,
+                  decoration: const InputDecoration.collapsed(
+                    hintText: "Enter your note here",
+                    hintStyle: TextStyle(
+                      color: Colors.grey,
+                    ),
+                  ),
+                  style: const TextStyle(color: Colors.white),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

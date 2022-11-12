@@ -133,7 +133,7 @@ class _SignInState extends State<SignIn> {
               TextField(
                 controller: _passwordController,
                 obscureText: true,
-                textInputAction: TextInputAction.next,
+                textInputAction: TextInputAction.done,
                 style: const TextStyle(color: Colors.white),
                 decoration: const InputDecoration(
                   labelText: 'Password',

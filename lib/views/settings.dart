@@ -155,7 +155,7 @@ class _SettingsState extends State<Settings> {
                 TextFormField(
                   controller: _repeatNewPasswordController,
                   obscureText: true,
-                  textInputAction: TextInputAction.next,
+                  textInputAction: TextInputAction.done,
                   style: const TextStyle(color: Colors.white),
                   decoration: const InputDecoration(
                     labelText: 'Repeat New Password',
