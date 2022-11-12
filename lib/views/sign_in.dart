@@ -73,10 +73,13 @@ class _SignInState extends State<SignIn> {
     try {
       key = await biometricStorage.read();
     } on AuthException catch (e) {
-      if (e.code == AuthExceptionCode.userCanceled) {
-        return;
+      switch (e.code) {
+        case (AuthExceptionCode.unknown):
+          Utils.showSnackBar('Too many attempts or fingerprint reader error. Try again later');
+          break;
+        default:
+          break;
       }
-      Utils.showSnackBar('Too many attempts or fingerprint reader error. Try again later');
       return;
     }
     if (key == null) {
@@ -155,7 +158,7 @@ class _SignInState extends State<SignIn> {
                   text: 'Forgot password? ',
                   children: [
                     TextSpan(
-                      text: 'Create new note ✨',
+                      text: 'Create new note',
                       style: TextStyle(color: Theme.of(context).colorScheme.primary),
                       recognizer: TapGestureRecognizer()..onTap = createNewNote,
                     ),

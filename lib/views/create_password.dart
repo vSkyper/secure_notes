@@ -46,11 +46,16 @@ class _CreatePasswordState extends State<CreatePassword> {
     try {
       await biometricStorage.write(Encryption.toBase64(key));
     } on AuthException catch (e) {
-      if (e.code == AuthExceptionCode.userCanceled) {
-        Utils.showSnackBar('You must authenticate with your fingerprint to confirm the creation of a password');
-        return;
+      switch (e.code) {
+        case (AuthExceptionCode.userCanceled):
+          Utils.showSnackBar('You must authenticate with your fingerprint to confirm the creation of a password');
+          break;
+        case (AuthExceptionCode.unknown):
+          Utils.showSnackBar('Too many attempts or fingerprint reader error. Try again later');
+          break;
+        default:
+          break;
       }
-      Utils.showSnackBar('Too many attempts or fingerprint reader error. Try again later');
       return;
     }
 

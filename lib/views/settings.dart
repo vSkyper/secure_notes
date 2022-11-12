@@ -67,11 +67,16 @@ class _SettingsState extends State<Settings> {
     try {
       await biometricStorage.write(Encryption.toBase64(newKey));
     } on AuthException catch (e) {
-      if (e.code == AuthExceptionCode.userCanceled) {
-        Utils.showSnackBar('You must authenticate with your fingerprint to confirm your password change');
-        return;
+      switch (e.code) {
+        case (AuthExceptionCode.userCanceled):
+          Utils.showSnackBar('You must authenticate with your fingerprint to confirm your password change');
+          break;
+        case (AuthExceptionCode.unknown):
+          Utils.showSnackBar('Too many attempts or fingerprint reader error. Try again later');
+          break;
+        default:
+          break;
       }
-      Utils.showSnackBar('Too many attempts or fingerprint reader error. Try again later');
       return;
     }
 
