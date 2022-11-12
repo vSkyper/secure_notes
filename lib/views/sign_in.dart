@@ -18,6 +18,7 @@ class SignIn extends StatefulWidget {
 
 class _SignInState extends State<SignIn> {
   final TextEditingController _passwordController = TextEditingController();
+  bool _isFingerprintChanged = false;
 
   @override
   void dispose() {
@@ -43,6 +44,21 @@ class _SignInState extends State<SignIn> {
     try {
       final String note = Encryption.decryptChaCha20Poly1305(encrypted.note, key, iv);
 
+      if (_isFingerprintChanged) {
+        final BiometricStorageFile biometricStorage = await BiometricStorage().getStorage('key');
+        try {
+          await biometricStorage.write(Encryption.toBase64(key));
+        } on AuthException catch (e) {
+          if (e.code == AuthExceptionCode.userCanceled) {
+            Utils.showSnackBar(
+                'You must authenticate with your fingerprint after changing fingerprints on your device');
+            return;
+          }
+          Utils.showSnackBar('Too many attempts or fingerprint reader error. Try again later');
+          return;
+        }
+      }
+
       widget.openNote(key, note);
     } on ArgumentError {
       Utils.showSnackBar('Incorrect password');
@@ -64,7 +80,8 @@ class _SignInState extends State<SignIn> {
       return;
     }
     if (key == null) {
-      Utils.showSnackBar('Change your password to be able to sign in with your fingerprint');
+      _isFingerprintChanged = true;
+      Utils.showSnackBar('Sign in with password after changing fingerprints on device');
       return;
     }
 
