@@ -1,3 +1,4 @@
+import 'package:biometric_storage/biometric_storage.dart';
 import 'package:flutter/material.dart';
 
 class Utils {
@@ -17,5 +18,14 @@ class Utils {
     messengerKey.currentState!
       ..removeCurrentSnackBar()
       ..showSnackBar(snackBar);
+  }
+
+  static Future canAuthenticate() async {
+    final response = await BiometricStorage().canAuthenticate();
+    if (response != CanAuthenticateResponse.success) {
+      Utils.showSnackBar('Can\'t authenticate with biometric');
+      return false;
+    }
+    return true;
   }
 }

@@ -31,6 +31,8 @@ class _CreatePasswordState extends State<CreatePassword> {
     final bool isValid = _formKey.currentState!.validate();
     if (!isValid) return;
 
+    if (!await Utils.canAuthenticate()) return;
+
     final Uint8List salt = Encryption.secureRandom(32);
     final Uint8List key = Encryption.encryptArgon2(_repeatPasswordController.text.trim(), salt);
     final Uint8List iv = Encryption.secureRandom(12);
@@ -43,7 +45,11 @@ class _CreatePasswordState extends State<CreatePassword> {
     final BiometricStorageFile biometricStorage = await BiometricStorage().getStorage('key');
     try {
       await biometricStorage.write(Encryption.toBase64(key));
-    } on AuthException {
+    } on AuthException catch (e) {
+      if (e.code == AuthExceptionCode.userCanceled) {
+        Utils.showSnackBar('You must authenticate with your fingerprint to confirm the creation of a password');
+        return;
+      }
       Utils.showSnackBar('Too many attempts or fingerprint reader error. Try again later');
       return;
     }
@@ -109,14 +115,6 @@ class _CreatePasswordState extends State<CreatePassword> {
                   label: const Text('Create'),
                   style: ElevatedButton.styleFrom(
                     minimumSize: const Size.fromHeight(45),
-                  ),
-                ),
-                const SizedBox(height: 15),
-                const Text(
-                  'Note: To use the app you must have a fingerprint configured on your phone.',
-                  style: TextStyle(
-                    color: Colors.grey,
-                    fontWeight: FontWeight.w200,
                   ),
                 ),
               ],

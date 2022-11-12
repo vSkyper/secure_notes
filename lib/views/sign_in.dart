@@ -50,15 +50,23 @@ class _SignInState extends State<SignIn> {
   }
 
   Future signInWithFingerprint() async {
+    if (!await Utils.canAuthenticate()) return;
+
     final BiometricStorageFile biometricStorage = await BiometricStorage().getStorage('key');
     final String? key;
     try {
       key = await biometricStorage.read();
-    } on AuthException {
+    } on AuthException catch (e) {
+      if (e.code == AuthExceptionCode.userCanceled) {
+        return;
+      }
       Utils.showSnackBar('Too many attempts or fingerprint reader error. Try again later');
       return;
     }
-    if (key == null) return;
+    if (key == null) {
+      Utils.showSnackBar('Change your password to be able to sign in with your fingerprint');
+      return;
+    }
 
     const FlutterSecureStorage storage = FlutterSecureStorage();
     String? data = await storage.read(key: 'data');
@@ -158,14 +166,6 @@ class _SignInState extends State<SignIn> {
                 label: const Text('Sign in with Fingerprint'),
                 style: ElevatedButton.styleFrom(
                   minimumSize: const Size.fromHeight(45),
-                ),
-              ),
-              const SizedBox(height: 15),
-              const Text(
-                'Note: After changing the fingerprint on the device, sign in with the password. You should also change the password to be able to sign in with the fingerprint.',
-                style: TextStyle(
-                  color: Colors.grey,
-                  fontWeight: FontWeight.w200,
                 ),
               ),
             ],

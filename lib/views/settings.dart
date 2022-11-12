@@ -30,6 +30,8 @@ class _SettingsState extends State<Settings> {
   }
 
   Future changePassword() async {
+    if (!await Utils.canAuthenticate()) return;
+
     final bool isValid = _formKey.currentState!.validate();
     if (!isValid) return;
 
@@ -64,7 +66,11 @@ class _SettingsState extends State<Settings> {
     final BiometricStorageFile biometricStorage = await BiometricStorage().getStorage('key');
     try {
       await biometricStorage.write(Encryption.toBase64(newKey));
-    } on AuthException {
+    } on AuthException catch (e) {
+      if (e.code == AuthExceptionCode.userCanceled) {
+        Utils.showSnackBar('You must authenticate with your fingerprint to confirm your password change');
+        return;
+      }
       Utils.showSnackBar('Too many attempts or fingerprint reader error. Try again later');
       return;
     }
