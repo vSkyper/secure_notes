@@ -45,7 +45,12 @@ class _SignInState extends State<SignIn> {
       final String note = Encryption.decryptChaCha20Poly1305(encrypted.note, key, iv);
 
       if (_isFingerprintChanged) {
-        final BiometricStorageFile biometricStorage = await BiometricStorage().getStorage('key');
+        final BiometricStorageFile biometricStorage = await BiometricStorage().getStorage(
+          'key',
+          promptInfo: const PromptInfo(
+              androidPromptInfo:
+                  AndroidPromptInfo(title: 'Authentication required', description: 'Fingerprints changed')),
+        );
         try {
           await biometricStorage.write(Encryption.toBase64(key));
         } on AuthException catch (e) {
@@ -68,7 +73,11 @@ class _SignInState extends State<SignIn> {
   Future signInWithFingerprint() async {
     if (!await Utils.canAuthenticate()) return;
 
-    final BiometricStorageFile biometricStorage = await BiometricStorage().getStorage('key');
+    final BiometricStorageFile biometricStorage = await BiometricStorage().getStorage(
+      'key',
+      promptInfo: const PromptInfo(
+          androidPromptInfo: AndroidPromptInfo(title: 'Authentication required', description: 'Sign in')),
+    );
     final String? key;
     try {
       key = await biometricStorage.read();

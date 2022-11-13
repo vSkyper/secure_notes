@@ -42,7 +42,12 @@ class _CreatePasswordState extends State<CreatePassword> {
         iv: Encryption.toBase64(iv),
         note: Encryption.encryptChaCha20Poly1305('', key, iv));
 
-    final BiometricStorageFile biometricStorage = await BiometricStorage().getStorage('key');
+    final BiometricStorageFile biometricStorage = await BiometricStorage().getStorage(
+      'key',
+      promptInfo: const PromptInfo(
+          androidPromptInfo:
+              AndroidPromptInfo(title: 'Authentication required', description: 'Confirm password creation')),
+    );
     try {
       await biometricStorage.write(Encryption.toBase64(key));
     } on AuthException catch (e) {

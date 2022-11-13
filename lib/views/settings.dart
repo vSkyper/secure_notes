@@ -63,7 +63,12 @@ class _SettingsState extends State<Settings> {
         iv: Encryption.toBase64(newIv),
         note: Encryption.encryptChaCha20Poly1305(noteDecrypted, newKey, newIv));
 
-    final BiometricStorageFile biometricStorage = await BiometricStorage().getStorage('key');
+    final BiometricStorageFile biometricStorage = await BiometricStorage().getStorage(
+      'key',
+      promptInfo: const PromptInfo(
+          androidPromptInfo:
+              AndroidPromptInfo(title: 'Authentication required', description: 'Confirm your password change')),
+    );
     try {
       await biometricStorage.write(Encryption.toBase64(newKey));
     } on AuthException catch (e) {
