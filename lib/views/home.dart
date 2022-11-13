@@ -24,6 +24,7 @@ class _HomeState extends State<Home> {
     super.initState();
 
     _noteController.text = widget.note;
+    _noteController.addListener(saveNote);
   }
 
   @override
@@ -46,8 +47,6 @@ class _HomeState extends State<Home> {
         note: Encryption.encryptChaCha20Poly1305(_noteController.text.trim(), widget.password, iv));
 
     await storage.write(key: 'data', value: Encrypted.serialize(encrypted));
-
-    Utils.showSnackBar('The note has been saved');
   }
 
   @override
@@ -76,12 +75,6 @@ class _HomeState extends State<Home> {
               onPressed: widget.closeNote,
             ),
           ],
-          leadingWidth: 150,
-          leading: TextButton.icon(
-            onPressed: saveNote,
-            icon: const Icon(Icons.save),
-            label: const Text('Save note'),
-          ),
         ),
         body: Scrollbar(
           thumbVisibility: true,
