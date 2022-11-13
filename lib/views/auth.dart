@@ -12,9 +12,9 @@ class Auth extends StatefulWidget {
 }
 
 class _AuthState extends State<Auth> {
-  bool _isNoteEncrypted = true;
   Uint8List _key = Uint8List.fromList([]);
   String _note = '';
+  bool _isNoteEncrypted = true;
 
   void openNote(Uint8List key, String note) => setState(() {
         _key = key;

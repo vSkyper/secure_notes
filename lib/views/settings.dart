@@ -30,10 +30,10 @@ class _SettingsState extends State<Settings> {
   }
 
   Future changePassword() async {
-    if (!await Utils.canAuthenticate()) return;
-
     final bool isValid = _formKey.currentState!.validate();
     if (!isValid) return;
+
+    if (!await Utils.canAuthenticate()) return;
 
     const FlutterSecureStorage storage = FlutterSecureStorage();
 

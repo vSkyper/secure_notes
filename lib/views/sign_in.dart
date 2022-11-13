@@ -199,10 +199,9 @@ class _SignInState extends State<SignIn> {
               IconButton(
                 onPressed: signInWithFingerprint,
                 icon: const Icon(Icons.fingerprint),
-                iconSize: 33,
+                iconSize: 45,
                 style: IconButton.styleFrom(
                   foregroundColor: Theme.of(context).colorScheme.primary,
-                  backgroundColor: Theme.of(context).colorScheme.surface,
                 ),
               ),
             ],
