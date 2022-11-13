@@ -21,6 +21,13 @@ class _SignInState extends State<SignIn> {
   bool _isFingerprintChanged = false;
 
   @override
+  void initState() {
+    super.initState();
+
+    signInWithFingerprint();
+  }
+
+  @override
   void dispose() {
     super.dispose();
 
@@ -189,12 +196,13 @@ class _SignInState extends State<SignIn> {
                 ],
               ),
               const SizedBox(height: 15),
-              ElevatedButton.icon(
+              IconButton(
                 onPressed: signInWithFingerprint,
                 icon: const Icon(Icons.fingerprint),
-                label: const Text('Sign in with Fingerprint'),
-                style: ElevatedButton.styleFrom(
-                  minimumSize: const Size.fromHeight(45),
+                iconSize: 33,
+                style: IconButton.styleFrom(
+                  foregroundColor: Theme.of(context).colorScheme.primary,
+                  backgroundColor: Theme.of(context).colorScheme.surface,
                 ),
               ),
             ],

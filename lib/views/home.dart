@@ -59,8 +59,6 @@ class _HomeState extends State<Home> {
           title: const Text('Home'),
           actions: [
             IconButton(
-              splashColor: Colors.transparent,
-              highlightColor: Colors.transparent,
               tooltip: 'Settings',
               icon: const Icon(Icons.settings),
               onPressed: () => Navigator.of(context).push(
@@ -68,8 +66,6 @@ class _HomeState extends State<Home> {
               ),
             ),
             IconButton(
-              splashColor: Colors.transparent,
-              highlightColor: Colors.transparent,
               tooltip: 'Logout',
               icon: const Icon(Icons.logout, color: Colors.red),
               onPressed: widget.closeNote,
