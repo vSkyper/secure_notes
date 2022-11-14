@@ -152,7 +152,7 @@ class _SettingsState extends State<Settings> {
                   validator: (value) {
                     if (value == null) return null;
 
-                    if (!RegExp(r'^[\S]{6}\S*$').hasMatch(value)) return 'Enter min. 6 characters with non-whitespace';
+                    if (!RegExp(r'^\S{6,}$').hasMatch(value)) return 'Enter min. 6 characters without whitespaces';
                     if (value == _passwordController.text) return 'The new password must be different';
 
                     return null;

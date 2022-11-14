@@ -68,11 +68,17 @@ class _SignInState extends State<SignIn> {
       try {
         await biometricStorage.write(Encryption.toBase64(key));
       } on AuthException catch (e) {
-        if (e.code == AuthExceptionCode.userCanceled) {
-          Utils.showSnackBar('You must authenticate with your fingerprint after changing fingerprints on your device');
-          return;
+        switch (e.code) {
+          case (AuthExceptionCode.userCanceled):
+            Utils.showSnackBar(
+                'You must authenticate with your fingerprint after changing fingerprints on your device');
+            break;
+          case (AuthExceptionCode.unknown):
+            Utils.showSnackBar('Too many attempts or fingerprint reader error. Try again later');
+            break;
+          default:
+            break;
         }
-        Utils.showSnackBar('Too many attempts or fingerprint reader error. Try again later');
         return;
       }
     }

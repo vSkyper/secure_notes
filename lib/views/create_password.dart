@@ -99,8 +99,8 @@ class _CreatePasswordState extends State<CreatePassword> {
                     ),
                   ),
                   autovalidateMode: AutovalidateMode.onUserInteraction,
-                  validator: (value) => value != null && !RegExp(r'^[\S]{6}\S*$').hasMatch(value)
-                      ? 'Enter min. 6 characters with non-whitespace'
+                  validator: (value) => value != null && !RegExp(r'^\S{6,}$').hasMatch(value)
+                      ? 'Enter min. 6 characters without whitespaces'
                       : null,
                 ),
                 const SizedBox(height: 10),
