@@ -17,11 +17,13 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   final TextEditingController _noteController = TextEditingController();
+  late Uint8List _password;
 
   @override
   void initState() {
     super.initState();
 
+    _password = widget.password;
     _noteController.text = widget.note;
     _noteController.addListener(saveNote);
   }
@@ -43,9 +45,13 @@ class _HomeState extends State<Home> {
     Encrypted encrypted = Encrypted(
         salt: Encrypted.deserialize(data).salt,
         iv: Encryption.toBase64(iv),
-        note: Encryption.encryptChaCha20Poly1305(_noteController.text.trim(), widget.password, iv));
+        note: Encryption.encryptChaCha20Poly1305(_noteController.text.trim(), _password, iv));
 
     await storage.write(key: 'data', value: Encrypted.serialize(encrypted));
+  }
+
+  void updatePassword(Uint8List password) {
+    _password = password;
   }
 
   @override
@@ -61,7 +67,7 @@ class _HomeState extends State<Home> {
               tooltip: 'Settings',
               icon: const Icon(Icons.settings),
               onPressed: () => Navigator.of(context).push(
-                MaterialPageRoute(builder: (context) => Settings(closeNote: widget.closeNote)),
+                MaterialPageRoute(builder: (context) => Settings(updatePassword: updatePassword)),
               ),
             ),
             IconButton(

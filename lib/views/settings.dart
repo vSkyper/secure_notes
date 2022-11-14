@@ -7,8 +7,8 @@ import 'package:secured_notes/encryption.dart';
 import 'package:secured_notes/utils.dart';
 
 class Settings extends StatefulWidget {
-  final VoidCallback closeNote;
-  const Settings({super.key, required this.closeNote});
+  final Function updatePassword;
+  const Settings({super.key, required this.updatePassword});
 
   @override
   State<Settings> createState() => _SettingsState();
@@ -87,12 +87,13 @@ class _SettingsState extends State<Settings> {
 
     await storage.write(key: 'data', value: Encrypted.serialize(newEncrypted));
 
-    widget.closeNote();
+    widget.updatePassword(newKey);
 
     Utils.showSnackBar('The password has been changed');
 
-    if (!mounted) return;
-    Navigator.of(context).pop();
+    _passwordController.text = '';
+    _newPasswordController.text = '';
+    _repeatNewPasswordController.text = '';
   }
 
   @override
