@@ -34,7 +34,7 @@ class _CreatePasswordState extends State<CreatePassword> {
     if (!await Utils.canAuthenticate()) return;
 
     final Uint8List salt = Encryption.secureRandom(32);
-    final Uint8List key = Encryption.encryptArgon2(_repeatPasswordController.text.trim(), salt);
+    final Uint8List key = Encryption.encryptArgon2(_repeatPasswordController.text, salt);
     final Uint8List iv = Encryption.secureRandom(12);
 
     Encrypted encrypted = Encrypted(
@@ -99,7 +99,9 @@ class _CreatePasswordState extends State<CreatePassword> {
                     ),
                   ),
                   autovalidateMode: AutovalidateMode.onUserInteraction,
-                  validator: (value) => value != null && value.length < 6 ? 'Enter min. 6 characters' : null,
+                  validator: (value) => value != null && !RegExp(r'^[\S]{6}\S*$').hasMatch(value)
+                      ? 'Enter min. 6 characters with non-whitespace'
+                      : null,
                 ),
                 const SizedBox(height: 10),
                 TextFormField(

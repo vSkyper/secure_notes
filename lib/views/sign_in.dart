@@ -45,7 +45,7 @@ class _SignInState extends State<SignIn> {
     Encrypted encrypted = Encrypted.deserialize(data);
 
     final Uint8List salt = Encryption.fromBase64(encrypted.salt);
-    final Uint8List key = Encryption.encryptArgon2(_passwordController.text.trim(), salt);
+    final Uint8List key = Encryption.encryptArgon2(_passwordController.text, salt);
     final Uint8List iv = Encryption.fromBase64(encrypted.iv);
 
     try {

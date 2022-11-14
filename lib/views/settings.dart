@@ -43,7 +43,7 @@ class _SettingsState extends State<Settings> {
     Encrypted encrypted = Encrypted.deserialize(data);
 
     final Uint8List salt = Encryption.fromBase64(encrypted.salt);
-    final Uint8List key = Encryption.encryptArgon2(_passwordController.text.trim(), salt);
+    final Uint8List key = Encryption.encryptArgon2(_passwordController.text, salt);
     final Uint8List iv = Encryption.fromBase64(encrypted.iv);
 
     final String noteDecrypted;
@@ -55,7 +55,7 @@ class _SettingsState extends State<Settings> {
     }
 
     final Uint8List newSalt = Encryption.secureRandom(32);
-    final Uint8List newKey = Encryption.encryptArgon2(_repeatNewPasswordController.text.trim(), newSalt);
+    final Uint8List newKey = Encryption.encryptArgon2(_repeatNewPasswordController.text, newSalt);
     final Uint8List newIv = Encryption.secureRandom(12);
 
     Encrypted newEncrypted = Encrypted(
@@ -91,9 +91,8 @@ class _SettingsState extends State<Settings> {
 
     Utils.showSnackBar('The password has been changed');
 
-    _passwordController.text = '';
-    _newPasswordController.text = '';
-    _repeatNewPasswordController.text = '';
+    if (!mounted) return;
+    Navigator.of(context).pop();
   }
 
   @override
@@ -133,6 +132,8 @@ class _SettingsState extends State<Settings> {
                       borderSide: BorderSide(color: Colors.white),
                     ),
                   ),
+                  autovalidateMode: AutovalidateMode.onUserInteraction,
+                  validator: (value) => value != null && value.isEmpty ? 'The password must not be empty' : null,
                 ),
                 const SizedBox(height: 10),
                 TextFormField(
@@ -151,7 +152,7 @@ class _SettingsState extends State<Settings> {
                   validator: (value) {
                     if (value == null) return null;
 
-                    if (value.length < 6) return 'Enter min. 6 characters';
+                    if (!RegExp(r'^[\S]{6}\S*$').hasMatch(value)) return 'Enter min. 6 characters with non-whitespace';
                     if (value == _passwordController.text) return 'The new password must be different';
 
                     return null;

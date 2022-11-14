@@ -45,7 +45,7 @@ class _HomeState extends State<Home> {
     Encrypted encrypted = Encrypted(
         salt: Encrypted.deserialize(data).salt,
         iv: Encryption.toBase64(iv),
-        note: Encryption.encryptChaCha20Poly1305(_noteController.text.trim(), _password, iv));
+        note: Encryption.encryptChaCha20Poly1305(_noteController.text, _password, iv));
 
     await storage.write(key: 'data', value: Encrypted.serialize(encrypted));
   }
