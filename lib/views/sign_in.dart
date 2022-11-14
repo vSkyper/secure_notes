@@ -17,6 +17,7 @@ class SignIn extends StatefulWidget {
 }
 
 class _SignInState extends State<SignIn> {
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TextEditingController _passwordController = TextEditingController();
   bool _isFingerprintChanged = false;
 
@@ -35,7 +36,8 @@ class _SignInState extends State<SignIn> {
   }
 
   Future signIn() async {
-    if (_passwordController.text.isEmpty) return;
+    final bool isValid = _formKey.currentState!.validate();
+    if (!isValid) return;
 
     const FlutterSecureStorage storage = FlutterSecureStorage();
 
@@ -48,33 +50,34 @@ class _SignInState extends State<SignIn> {
     final Uint8List key = Encryption.encryptArgon2(_passwordController.text, salt);
     final Uint8List iv = Encryption.fromBase64(encrypted.iv);
 
+    final String note;
     try {
-      final String note = Encryption.decryptChaCha20Poly1305(encrypted.note, key, iv);
-
-      if (_isFingerprintChanged) {
-        final BiometricStorageFile biometricStorage = await BiometricStorage().getStorage(
-          'key',
-          promptInfo: const PromptInfo(
-              androidPromptInfo:
-                  AndroidPromptInfo(title: 'Authentication required', description: 'Fingerprints changed')),
-        );
-        try {
-          await biometricStorage.write(Encryption.toBase64(key));
-        } on AuthException catch (e) {
-          if (e.code == AuthExceptionCode.userCanceled) {
-            Utils.showSnackBar(
-                'You must authenticate with your fingerprint after changing fingerprints on your device');
-            return;
-          }
-          Utils.showSnackBar('Too many attempts or fingerprint reader error. Try again later');
-          return;
-        }
-      }
-
-      widget.openNote(key, note);
+      note = Encryption.decryptChaCha20Poly1305(encrypted.note, key, iv);
     } on ArgumentError {
       Utils.showSnackBar('Incorrect password');
+      return;
     }
+
+    if (_isFingerprintChanged && await Utils.canAuthenticate()) {
+      final BiometricStorageFile biometricStorage = await BiometricStorage().getStorage(
+        'key',
+        promptInfo: const PromptInfo(
+            androidPromptInfo:
+                AndroidPromptInfo(title: 'Authentication required', description: 'Fingerprints changed')),
+      );
+      try {
+        await biometricStorage.write(Encryption.toBase64(key));
+      } on AuthException catch (e) {
+        if (e.code == AuthExceptionCode.userCanceled) {
+          Utils.showSnackBar('You must authenticate with your fingerprint after changing fingerprints on your device');
+          return;
+        }
+        Utils.showSnackBar('Too many attempts or fingerprint reader error. Try again later');
+        return;
+      }
+    }
+
+    widget.openNote(key, note);
   }
 
   Future signInWithFingerprint() async {
@@ -146,26 +149,35 @@ class _SignInState extends State<SignIn> {
           physics: const BouncingScrollPhysics(),
           child: Column(
             children: [
-              TextField(
-                controller: _passwordController,
-                obscureText: true,
-                textInputAction: TextInputAction.done,
-                style: const TextStyle(color: Colors.white),
-                decoration: const InputDecoration(
-                  labelText: 'Password',
-                  labelStyle: TextStyle(color: Colors.grey, fontSize: 14),
-                  enabledBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(color: Colors.white),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 20),
-              ElevatedButton.icon(
-                onPressed: signIn,
-                icon: const Icon(Icons.lock_open),
-                label: const Text('Sign in'),
-                style: ElevatedButton.styleFrom(
-                  minimumSize: const Size.fromHeight(45),
+              Form(
+                key: _formKey,
+                child: Column(
+                  children: [
+                    TextFormField(
+                      controller: _passwordController,
+                      obscureText: true,
+                      textInputAction: TextInputAction.done,
+                      style: const TextStyle(color: Colors.white),
+                      decoration: const InputDecoration(
+                        labelText: 'Password',
+                        labelStyle: TextStyle(color: Colors.grey, fontSize: 14),
+                        enabledBorder: UnderlineInputBorder(
+                          borderSide: BorderSide(color: Colors.white),
+                        ),
+                      ),
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
+                      validator: (value) => value != null && value.isEmpty ? 'The password must not be empty' : null,
+                    ),
+                    const SizedBox(height: 20),
+                    ElevatedButton.icon(
+                      onPressed: signIn,
+                      icon: const Icon(Icons.lock_open),
+                      label: const Text('Sign in'),
+                      style: ElevatedButton.styleFrom(
+                        minimumSize: const Size.fromHeight(45),
+                      ),
+                    ),
+                  ],
                 ),
               ),
               const SizedBox(height: 20),
