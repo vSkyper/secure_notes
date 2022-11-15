@@ -38,9 +38,9 @@ class MyApp extends StatelessWidget {
         theme: ThemeData(
           useMaterial3: true,
           colorScheme: darkColorScheme ?? ColorScheme.fromSwatch(primarySwatch: Colors.blue),
-          scaffoldBackgroundColor: const Color(0xFF18181B),
-          appBarTheme: const AppBarTheme(
-            color: Color(0xFF18181B),
+          scaffoldBackgroundColor: darkColorScheme?.background ?? const Color(0xFF18181B),
+          appBarTheme: AppBarTheme(
+            color: darkColorScheme?.background ?? const Color(0xFF18181B),
             elevation: 0,
           ),
           textTheme: const TextTheme(
