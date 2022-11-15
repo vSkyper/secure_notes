@@ -16,7 +16,7 @@ class Encryption {
     return convert.base64.encode(decoded);
   }
 
-  static String encryptChaCha20Poly1305(String input, Uint8List key, Uint8List iv) {
+  static String encrypt(String input, Uint8List key, Uint8List iv) {
     final Uint8List bytes = Uint8List.fromList(convert.utf8.encode(input));
 
     final AEADCipher cipher = AEADCipher('ChaCha20-Poly1305')
@@ -30,7 +30,7 @@ class Encryption {
     return toBase64(cipherText);
   }
 
-  static String decryptChaCha20Poly1305(String encrypted, Uint8List key, Uint8List iv) {
+  static String decrypt(String encrypted, Uint8List key, Uint8List iv) {
     final Uint8List bytes = fromBase64(encrypted);
 
     final AEADCipher cipher = AEADCipher('ChaCha20-Poly1305')
@@ -44,7 +44,7 @@ class Encryption {
     return convert.utf8.decode(plainText.toList(), allowMalformed: true);
   }
 
-  static Uint8List encryptArgon2(String input, Uint8List salt) {
+  static Uint8List stretching(String input, Uint8List salt) {
     final Uint8List bytes = Uint8List.fromList(convert.utf8.encode(input));
 
     final KeyDerivator key = KeyDerivator('argon2')..init(Argon2Parameters(2, salt, desiredKeyLength: 32));

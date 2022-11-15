@@ -3,7 +3,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:secured_notes/encrypted.dart';
+import 'package:secured_notes/data.dart';
 import 'package:secured_notes/encryption.dart';
 import 'package:secured_notes/utils.dart';
 
@@ -41,18 +41,18 @@ class _SignInState extends State<SignIn> {
 
     const FlutterSecureStorage storage = FlutterSecureStorage();
 
-    String? data = await storage.read(key: 'data');
-    if (data == null) return;
+    String? encrypted = await storage.read(key: 'data');
+    if (encrypted == null) return;
 
-    Encrypted encrypted = Encrypted.deserialize(data);
+    Data data = Data.deserialize(encrypted);
 
-    final Uint8List salt = Encryption.fromBase64(encrypted.salt);
-    final Uint8List key = Encryption.encryptArgon2(_passwordController.text, salt);
-    final Uint8List iv = Encryption.fromBase64(encrypted.iv);
+    final Uint8List salt = Encryption.fromBase64(data.salt);
+    final Uint8List key = Encryption.stretching(_passwordController.text, salt);
+    final Uint8List iv = Encryption.fromBase64(data.iv);
 
     final String note;
     try {
-      note = Encryption.decryptChaCha20Poly1305(encrypted.note, key, iv);
+      note = Encryption.decrypt(data.note, key, iv);
     } on ArgumentError {
       Utils.showSnackBar('Incorrect password');
       return;
@@ -65,6 +65,7 @@ class _SignInState extends State<SignIn> {
             androidPromptInfo:
                 AndroidPromptInfo(title: 'Authentication required', description: 'Fingerprints changed')),
       );
+
       try {
         await biometricStorage.write(Encryption.toBase64(key));
       } on AuthException catch (e) {
@@ -114,16 +115,16 @@ class _SignInState extends State<SignIn> {
     }
 
     const FlutterSecureStorage storage = FlutterSecureStorage();
-    String? data = await storage.read(key: 'data');
-    if (data == null) return;
+    String? encrypted = await storage.read(key: 'data');
+    if (encrypted == null) return;
 
-    Encrypted encrypted = Encrypted.deserialize(data);
+    Data data = Data.deserialize(encrypted);
 
     final Uint8List keyDecoded = Encryption.fromBase64(key);
-    final Uint8List iv = Encryption.fromBase64(encrypted.iv);
+    final Uint8List iv = Encryption.fromBase64(data.iv);
 
     try {
-      final String note = Encryption.decryptChaCha20Poly1305(encrypted.note, keyDecoded, iv);
+      final String note = Encryption.decrypt(data.note, keyDecoded, iv);
 
       widget.openNote(keyDecoded, note);
     } on ArgumentError {

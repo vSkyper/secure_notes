@@ -2,7 +2,7 @@ import 'package:biometric_storage/biometric_storage.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:secured_notes/encrypted.dart';
+import 'package:secured_notes/data.dart';
 import 'package:secured_notes/encryption.dart';
 import 'package:secured_notes/utils.dart';
 
@@ -37,31 +37,31 @@ class _SettingsState extends State<Settings> {
 
     const FlutterSecureStorage storage = FlutterSecureStorage();
 
-    String? data = await storage.read(key: 'data');
-    if (data == null) return;
+    String? encrypted = await storage.read(key: 'data');
+    if (encrypted == null) return;
 
-    Encrypted encrypted = Encrypted.deserialize(data);
+    Data data = Data.deserialize(encrypted);
 
-    final Uint8List salt = Encryption.fromBase64(encrypted.salt);
-    final Uint8List key = Encryption.encryptArgon2(_passwordController.text, salt);
-    final Uint8List iv = Encryption.fromBase64(encrypted.iv);
+    final Uint8List salt = Encryption.fromBase64(data.salt);
+    final Uint8List key = Encryption.stretching(_passwordController.text, salt);
+    final Uint8List iv = Encryption.fromBase64(data.iv);
 
     final String noteDecrypted;
     try {
-      noteDecrypted = Encryption.decryptChaCha20Poly1305(encrypted.note, key, iv);
+      noteDecrypted = Encryption.decrypt(data.note, key, iv);
     } on ArgumentError {
       Utils.showSnackBar('Incorrect password');
       return;
     }
 
     final Uint8List newSalt = Encryption.secureRandom(32);
-    final Uint8List newKey = Encryption.encryptArgon2(_repeatNewPasswordController.text, newSalt);
+    final Uint8List newKey = Encryption.stretching(_repeatNewPasswordController.text, newSalt);
     final Uint8List newIv = Encryption.secureRandom(12);
 
-    Encrypted newEncrypted = Encrypted(
+    Data newData = Data(
         salt: Encryption.toBase64(newSalt),
         iv: Encryption.toBase64(newIv),
-        note: Encryption.encryptChaCha20Poly1305(noteDecrypted, newKey, newIv));
+        note: Encryption.encrypt(noteDecrypted, newKey, newIv));
 
     final BiometricStorageFile biometricStorage = await BiometricStorage().getStorage(
       'key',
@@ -69,6 +69,7 @@ class _SettingsState extends State<Settings> {
           androidPromptInfo:
               AndroidPromptInfo(title: 'Authentication required', description: 'Confirm your password change')),
     );
+
     try {
       await biometricStorage.write(Encryption.toBase64(newKey));
     } on AuthException catch (e) {
@@ -85,7 +86,7 @@ class _SettingsState extends State<Settings> {
       return;
     }
 
-    await storage.write(key: 'data', value: Encrypted.serialize(newEncrypted));
+    await storage.write(key: 'data', value: Data.serialize(newData));
 
     widget.updatePassword(newKey);
 

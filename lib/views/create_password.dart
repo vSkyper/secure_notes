@@ -2,7 +2,7 @@ import 'package:biometric_storage/biometric_storage.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:secured_notes/encrypted.dart';
+import 'package:secured_notes/data.dart';
 import 'package:secured_notes/encryption.dart';
 import 'package:secured_notes/utils.dart';
 
@@ -34,13 +34,11 @@ class _CreatePasswordState extends State<CreatePassword> {
     if (!await Utils.canAuthenticate()) return;
 
     final Uint8List salt = Encryption.secureRandom(32);
-    final Uint8List key = Encryption.encryptArgon2(_repeatPasswordController.text, salt);
+    final Uint8List key = Encryption.stretching(_repeatPasswordController.text, salt);
     final Uint8List iv = Encryption.secureRandom(12);
 
-    Encrypted encrypted = Encrypted(
-        salt: Encryption.toBase64(salt),
-        iv: Encryption.toBase64(iv),
-        note: Encryption.encryptChaCha20Poly1305('', key, iv));
+    Data data =
+        Data(salt: Encryption.toBase64(salt), iv: Encryption.toBase64(iv), note: Encryption.encrypt('', key, iv));
 
     final BiometricStorageFile biometricStorage = await BiometricStorage().getStorage(
       'key',
@@ -48,6 +46,7 @@ class _CreatePasswordState extends State<CreatePassword> {
           androidPromptInfo:
               AndroidPromptInfo(title: 'Authentication required', description: 'Confirm password creation')),
     );
+
     try {
       await biometricStorage.write(Encryption.toBase64(key));
     } on AuthException catch (e) {
@@ -65,7 +64,7 @@ class _CreatePasswordState extends State<CreatePassword> {
     }
 
     const FlutterSecureStorage storage = FlutterSecureStorage();
-    await storage.write(key: 'data', value: Encrypted.serialize(encrypted));
+    await storage.write(key: 'data', value: Data.serialize(data));
 
     widget.fetchNote();
   }

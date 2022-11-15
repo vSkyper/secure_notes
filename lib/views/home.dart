@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:secured_notes/encrypted.dart';
+import 'package:secured_notes/data.dart';
 import 'package:secured_notes/encryption.dart';
 import 'package:secured_notes/views/settings.dart';
 
@@ -37,17 +37,17 @@ class _HomeState extends State<Home> {
 
   Future saveNote() async {
     const FlutterSecureStorage storage = FlutterSecureStorage();
-    String? data = await storage.read(key: 'data');
-    if (data == null) return;
+    String? encrypted = await storage.read(key: 'data');
+    if (encrypted == null) return;
 
     final Uint8List iv = Encryption.secureRandom(12);
 
-    Encrypted encrypted = Encrypted(
-        salt: Encrypted.deserialize(data).salt,
+    Data data = Data(
+        salt: Data.deserialize(encrypted).salt,
         iv: Encryption.toBase64(iv),
-        note: Encryption.encryptChaCha20Poly1305(_noteController.text, _password, iv));
+        note: Encryption.encrypt(_noteController.text, _password, iv));
 
-    await storage.write(key: 'data', value: Encrypted.serialize(encrypted));
+    await storage.write(key: 'data', value: Data.serialize(data));
   }
 
   void updatePassword(Uint8List password) {
