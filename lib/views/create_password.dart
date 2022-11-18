@@ -1,6 +1,6 @@
-import 'package:biometric_storage/biometric_storage.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_locker/flutter_locker.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:secured_notes/data.dart';
 import 'package:secured_notes/encryption.dart';
@@ -40,21 +40,21 @@ class _CreatePasswordState extends State<CreatePassword> {
     Data data =
         Data(salt: Encryption.toBase64(salt), iv: Encryption.toBase64(iv), note: Encryption.encrypt('', key, iv));
 
-    final BiometricStorageFile biometricStorage = await BiometricStorage().getStorage(
-      'key',
-      promptInfo: const PromptInfo(
-          androidPromptInfo:
-              AndroidPromptInfo(title: 'Authentication required', description: 'Confirm password creation')),
-    );
-
     try {
-      await biometricStorage.write(Encryption.toBase64(key));
-    } on AuthException catch (e) {
-      switch (e.code) {
-        case (AuthExceptionCode.userCanceled):
+      await FlutterLocker.save(
+        SaveSecretRequest(
+          key: 'key',
+          secret: Encryption.toBase64(key),
+          androidPrompt: AndroidPrompt(
+              title: 'Authentication required', descriptionLabel: 'Confirm password creation', cancelLabel: "Cancel"),
+        ),
+      );
+    } on LockerException catch (e) {
+      switch (e.reason) {
+        case (LockerExceptionReason.authenticationCanceled):
           Utils.showSnackBar('You must authenticate with your fingerprint to confirm the creation of a password');
           break;
-        case (AuthExceptionCode.unknown):
+        case (LockerExceptionReason.authenticationFailed):
           Utils.showSnackBar('Too many attempts or fingerprint reader error. Try again later');
           break;
         default:

@@ -1,6 +1,6 @@
-import 'package:biometric_storage/biometric_storage.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_locker/flutter_locker.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:secured_notes/data.dart';
 import 'package:secured_notes/encryption.dart';
@@ -63,21 +63,23 @@ class _SettingsState extends State<Settings> {
         iv: Encryption.toBase64(newIv),
         note: Encryption.encrypt(noteDecrypted, newKey, newIv));
 
-    final BiometricStorageFile biometricStorage = await BiometricStorage().getStorage(
-      'key',
-      promptInfo: const PromptInfo(
-          androidPromptInfo:
-              AndroidPromptInfo(title: 'Authentication required', description: 'Confirm your password change')),
-    );
-
     try {
-      await biometricStorage.write(Encryption.toBase64(newKey));
-    } on AuthException catch (e) {
-      switch (e.code) {
-        case (AuthExceptionCode.userCanceled):
+      await FlutterLocker.save(
+        SaveSecretRequest(
+          key: 'key',
+          secret: Encryption.toBase64(newKey),
+          androidPrompt: AndroidPrompt(
+              title: 'Authentication required',
+              descriptionLabel: 'Confirm your password change',
+              cancelLabel: "Cancel"),
+        ),
+      );
+    } on LockerException catch (e) {
+      switch (e.reason) {
+        case (LockerExceptionReason.authenticationCanceled):
           Utils.showSnackBar('You must authenticate with your fingerprint to confirm your password change');
           break;
-        case (AuthExceptionCode.unknown):
+        case (LockerExceptionReason.authenticationFailed):
           Utils.showSnackBar('Too many attempts or fingerprint reader error. Try again later');
           break;
         default:

@@ -1,7 +1,7 @@
-import 'package:biometric_storage/biometric_storage.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_locker/flutter_locker.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:secured_notes/data.dart';
 import 'package:secured_notes/encryption.dart';
@@ -59,22 +59,22 @@ class _SignInState extends State<SignIn> {
     }
 
     if (_isFingerprintChanged && await Utils.canAuthenticate()) {
-      final BiometricStorageFile biometricStorage = await BiometricStorage().getStorage(
-        'key',
-        promptInfo: const PromptInfo(
-            androidPromptInfo:
-                AndroidPromptInfo(title: 'Authentication required', description: 'Fingerprints changed')),
-      );
-
       try {
-        await biometricStorage.write(Encryption.toBase64(key));
-      } on AuthException catch (e) {
-        switch (e.code) {
-          case (AuthExceptionCode.userCanceled):
+        await FlutterLocker.save(
+          SaveSecretRequest(
+            key: 'key',
+            secret: Encryption.toBase64(key),
+            androidPrompt: AndroidPrompt(
+                title: 'Authentication required', descriptionLabel: 'Fingerprints changed', cancelLabel: "Cancel"),
+          ),
+        );
+      } on LockerException catch (e) {
+        switch (e.reason) {
+          case (LockerExceptionReason.authenticationCanceled):
             Utils.showSnackBar(
                 'You must authenticate with your fingerprint after changing fingerprints on your device');
             break;
-          case (AuthExceptionCode.unknown):
+          case (LockerExceptionReason.authenticationFailed):
             Utils.showSnackBar('Too many attempts or fingerprint reader error. Try again later');
             break;
           default:
@@ -90,27 +90,28 @@ class _SignInState extends State<SignIn> {
   Future signInWithFingerprint() async {
     if (!await Utils.canAuthenticate()) return;
 
-    final BiometricStorageFile biometricStorage = await BiometricStorage().getStorage(
-      'key',
-      promptInfo: const PromptInfo(
-          androidPromptInfo: AndroidPromptInfo(title: 'Authentication required', description: 'Sign in')),
-    );
     final String? key;
     try {
-      key = await biometricStorage.read();
-    } on AuthException catch (e) {
-      switch (e.code) {
-        case (AuthExceptionCode.unknown):
+      key = await FlutterLocker.retrieve(
+        RetrieveSecretRequest(
+          key: 'key',
+          androidPrompt:
+              AndroidPrompt(title: 'Authentication required', descriptionLabel: 'Sign in', cancelLabel: 'Cancel'),
+          iOsPrompt: IOsPrompt(touchIdText: 'Authenticate'),
+        ),
+      );
+    } on LockerException catch (e) {
+      switch (e.reason) {
+        case (LockerExceptionReason.authenticationFailed):
           Utils.showSnackBar('Too many attempts or fingerprint reader error. Try again later');
+          break;
+        case (LockerExceptionReason.secretNotFound):
+          _isFingerprintChanged = true;
+          Utils.showSnackBar('Sign in with password after changing fingerprints on device');
           break;
         default:
           break;
       }
-      return;
-    }
-    if (key == null) {
-      _isFingerprintChanged = true;
-      Utils.showSnackBar('Sign in with password after changing fingerprints on device');
       return;
     }
 
@@ -133,8 +134,7 @@ class _SignInState extends State<SignIn> {
   }
 
   Future createNewNote() async {
-    final BiometricStorageFile biometricStorage = await BiometricStorage().getStorage('key');
-    biometricStorage.delete();
+    await FlutterLocker.delete('key');
 
     const FlutterSecureStorage storage = FlutterSecureStorage();
     await storage.delete(key: 'data');

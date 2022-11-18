@@ -1,5 +1,5 @@
-import 'package:biometric_storage/biometric_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_locker/flutter_locker.dart';
 
 class Utils {
   static final GlobalKey<ScaffoldMessengerState> messengerKey = GlobalKey<ScaffoldMessengerState>();
@@ -21,11 +21,10 @@ class Utils {
   }
 
   static Future canAuthenticate() async {
-    final response = await BiometricStorage().canAuthenticate();
-    if (response != CanAuthenticateResponse.success) {
-      Utils.showSnackBar('Can\'t authenticate with biometric');
-      return false;
+    if (await FlutterLocker.canAuthenticate() ?? false) {
+      return true;
     }
-    return true;
+    Utils.showSnackBar('Can\'t authenticate with biometric');
+    return false;
   }
 }
