@@ -1,20 +1,20 @@
 import 'dart:convert';
 
 class Data {
-  String salt;
+  String saltKey;
+  String saltDeviceID;
   String iv;
-  String note;
 
-  Data({required this.salt, required this.iv, required this.note});
+  Data({required this.saltKey, required this.saltDeviceID, required this.iv});
 
   factory Data.fromJson(Map<String, dynamic> jsonData) {
-    return Data(salt: jsonData['salt'], iv: jsonData['iv'], note: jsonData['note']);
+    return Data(saltKey: jsonData['saltKey'], saltDeviceID: jsonData['saltDeviceID'], iv: jsonData['iv']);
   }
 
   static Map<String, dynamic> toMap(Data model) => {
-        'salt': model.salt,
+        'saltKey': model.saltKey,
+        'saltDeviceID': model.saltDeviceID,
         'iv': model.iv,
-        'note': model.note,
       };
 
   static String serialize(Data model) => jsonEncode(Data.toMap(model));

@@ -12,18 +12,18 @@ class Auth extends StatefulWidget {
 }
 
 class _AuthState extends State<Auth> {
-  Uint8List _key = Uint8List.fromList([]);
+  Uint8List _deviceID = Uint8List.fromList([]);
   String _note = '';
   bool _isNoteEncrypted = true;
 
   void openNote(Uint8List key, String note) => setState(() {
-        _key = key;
+        _deviceID = key;
         _note = note;
         _isNoteEncrypted = false;
       });
 
   void closeNote() => setState(() {
-        _key = Uint8List.fromList([]);
+        _deviceID = Uint8List.fromList([]);
         _note = '';
         _isNoteEncrypted = true;
       });
@@ -31,5 +31,5 @@ class _AuthState extends State<Auth> {
   @override
   Widget build(BuildContext context) => _isNoteEncrypted
       ? SignIn(fetchNote: widget.fetchNote, openNote: openNote)
-      : Home(password: _key, note: _note, closeNote: closeNote);
+      : Home(deviceID: _deviceID, note: _note, closeNote: closeNote);
 }

@@ -6,10 +6,10 @@ import 'package:secured_notes/encryption.dart';
 import 'package:secured_notes/views/settings.dart';
 
 class Home extends StatefulWidget {
-  final Uint8List password;
+  final Uint8List deviceID;
   final String note;
   final VoidCallback closeNote;
-  const Home({super.key, required this.password, required this.note, required this.closeNote});
+  const Home({super.key, required this.deviceID, required this.note, required this.closeNote});
 
   @override
   State<Home> createState() => _HomeState();
@@ -17,13 +17,13 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   final TextEditingController _noteController = TextEditingController();
-  late Uint8List _password;
+  late Uint8List _deviceID;
 
   @override
   void initState() {
     super.initState();
 
-    _password = widget.password;
+    _deviceID = widget.deviceID;
     _noteController.text = widget.note;
     _noteController.addListener(saveNote);
   }
@@ -43,15 +43,12 @@ class _HomeState extends State<Home> {
     final Uint8List iv = Encryption.secureRandom(12);
 
     Data data = Data(
-        salt: Data.deserialize(encrypted).salt,
-        iv: Encryption.toBase64(iv),
-        note: Encryption.encrypt(_noteController.text, _password, iv));
+        saltKey: Data.deserialize(encrypted).saltKey,
+        saltDeviceID: Data.deserialize(encrypted).saltDeviceID,
+        iv: Encryption.toBase64(iv));
 
     await storage.write(key: 'data', value: Data.serialize(data));
-  }
-
-  void updatePassword(Uint8List password) {
-    _password = password;
+    await storage.write(key: 'note', value: Encryption.encrypt(_noteController.text, _deviceID, iv));
   }
 
   @override
@@ -67,7 +64,7 @@ class _HomeState extends State<Home> {
               tooltip: 'Settings',
               icon: const Icon(Icons.settings),
               onPressed: () => Navigator.of(context).push(
-                MaterialPageRoute(builder: (context) => Settings(updatePassword: updatePassword)),
+                MaterialPageRoute(builder: (context) => const Settings()),
               ),
             ),
             IconButton(

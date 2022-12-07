@@ -1,8 +1,11 @@
+import 'package:device_info_plus/device_info_plus.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_locker/flutter_locker.dart';
+import 'package:local_auth/error_codes.dart' as auth_error;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:local_auth/local_auth.dart';
 import 'package:secured_notes/data.dart';
 import 'package:secured_notes/encryption.dart';
 import 'package:secured_notes/utils.dart';
@@ -19,7 +22,6 @@ class SignIn extends StatefulWidget {
 class _SignInState extends State<SignIn> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TextEditingController _passwordController = TextEditingController();
-  bool _isFingerprintChanged = false;
 
   @override
   void initState() {
@@ -43,101 +45,78 @@ class _SignInState extends State<SignIn> {
 
     String? encrypted = await storage.read(key: 'data');
     if (encrypted == null) return;
+    String? keyStorage = await storage.read(key: 'key');
+    if (keyStorage == null) return;
 
     Data data = Data.deserialize(encrypted);
 
-    final Uint8List salt = Encryption.fromBase64(data.salt);
-    final Uint8List key = Encryption.stretching(_passwordController.text, salt);
-    final Uint8List iv = Encryption.fromBase64(data.iv);
+    final Uint8List saltKey = Encryption.fromBase64(data.saltKey);
+    final Uint8List key = Encryption.stretching(_passwordController.text, saltKey);
 
-    final String note;
-    try {
-      note = Encryption.decrypt(data.note, key, iv);
-    } on ArgumentError {
+    if (!listEquals(key, Encryption.fromBase64(keyStorage))) {
       Utils.showSnackBar('Incorrect password');
       return;
     }
 
-    if (_isFingerprintChanged && await Utils.canAuthenticate()) {
-      try {
-        await FlutterLocker.save(
-          SaveSecretRequest(
-            key: 'key',
-            secret: Encryption.toBase64(key),
-            androidPrompt: AndroidPrompt(
-                title: 'Authentication required', descriptionLabel: 'Fingerprints changed', cancelLabel: "Cancel"),
-          ),
-        );
-      } on LockerException catch (e) {
-        switch (e.reason) {
-          case (LockerExceptionReason.authenticationCanceled):
-            Utils.showSnackBar(
-                'You must authenticate with your fingerprint after changing fingerprints on your device');
-            break;
-          case (LockerExceptionReason.authenticationFailed):
-            Utils.showSnackBar('Too many attempts or fingerprint reader error. Try again later');
-            break;
-          default:
-            break;
-        }
-        return;
-      }
-    }
+    String? note = await storage.read(key: 'note');
+    if (note == null) return;
 
-    widget.openNote(key, note);
+    DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+    AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
+
+    final Uint8List saltDeviceID = Encryption.fromBase64(data.saltDeviceID);
+    final Uint8List deviceID = Encryption.stretching(androidInfo.id, saltDeviceID);
+    final Uint8List iv = Encryption.fromBase64(data.iv);
+
+    String noteDecrypted = Encryption.decrypt(note, deviceID, iv);
+
+    widget.openNote(deviceID, noteDecrypted);
   }
 
   Future signInWithFingerprint() async {
     if (!await Utils.canAuthenticate()) return;
 
-    final String? key;
+    final LocalAuthentication auth = LocalAuthentication();
+
+    final bool didAuthenticate;
     try {
-      key = await FlutterLocker.retrieve(
-        RetrieveSecretRequest(
-          key: 'key',
-          androidPrompt:
-              AndroidPrompt(title: 'Authentication required', descriptionLabel: 'Sign in', cancelLabel: 'Cancel'),
-          iOsPrompt: IOsPrompt(touchIdText: 'Authenticate'),
-        ),
-      );
-    } on LockerException catch (e) {
-      switch (e.reason) {
-        case (LockerExceptionReason.authenticationFailed):
-          Utils.showSnackBar('Too many attempts or fingerprint reader error. Try again later');
-          break;
-        case (LockerExceptionReason.secretNotFound):
-          _isFingerprintChanged = true;
-          Utils.showSnackBar('Sign in with password after changing fingerprints on device');
-          break;
-        default:
-          break;
+      didAuthenticate = await auth.authenticate(
+          localizedReason: 'Sign in', options: const AuthenticationOptions(biometricOnly: true));
+    } on PlatformException catch (e) {
+      if (e.code == auth_error.lockedOut) {
+        Utils.showSnackBar('Too many attempts. Try again later');
       }
       return;
     }
 
+    if (!didAuthenticate) return;
+
     const FlutterSecureStorage storage = FlutterSecureStorage();
+
     String? encrypted = await storage.read(key: 'data');
     if (encrypted == null) return;
+    String? note = await storage.read(key: 'note');
+    if (note == null) return;
 
     Data data = Data.deserialize(encrypted);
 
-    final Uint8List keyDecoded = Encryption.fromBase64(key);
+    DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+    AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
+
+    final Uint8List saltDeviceID = Encryption.fromBase64(data.saltDeviceID);
+    final Uint8List deviceID = Encryption.stretching(androidInfo.id, saltDeviceID);
     final Uint8List iv = Encryption.fromBase64(data.iv);
 
-    try {
-      final String note = Encryption.decrypt(data.note, keyDecoded, iv);
+    String noteDecrypted = Encryption.decrypt(note, deviceID, iv);
 
-      widget.openNote(keyDecoded, note);
-    } on ArgumentError {
-      Utils.showSnackBar('Error occurred');
-    }
+    widget.openNote(deviceID, noteDecrypted);
   }
 
   Future createNewNote() async {
-    await FlutterLocker.delete('key');
-
     const FlutterSecureStorage storage = FlutterSecureStorage();
     await storage.delete(key: 'data');
+    await storage.delete(key: 'key');
+    await storage.delete(key: 'note');
 
     widget.fetchNote();
   }

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_locker/flutter_locker.dart';
+import 'package:local_auth/local_auth.dart';
 
 class Utils {
   static final GlobalKey<ScaffoldMessengerState> messengerKey = GlobalKey<ScaffoldMessengerState>();
@@ -21,7 +21,11 @@ class Utils {
   }
 
   static Future canAuthenticate() async {
-    if (await FlutterLocker.canAuthenticate() ?? false) {
+    final LocalAuthentication auth = LocalAuthentication();
+    final bool canAuthenticateWithBiometrics = await auth.canCheckBiometrics;
+    final bool canAuthenticate = canAuthenticateWithBiometrics || await auth.isDeviceSupported();
+
+    if (canAuthenticate) {
       return true;
     }
     Utils.showSnackBar('Can\'t authenticate with biometric');
