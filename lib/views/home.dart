@@ -1,3 +1,4 @@
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -6,10 +7,8 @@ import 'package:secured_notes/encryption.dart';
 import 'package:secured_notes/views/settings.dart';
 
 class Home extends StatefulWidget {
-  final Uint8List deviceID;
-  final String note;
   final VoidCallback closeNote;
-  const Home({super.key, required this.deviceID, required this.note, required this.closeNote});
+  const Home({super.key, required this.closeNote});
 
   @override
   State<Home> createState() => _HomeState();
@@ -23,8 +22,7 @@ class _HomeState extends State<Home> {
   void initState() {
     super.initState();
 
-    _deviceID = widget.deviceID;
-    _noteController.text = widget.note;
+    fetchNote();
     _noteController.addListener(saveNote);
   }
 
@@ -33,6 +31,27 @@ class _HomeState extends State<Home> {
     super.dispose();
 
     _noteController.dispose();
+  }
+
+  Future fetchNote() async {
+    const FlutterSecureStorage storage = FlutterSecureStorage();
+
+    String? encrypted = await storage.read(key: 'data');
+    if (encrypted == null) return;
+    String? note = await storage.read(key: 'note');
+    if (note == null) return;
+
+    Data data = Data.deserialize(encrypted);
+
+    DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+    AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
+
+    final Uint8List saltDeviceID = Encryption.fromBase64(data.saltDeviceID);
+    final Uint8List deviceID = Encryption.stretching(androidInfo.id, saltDeviceID);
+    final Uint8List iv = Encryption.fromBase64(data.iv);
+
+    _noteController.text = Encryption.decrypt(note, deviceID, iv);
+    _deviceID = deviceID;
   }
 
   Future saveNote() async {

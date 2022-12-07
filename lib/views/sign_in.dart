@@ -1,4 +1,3 @@
-import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -58,19 +57,7 @@ class _SignInState extends State<SignIn> {
       return;
     }
 
-    String? note = await storage.read(key: 'note');
-    if (note == null) return;
-
-    DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
-    AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
-
-    final Uint8List saltDeviceID = Encryption.fromBase64(data.saltDeviceID);
-    final Uint8List deviceID = Encryption.stretching(androidInfo.id, saltDeviceID);
-    final Uint8List iv = Encryption.fromBase64(data.iv);
-
-    String noteDecrypted = Encryption.decrypt(note, deviceID, iv);
-
-    widget.openNote(deviceID, noteDecrypted);
+    widget.openNote();
   }
 
   Future signInWithFingerprint() async {
@@ -91,25 +78,7 @@ class _SignInState extends State<SignIn> {
 
     if (!didAuthenticate) return;
 
-    const FlutterSecureStorage storage = FlutterSecureStorage();
-
-    String? encrypted = await storage.read(key: 'data');
-    if (encrypted == null) return;
-    String? note = await storage.read(key: 'note');
-    if (note == null) return;
-
-    Data data = Data.deserialize(encrypted);
-
-    DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
-    AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
-
-    final Uint8List saltDeviceID = Encryption.fromBase64(data.saltDeviceID);
-    final Uint8List deviceID = Encryption.stretching(androidInfo.id, saltDeviceID);
-    final Uint8List iv = Encryption.fromBase64(data.iv);
-
-    String noteDecrypted = Encryption.decrypt(note, deviceID, iv);
-
-    widget.openNote(deviceID, noteDecrypted);
+    widget.openNote();
   }
 
   Future createNewNote() async {
