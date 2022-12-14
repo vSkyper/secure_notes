@@ -36,7 +36,7 @@ class MyApp extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         scaffoldMessengerKey: Utils.messengerKey,
         theme: ThemeData(
-          useMaterial3: true,
+          useMaterial3: darkColorScheme != null ? true : false,
           colorScheme: darkColorScheme ?? ColorScheme.fromSwatch(primarySwatch: Colors.blue),
           scaffoldBackgroundColor: darkColorScheme?.background ?? const Color(0xFF18181B),
           appBarTheme: AppBarTheme(
