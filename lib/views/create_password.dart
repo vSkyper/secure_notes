@@ -1,9 +1,10 @@
-import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_locker/flutter_locker.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:secured_notes/data.dart';
 import 'package:secured_notes/encryption.dart';
+import 'package:secured_notes/utils.dart';
 
 class CreatePassword extends StatefulWidget {
   final VoidCallback fetchNote;
@@ -30,27 +31,47 @@ class _CreatePasswordState extends State<CreatePassword> {
     final bool isValid = _formKey.currentState!.validate();
     if (!isValid) return;
 
-    DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
-    AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
+    final Uint8List key = Encryption.secureRandom(32);
 
-    final Uint8List saltKey = Encryption.secureRandom(32);
-    final Uint8List key = Encryption.stretching(_repeatPasswordController.text, saltKey);
+    try {
+      await FlutterLocker.save(
+        SaveSecretRequest(
+          key: 'key',
+          secret: Encryption.toBase64(key),
+          androidPrompt: AndroidPrompt(
+              title: 'Authentication required', descriptionLabel: 'Confirm password creation', cancelLabel: "Cancel"),
+        ),
+      );
+    } on LockerException catch (e) {
+      switch (e.reason) {
+        case (LockerExceptionReason.authenticationCanceled):
+          Utils.showSnackBar('You must authenticate with your fingerprint to confirm the creation of a password');
+          break;
+        case (LockerExceptionReason.authenticationFailed):
+          Utils.showSnackBar('Too many attempts or fingerprint reader error. Try again later');
+          break;
+        default:
+          break;
+      }
+      return;
+    }
 
-    final Uint8List saltDeviceID = Encryption.secureRandom(32);
-    final Uint8List deviceID = Encryption.stretching(androidInfo.id, saltDeviceID);
+    final Uint8List salt = Encryption.secureRandom(32);
+    final Uint8List password = Encryption.stretching(_repeatPasswordController.text, salt);
 
-    final Uint8List iv = Encryption.secureRandom(12);
+    final Uint8List ivKey = Encryption.secureRandom(12);
+    final Uint8List ivNote = Encryption.secureRandom(12);
 
     Data data = Data(
-      saltKey: Encryption.toBase64(saltKey),
-      saltDeviceID: Encryption.toBase64(saltDeviceID),
-      iv: Encryption.toBase64(iv),
+      salt: Encryption.toBase64(salt),
+      ivKey: Encryption.toBase64(ivKey),
+      keyEncrypted: Encryption.encrypt(Encryption.toBase64(key), password, ivKey),
+      ivNote: Encryption.toBase64(ivNote),
+      noteEncrypted: Encryption.encrypt('', key, ivNote),
     );
 
     const FlutterSecureStorage storage = FlutterSecureStorage();
     await storage.write(key: 'data', value: Data.serialize(data));
-    await storage.write(key: 'key', value: Encryption.toBase64(key));
-    await storage.write(key: 'note', value: Encryption.encrypt('', deviceID, iv));
 
     widget.fetchNote();
   }

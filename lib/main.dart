@@ -19,7 +19,7 @@ class MyApp extends StatelessWidget {
   Future fetchNote() async {
     const FlutterSecureStorage storage = FlutterSecureStorage();
 
-    String? value = await storage.read(key: 'note');
+    String? value = await storage.read(key: 'data');
 
     if (value != null) {
       _noteStreamCtrl.sink.add('noteAvailable');

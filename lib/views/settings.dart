@@ -33,28 +33,38 @@ class _SettingsState extends State<Settings> {
 
     const FlutterSecureStorage storage = FlutterSecureStorage();
 
-    String? encrypted = await storage.read(key: 'data');
-    if (encrypted == null) return;
-    String? keyStorage = await storage.read(key: 'key');
-    if (keyStorage == null) return;
+    String? data = await storage.read(key: 'data');
+    if (data == null) return;
 
-    Data data = Data.deserialize(encrypted);
+    Data dataDeserialized = Data.deserialize(data);
 
-    final Uint8List saltKey = Encryption.fromBase64(data.saltKey);
-    final Uint8List key = Encryption.stretching(_passwordController.text, saltKey);
+    final Uint8List salt = Encryption.fromBase64(dataDeserialized.salt);
+    final Uint8List password = Encryption.stretching(_passwordController.text, salt);
 
-    if (!listEquals(key, Encryption.fromBase64(keyStorage))) {
+    final Uint8List ivKey = Encryption.fromBase64(dataDeserialized.ivKey);
+
+    final String key;
+    try {
+      key = Encryption.decrypt(dataDeserialized.keyEncrypted, password, ivKey);
+    } on ArgumentError {
       Utils.showSnackBar('Incorrect password');
       return;
     }
 
-    final Uint8List newSaltKey = Encryption.secureRandom(32);
-    final Uint8List newKey = Encryption.stretching(_repeatNewPasswordController.text, newSaltKey);
+    final Uint8List newSalt = Encryption.secureRandom(32);
+    final Uint8List newPassword = Encryption.stretching(_repeatNewPasswordController.text, newSalt);
 
-    Data newData = Data(saltKey: Encryption.toBase64(newSaltKey), saltDeviceID: data.saltDeviceID, iv: data.iv);
+    final Uint8List newIvKey = Encryption.secureRandom(12);
+
+    Data newData = Data(
+      salt: Encryption.toBase64(newSalt),
+      ivKey: Encryption.toBase64(newIvKey),
+      keyEncrypted: Encryption.encrypt(key, newPassword, newIvKey),
+      ivNote: dataDeserialized.ivNote,
+      noteEncrypted: dataDeserialized.ivNote,
+    );
 
     await storage.write(key: 'data', value: Data.serialize(newData));
-    await storage.write(key: 'key', value: Encryption.toBase64(newKey));
 
     Utils.showSnackBar('The password has been changed');
 

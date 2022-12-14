@@ -1,4 +1,3 @@
-import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -7,8 +6,10 @@ import 'package:secured_notes/encryption.dart';
 import 'package:secured_notes/views/settings.dart';
 
 class Home extends StatefulWidget {
+  final Uint8List key_;
+  final String note;
   final VoidCallback closeNote;
-  const Home({super.key, required this.closeNote});
+  const Home({super.key, required this.key_, required this.note, required this.closeNote});
 
   @override
   State<Home> createState() => _HomeState();
@@ -16,13 +17,14 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   final TextEditingController _noteController = TextEditingController();
-  late Uint8List _deviceID;
+  late Uint8List _key;
 
   @override
   void initState() {
     super.initState();
 
-    fetchNote();
+    _key = widget.key_;
+    _noteController.text = widget.note;
     _noteController.addListener(saveNote);
   }
 
@@ -33,41 +35,22 @@ class _HomeState extends State<Home> {
     _noteController.dispose();
   }
 
-  Future fetchNote() async {
-    const FlutterSecureStorage storage = FlutterSecureStorage();
-
-    String? encrypted = await storage.read(key: 'data');
-    if (encrypted == null) return;
-    String? note = await storage.read(key: 'note');
-    if (note == null) return;
-
-    Data data = Data.deserialize(encrypted);
-
-    DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
-    AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
-
-    final Uint8List saltDeviceID = Encryption.fromBase64(data.saltDeviceID);
-    final Uint8List deviceID = Encryption.stretching(androidInfo.id, saltDeviceID);
-    final Uint8List iv = Encryption.fromBase64(data.iv);
-
-    _noteController.text = Encryption.decrypt(note, deviceID, iv);
-    _deviceID = deviceID;
-  }
-
   Future saveNote() async {
     const FlutterSecureStorage storage = FlutterSecureStorage();
     String? encrypted = await storage.read(key: 'data');
     if (encrypted == null) return;
 
-    final Uint8List iv = Encryption.secureRandom(12);
+    final Uint8List ivNote = Encryption.secureRandom(12);
 
     Data data = Data(
-        saltKey: Data.deserialize(encrypted).saltKey,
-        saltDeviceID: Data.deserialize(encrypted).saltDeviceID,
-        iv: Encryption.toBase64(iv));
+      salt: Data.deserialize(encrypted).salt,
+      ivKey: Data.deserialize(encrypted).ivKey,
+      keyEncrypted: Data.deserialize(encrypted).keyEncrypted,
+      ivNote: Encryption.toBase64(ivNote),
+      noteEncrypted: Encryption.encrypt(_noteController.text, _key, ivNote),
+    );
 
     await storage.write(key: 'data', value: Data.serialize(data));
-    await storage.write(key: 'note', value: Encryption.encrypt(_noteController.text, _deviceID, iv));
   }
 
   @override

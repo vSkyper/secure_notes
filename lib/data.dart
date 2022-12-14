@@ -1,20 +1,35 @@
 import 'dart:convert';
 
 class Data {
-  String saltKey;
-  String saltDeviceID;
-  String iv;
+  String salt;
+  String ivKey;
+  String keyEncrypted;
+  String ivNote;
+  String noteEncrypted;
 
-  Data({required this.saltKey, required this.saltDeviceID, required this.iv});
+  Data({
+    required this.salt,
+    required this.ivKey,
+    required this.keyEncrypted,
+    required this.ivNote,
+    required this.noteEncrypted,
+  });
 
   factory Data.fromJson(Map<String, dynamic> jsonData) {
-    return Data(saltKey: jsonData['saltKey'], saltDeviceID: jsonData['saltDeviceID'], iv: jsonData['iv']);
+    return Data(
+        salt: jsonData['salt'],
+        ivKey: jsonData['ivKey'],
+        keyEncrypted: jsonData['keyEncrypted'],
+        ivNote: jsonData['ivNote'],
+        noteEncrypted: jsonData['noteEncrypted']);
   }
 
   static Map<String, dynamic> toMap(Data model) => {
-        'saltKey': model.saltKey,
-        'saltDeviceID': model.saltDeviceID,
-        'iv': model.iv,
+        'salt': model.salt,
+        'ivKey': model.ivKey,
+        'keyEncrypted': model.keyEncrypted,
+        'ivNote': model.ivNote,
+        'noteEncrypted': model.noteEncrypted,
       };
 
   static String serialize(Data model) => jsonEncode(Data.toMap(model));
