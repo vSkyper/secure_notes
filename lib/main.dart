@@ -44,7 +44,7 @@ class MyApp extends StatelessWidget {
             elevation: 0,
           ),
           textTheme: const TextTheme(
-            bodyText2: TextStyle(color: Colors.white, fontSize: 15),
+            bodyMedium: TextStyle(color: Colors.white, fontSize: 15),
           ),
         ),
         home: StreamBuilder(

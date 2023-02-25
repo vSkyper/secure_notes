@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_locker/flutter_locker.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:secured_notes/data.dart';
@@ -53,6 +54,8 @@ class _CreatePasswordState extends State<CreatePassword> {
         default:
           break;
       }
+      return;
+    } on PlatformException {
       return;
     }
 

@@ -82,6 +82,8 @@ class _SignInState extends State<SignIn> {
             break;
         }
         return;
+      } on PlatformException {
+        return;
       }
     }
 
@@ -124,6 +126,8 @@ class _SignInState extends State<SignIn> {
         default:
           break;
       }
+      return;
+    } on PlatformException {
       return;
     }
 
