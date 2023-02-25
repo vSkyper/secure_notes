@@ -82,7 +82,14 @@ class _SignInState extends State<SignIn> {
             break;
         }
         return;
-      } on PlatformException {
+      } on PlatformException catch (e) {
+        switch (e.message) {
+          case ('2'):
+            Utils.showSnackBar('Too many attempts or fingerprint reader error. Try again later');
+            break;
+          default:
+            break;
+        }
         return;
       }
     }
@@ -127,7 +134,14 @@ class _SignInState extends State<SignIn> {
           break;
       }
       return;
-    } on PlatformException {
+    } on PlatformException catch (e) {
+      switch (e.message) {
+        case ('2'):
+          Utils.showSnackBar('Too many attempts or fingerprint reader error. Try again later');
+          break;
+        default:
+          break;
+      }
       return;
     }
 

@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_locker/flutter_locker.dart';
@@ -55,7 +54,14 @@ class _CreatePasswordState extends State<CreatePassword> {
           break;
       }
       return;
-    } on PlatformException {
+    } on PlatformException catch (e) {
+      switch (e.message) {
+        case ('2'):
+          Utils.showSnackBar('Too many attempts or fingerprint reader error. Try again later');
+          break;
+        default:
+          break;
+      }
       return;
     }
 
