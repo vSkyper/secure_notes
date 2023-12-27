@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -44,7 +46,8 @@ class _SignInState extends State<SignIn> {
     String? data = await storage.read(key: 'data');
     if (data == null) return;
 
-    Data dataDeserialized = Data.deserialize(data);
+    Map<String, dynamic> dataMap = jsonDecode(data);
+    Data dataDeserialized = Data.fromJson(dataMap);
 
     final Uint8List salt = Encryption.fromBase64(dataDeserialized.salt);
     final Uint8List password = Encryption.stretching(_passwordController.text, salt);
@@ -146,16 +149,17 @@ class _SignInState extends State<SignIn> {
     }
 
     const FlutterSecureStorage storage = FlutterSecureStorage();
-    String? encrypted = await storage.read(key: 'data');
-    if (encrypted == null) return;
+    String? data = await storage.read(key: 'data');
+    if (data == null) return;
 
-    Data data = Data.deserialize(encrypted);
+    Map<String, dynamic> dataMap = jsonDecode(data);
+    Data dataDeserialized = Data.fromJson(dataMap);
 
     final Uint8List keyDecoded = Encryption.fromBase64(key);
-    final Uint8List ivNote = Encryption.fromBase64(data.ivNote);
+    final Uint8List ivNote = Encryption.fromBase64(dataDeserialized.ivNote);
 
     try {
-      final String note = Encryption.decrypt(data.noteEncrypted, keyDecoded, ivNote);
+      final String note = Encryption.decrypt(dataDeserialized.noteEncrypted, keyDecoded, ivNote);
 
       widget.openNote(keyDecoded, note);
     } on ArgumentError {
@@ -230,8 +234,8 @@ class _SignInState extends State<SignIn> {
                 ),
               ),
               const SizedBox(height: 15),
-              Row(
-                children: const [
+              const Row(
+                children: [
                   Expanded(child: Divider()),
                   Text(
                     'OR',

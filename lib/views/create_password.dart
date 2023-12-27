@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_locker/flutter_locker.dart';
@@ -72,15 +74,15 @@ class _CreatePasswordState extends State<CreatePassword> {
     final Uint8List ivNote = Encryption.secureRandom(12);
 
     Data data = Data(
-      salt: Encryption.toBase64(salt),
-      ivKey: Encryption.toBase64(ivKey),
-      keyEncrypted: Encryption.encrypt(Encryption.toBase64(key), password, ivKey),
-      ivNote: Encryption.toBase64(ivNote),
-      noteEncrypted: Encryption.encrypt('', key, ivNote),
+      Encryption.toBase64(salt),
+      Encryption.toBase64(ivKey),
+      Encryption.encrypt(Encryption.toBase64(key), password, ivKey),
+      Encryption.toBase64(ivNote),
+      Encryption.encrypt('', key, ivNote),
     );
 
     const FlutterSecureStorage storage = FlutterSecureStorage();
-    await storage.write(key: 'data', value: Data.serialize(data));
+    await storage.write(key: 'data', value: jsonEncode(data));
 
     widget.fetchNote();
   }

@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -37,20 +39,23 @@ class _HomeState extends State<Home> {
 
   Future saveNote() async {
     const FlutterSecureStorage storage = FlutterSecureStorage();
-    String? encrypted = await storage.read(key: 'data');
-    if (encrypted == null) return;
+    String? data = await storage.read(key: 'data');
+    if (data == null) return;
+
+    Map<String, dynamic> dataMap = jsonDecode(data);
+    Data dataDeserialized = Data.fromJson(dataMap);
 
     final Uint8List ivNote = Encryption.secureRandom(12);
 
-    Data data = Data(
-      salt: Data.deserialize(encrypted).salt,
-      ivKey: Data.deserialize(encrypted).ivKey,
-      keyEncrypted: Data.deserialize(encrypted).keyEncrypted,
-      ivNote: Encryption.toBase64(ivNote),
-      noteEncrypted: Encryption.encrypt(_noteController.text, _key, ivNote),
+    Data newData = Data(
+      dataDeserialized.salt,
+      dataDeserialized.ivKey,
+      dataDeserialized.keyEncrypted,
+      Encryption.toBase64(ivNote),
+      Encryption.encrypt(_noteController.text, _key, ivNote),
     );
 
-    await storage.write(key: 'data', value: Data.serialize(data));
+    await storage.write(key: 'data', value: jsonEncode(newData));
   }
 
   @override

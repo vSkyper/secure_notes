@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -36,7 +38,8 @@ class _SettingsState extends State<Settings> {
     String? data = await storage.read(key: 'data');
     if (data == null) return;
 
-    Data dataDeserialized = Data.deserialize(data);
+    Map<String, dynamic> dataMap = jsonDecode(data);
+    Data dataDeserialized = Data.fromJson(dataMap);
 
     final Uint8List salt = Encryption.fromBase64(dataDeserialized.salt);
     final Uint8List password = Encryption.stretching(_passwordController.text, salt);
@@ -57,14 +60,14 @@ class _SettingsState extends State<Settings> {
     final Uint8List newIvKey = Encryption.secureRandom(12);
 
     Data newData = Data(
-      salt: Encryption.toBase64(newSalt),
-      ivKey: Encryption.toBase64(newIvKey),
-      keyEncrypted: Encryption.encrypt(key, newPassword, newIvKey),
-      ivNote: dataDeserialized.ivNote,
-      noteEncrypted: dataDeserialized.ivNote,
+      Encryption.toBase64(newSalt),
+      Encryption.toBase64(newIvKey),
+      Encryption.encrypt(key, newPassword, newIvKey),
+      dataDeserialized.ivNote,
+      dataDeserialized.noteEncrypted,
     );
 
-    await storage.write(key: 'data', value: Data.serialize(newData));
+    await storage.write(key: 'data', value: jsonEncode(newData));
 
     Utils.showSnackBar('The password has been changed');
 
