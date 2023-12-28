@@ -21,10 +21,15 @@ class Utils {
   }
 
   static Future canAuthenticate() async {
-    if (await FlutterLocker.canAuthenticate() ?? false) {
-      return true;
+    try {
+      if (await FlutterLocker.canAuthenticate() ?? false) {
+        return true;
+      }
+      Utils.showSnackBar('Can\'t authenticate with biometric');
+      return false;
+    } catch (e) {
+      Utils.showSnackBar(e.toString());
+      return false;
     }
-    Utils.showSnackBar('Can\'t authenticate with biometric');
-    return false;
   }
 }

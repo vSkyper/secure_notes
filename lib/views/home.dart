@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:secure_notes/data.dart';
 import 'package:secure_notes/encryption.dart';
+import 'package:secure_notes/utils.dart';
 import 'package:secure_notes/views/settings.dart';
 
 class Home extends StatefulWidget {
@@ -37,25 +38,29 @@ class _HomeState extends State<Home> {
   }
 
   Future saveNote() async {
-    const FlutterSecureStorage storage = FlutterSecureStorage();
+    try {
+      const FlutterSecureStorage storage = FlutterSecureStorage();
+      final String? data = await storage.read(key: 'data');
+      if (data == null) return;
 
-    final String? data = await storage.read(key: 'data');
-    if (data == null) return;
+      final Map<String, dynamic> dataMap = jsonDecode(data);
+      final Data dataDeserialized = Data.fromJson(dataMap);
 
-    final Map<String, dynamic> dataMap = jsonDecode(data);
-    final Data dataDeserialized = Data.fromJson(dataMap);
+      final Uint8List ivNote = Encryption.secureRandom(12);
 
-    final Uint8List ivNote = Encryption.secureRandom(12);
+      Data newData = Data(
+        dataDeserialized.salt,
+        dataDeserialized.ivKey,
+        dataDeserialized.key,
+        Encryption.toBase64(ivNote),
+        Encryption.encrypt(_noteController.text, _key, ivNote),
+      );
 
-    Data newData = Data(
-      dataDeserialized.salt,
-      dataDeserialized.ivKey,
-      dataDeserialized.key,
-      Encryption.toBase64(ivNote),
-      Encryption.encrypt(_noteController.text, _key, ivNote),
-    );
-
-    await storage.write(key: 'data', value: jsonEncode(newData));
+      await storage.write(key: 'data', value: jsonEncode(newData));
+    } catch (e) {
+      Utils.showSnackBar(e.toString());
+      return;
+    }
   }
 
   @override

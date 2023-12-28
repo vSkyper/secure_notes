@@ -17,15 +17,19 @@ class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
   Future fetchNote() async {
-    const FlutterSecureStorage storage = FlutterSecureStorage();
+    try {
+      const FlutterSecureStorage storage = FlutterSecureStorage();
+      final String? value = await storage.read(key: 'data');
 
-    final String? value = await storage.read(key: 'data');
-
-    if (value != null) {
-      _noteStreamCtrl.sink.add('noteAvailable');
+      if (value != null) {
+        _noteStreamCtrl.sink.add('noteAvailable');
+        return;
+      }
+      _noteStreamCtrl.sink.add('noteNotAvailable');
+    } catch (e) {
+      Utils.showSnackBar(e.toString());
       return;
     }
-    _noteStreamCtrl.sink.add('noteNotAvailable');
   }
 
   @override

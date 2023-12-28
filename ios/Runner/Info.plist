@@ -4,6 +4,13 @@
 <dict>
   <key>NSFaceIDUsageDescription</key>
   <string>Authentication required</string>
+  <key>UIBackgroundModes</key>
+  <array>
+    <string>fetch</string>
+    <string>remote-notification</string>
+  </array>
+  <key>UISupportsDocumentBrowser</key>
+  <true/>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>

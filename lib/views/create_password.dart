@@ -1,5 +1,7 @@
 import 'dart:convert';
+import 'dart:io';
 
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_locker/flutter_locker.dart';
@@ -30,12 +32,11 @@ class _CreatePasswordState extends State<CreatePassword> {
   }
 
   Future createPassword() async {
-    final bool isValid = _formKey.currentState!.validate();
-    if (!isValid) return;
-
-    final Uint8List key = Encryption.secureRandom(32);
-
     try {
+      final bool isValid = _formKey.currentState!.validate();
+      if (!isValid) return;
+
+      final Uint8List key = Encryption.secureRandom(32);
       await FlutterLocker.save(
         SaveSecretRequest(
           key: 'key',
@@ -44,6 +45,25 @@ class _CreatePasswordState extends State<CreatePassword> {
               title: 'Authentication required', descriptionLabel: 'Confirm password creation', cancelLabel: "Cancel"),
         ),
       );
+
+      final Uint8List salt = Encryption.secureRandom(32);
+      final Uint8List password = Encryption.stretching(_repeatPasswordController.text, salt);
+
+      final Uint8List ivKey = Encryption.secureRandom(12);
+      final Uint8List ivNote = Encryption.secureRandom(12);
+
+      Data data = Data(
+        Encryption.toBase64(salt),
+        Encryption.toBase64(ivKey),
+        Encryption.encrypt(Encryption.toBase64(key), password, ivKey),
+        Encryption.toBase64(ivNote),
+        Encryption.encrypt('', key, ivNote),
+      );
+
+      const FlutterSecureStorage storage = FlutterSecureStorage();
+      await storage.write(key: 'data', value: jsonEncode(data));
+
+      widget.fetchNote();
     } on LockerException catch (e) {
       switch (e.reason) {
         case (LockerExceptionReason.authenticationCanceled):
@@ -65,26 +85,32 @@ class _CreatePasswordState extends State<CreatePassword> {
           break;
       }
       return;
+    } on Exception catch (e) {
+      Utils.showSnackBar(e.toString());
+      return;
     }
+  }
 
-    final Uint8List salt = Encryption.secureRandom(32);
-    final Uint8List password = Encryption.stretching(_repeatPasswordController.text, salt);
+  Future importNote() async {
+    try {
+      FilePickerResult? selectedFile =
+          await FilePicker.platform.pickFiles(type: FileType.custom, allowedExtensions: ['txt']);
+      if (selectedFile == null) {
+        Utils.showSnackBar('No file selected or storage permission denied');
+        return;
+      }
 
-    final Uint8List ivKey = Encryption.secureRandom(12);
-    final Uint8List ivNote = Encryption.secureRandom(12);
+      final File file = File(selectedFile.files.single.path!);
+      final String data = await file.readAsString();
 
-    Data data = Data(
-      Encryption.toBase64(salt),
-      Encryption.toBase64(ivKey),
-      Encryption.encrypt(Encryption.toBase64(key), password, ivKey),
-      Encryption.toBase64(ivNote),
-      Encryption.encrypt('', key, ivNote),
-    );
+      const FlutterSecureStorage storage = FlutterSecureStorage();
+      await storage.write(key: 'data', value: data);
 
-    const FlutterSecureStorage storage = FlutterSecureStorage();
-    await storage.write(key: 'data', value: jsonEncode(data));
-
-    widget.fetchNote();
+      widget.fetchNote();
+    } catch (e) {
+      Utils.showSnackBar(e.toString());
+      return;
+    }
   }
 
   @override
@@ -99,39 +125,62 @@ class _CreatePasswordState extends State<CreatePassword> {
         body: SingleChildScrollView(
           padding: const EdgeInsets.all(15),
           physics: const BouncingScrollPhysics(),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              children: [
-                TextFormField(
-                  controller: _passwordController,
-                  obscureText: true,
-                  textInputAction: TextInputAction.next,
-                  decoration: const InputDecoration(labelText: 'Password'),
-                  autovalidateMode: AutovalidateMode.onUserInteraction,
-                  validator: (value) => value != null && !RegExp(r'^\S{6,}$').hasMatch(value)
-                      ? 'Enter min. 6 characters without whitespaces'
-                      : null,
+          child: Column(
+            children: [
+              Form(
+                key: _formKey,
+                child: Column(
+                  children: [
+                    TextFormField(
+                      controller: _passwordController,
+                      obscureText: true,
+                      textInputAction: TextInputAction.next,
+                      decoration: const InputDecoration(labelText: 'Password'),
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
+                      validator: (value) => value != null && !RegExp(r'^\S{6,}$').hasMatch(value)
+                          ? 'Enter min. 6 characters without whitespaces'
+                          : null,
+                    ),
+                    const SizedBox(height: 10),
+                    TextFormField(
+                      controller: _repeatPasswordController,
+                      obscureText: true,
+                      textInputAction: TextInputAction.done,
+                      decoration: const InputDecoration(labelText: 'Repeat Password'),
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
+                      validator: (value) =>
+                          value != null && value != _passwordController.text ? 'Passwords must be the same' : null,
+                      onFieldSubmitted: (_) => createPassword(),
+                    ),
+                    const SizedBox(height: 20),
+                    ElevatedButton.icon(
+                      onPressed: createPassword,
+                      icon: const Icon(Icons.arrow_forward),
+                      label: const Text('Create'),
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 10),
-                TextFormField(
-                  controller: _repeatPasswordController,
-                  obscureText: true,
-                  textInputAction: TextInputAction.done,
-                  decoration: const InputDecoration(labelText: 'Repeat Password'),
-                  autovalidateMode: AutovalidateMode.onUserInteraction,
-                  validator: (value) =>
-                      value != null && value != _passwordController.text ? 'Passwords must be the same' : null,
-                  onFieldSubmitted: (_) => createPassword(),
-                ),
-                const SizedBox(height: 20),
-                ElevatedButton.icon(
-                  onPressed: createPassword,
-                  icon: const Icon(Icons.arrow_forward),
-                  label: const Text('Create'),
-                ),
-              ],
-            ),
+              ),
+              const SizedBox(height: 15),
+              const Row(
+                children: [
+                  Expanded(child: Divider()),
+                  Text(
+                    'OR',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w300,
+                    ),
+                  ),
+                  Expanded(child: Divider()),
+                ],
+              ),
+              const SizedBox(height: 15),
+              ElevatedButton.icon(
+                onPressed: importNote,
+                icon: const Icon(Icons.file_upload),
+                label: const Text('Import encrypted note'),
+              ),
+            ],
           ),
         ),
       ),
