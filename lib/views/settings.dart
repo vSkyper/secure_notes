@@ -2,9 +2,9 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:secured_notes/data.dart';
-import 'package:secured_notes/encryption.dart';
-import 'package:secured_notes/utils.dart';
+import 'package:secure_notes/data.dart';
+import 'package:secure_notes/encryption.dart';
+import 'package:secure_notes/utils.dart';
 
 class Settings extends StatefulWidget {
   const Settings({super.key});
@@ -103,14 +103,7 @@ class _SettingsState extends State<Settings> {
                   controller: _passwordController,
                   obscureText: true,
                   textInputAction: TextInputAction.next,
-                  style: const TextStyle(color: Colors.white),
-                  decoration: const InputDecoration(
-                    labelText: 'Old password',
-                    labelStyle: TextStyle(color: Colors.grey, fontSize: 14),
-                    enabledBorder: UnderlineInputBorder(
-                      borderSide: BorderSide(color: Colors.white),
-                    ),
-                  ),
+                  decoration: const InputDecoration(labelText: 'Old password'),
                   autovalidateMode: AutovalidateMode.onUserInteraction,
                   validator: (value) => value != null && value.isEmpty ? 'The password must not be empty' : null,
                 ),
@@ -119,14 +112,7 @@ class _SettingsState extends State<Settings> {
                   controller: _newPasswordController,
                   obscureText: true,
                   textInputAction: TextInputAction.next,
-                  style: const TextStyle(color: Colors.white),
-                  decoration: const InputDecoration(
-                    labelText: 'New password',
-                    labelStyle: TextStyle(color: Colors.grey, fontSize: 14),
-                    enabledBorder: UnderlineInputBorder(
-                      borderSide: BorderSide(color: Colors.white),
-                    ),
-                  ),
+                  decoration: const InputDecoration(labelText: 'New password'),
                   autovalidateMode: AutovalidateMode.onUserInteraction,
                   validator: (value) {
                     if (value == null) return null;
@@ -142,14 +128,7 @@ class _SettingsState extends State<Settings> {
                   controller: _confirmNewPasswordController,
                   obscureText: true,
                   textInputAction: TextInputAction.done,
-                  style: const TextStyle(color: Colors.white),
-                  decoration: const InputDecoration(
-                    labelText: 'Confirm new password',
-                    labelStyle: TextStyle(color: Colors.grey, fontSize: 14),
-                    enabledBorder: UnderlineInputBorder(
-                      borderSide: BorderSide(color: Colors.white),
-                    ),
-                  ),
+                  decoration: const InputDecoration(labelText: 'Confirm new password'),
                   autovalidateMode: AutovalidateMode.onUserInteraction,
                   validator: (value) =>
                       value != null && value != _newPasswordController.text ? 'Passwords must be the same' : null,
@@ -160,9 +139,6 @@ class _SettingsState extends State<Settings> {
                   onPressed: changePassword,
                   icon: const Icon(Icons.arrow_forward),
                   label: const Text('Change'),
-                  style: ElevatedButton.styleFrom(
-                    minimumSize: const Size.fromHeight(45),
-                  ),
                 ),
               ],
             ),

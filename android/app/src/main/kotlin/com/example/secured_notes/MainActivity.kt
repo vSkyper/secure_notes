@@ -1,4 +1,4 @@
-package com.example.secured_notes
+package com.secure_notes
 
 import io.flutter.embedding.android.FlutterFragmentActivity
 

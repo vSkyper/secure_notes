@@ -4,9 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_locker/flutter_locker.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:secured_notes/data.dart';
-import 'package:secured_notes/encryption.dart';
-import 'package:secured_notes/utils.dart';
+import 'package:secure_notes/data.dart';
+import 'package:secure_notes/encryption.dart';
+import 'package:secure_notes/utils.dart';
 
 class CreatePassword extends StatefulWidget {
   final VoidCallback fetchNote;
@@ -107,14 +107,7 @@ class _CreatePasswordState extends State<CreatePassword> {
                   controller: _passwordController,
                   obscureText: true,
                   textInputAction: TextInputAction.next,
-                  style: const TextStyle(color: Colors.white),
-                  decoration: const InputDecoration(
-                    labelText: 'Password',
-                    labelStyle: TextStyle(color: Colors.grey, fontSize: 14),
-                    enabledBorder: UnderlineInputBorder(
-                      borderSide: BorderSide(color: Colors.white),
-                    ),
-                  ),
+                  decoration: const InputDecoration(labelText: 'Password'),
                   autovalidateMode: AutovalidateMode.onUserInteraction,
                   validator: (value) => value != null && !RegExp(r'^\S{6,}$').hasMatch(value)
                       ? 'Enter min. 6 characters without whitespaces'
@@ -125,26 +118,17 @@ class _CreatePasswordState extends State<CreatePassword> {
                   controller: _repeatPasswordController,
                   obscureText: true,
                   textInputAction: TextInputAction.done,
-                  style: const TextStyle(color: Colors.white),
-                  decoration: const InputDecoration(
-                    labelText: 'Repeat Password',
-                    labelStyle: TextStyle(color: Colors.grey, fontSize: 14),
-                    enabledBorder: UnderlineInputBorder(
-                      borderSide: BorderSide(color: Colors.white),
-                    ),
-                  ),
+                  decoration: const InputDecoration(labelText: 'Repeat Password'),
                   autovalidateMode: AutovalidateMode.onUserInteraction,
                   validator: (value) =>
                       value != null && value != _passwordController.text ? 'Passwords must be the same' : null,
+                  onFieldSubmitted: (_) => createPassword(),
                 ),
                 const SizedBox(height: 20),
                 ElevatedButton.icon(
                   onPressed: createPassword,
                   icon: const Icon(Icons.arrow_forward),
                   label: const Text('Create'),
-                  style: ElevatedButton.styleFrom(
-                    minimumSize: const Size.fromHeight(45),
-                  ),
                 ),
               ],
             ),

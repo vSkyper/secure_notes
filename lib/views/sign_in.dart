@@ -4,9 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_locker/flutter_locker.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:secured_notes/data.dart';
-import 'package:secured_notes/encryption.dart';
-import 'package:secured_notes/utils.dart';
+import 'package:secure_notes/data.dart';
+import 'package:secure_notes/encryption.dart';
+import 'package:secure_notes/utils.dart';
 
 class SignIn extends StatefulWidget {
   final VoidCallback fetchNote;
@@ -196,14 +196,7 @@ class _SignInState extends State<SignIn> {
                       controller: _passwordController,
                       obscureText: true,
                       textInputAction: TextInputAction.done,
-                      style: const TextStyle(color: Colors.white),
-                      decoration: const InputDecoration(
-                        labelText: 'Password',
-                        labelStyle: TextStyle(color: Colors.grey, fontSize: 14),
-                        enabledBorder: UnderlineInputBorder(
-                          borderSide: BorderSide(color: Colors.white),
-                        ),
-                      ),
+                      decoration: const InputDecoration(labelText: 'Password'),
                       autovalidateMode: AutovalidateMode.onUserInteraction,
                       validator: (value) => value != null && value.isEmpty ? 'The password must not be empty' : null,
                       onFieldSubmitted: (_) => signIn(),
@@ -213,9 +206,6 @@ class _SignInState extends State<SignIn> {
                       onPressed: signIn,
                       icon: const Icon(Icons.lock_open),
                       label: const Text('Sign in'),
-                      style: ElevatedButton.styleFrom(
-                        minimumSize: const Size.fromHeight(45),
-                      ),
                     ),
                   ],
                 ),
@@ -240,8 +230,7 @@ class _SignInState extends State<SignIn> {
                   Text(
                     'OR',
                     style: TextStyle(
-                      color: Colors.grey,
-                      fontWeight: FontWeight.w200,
+                      fontWeight: FontWeight.w300,
                     ),
                   ),
                   Expanded(child: Divider()),

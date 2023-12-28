@@ -2,9 +2,9 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:secured_notes/data.dart';
-import 'package:secured_notes/encryption.dart';
-import 'package:secured_notes/views/settings.dart';
+import 'package:secure_notes/data.dart';
+import 'package:secure_notes/encryption.dart';
+import 'package:secure_notes/views/settings.dart';
 
 class Home extends StatefulWidget {
   final Uint8List key_;

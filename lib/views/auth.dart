@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:secured_notes/views/home.dart';
-import 'package:secured_notes/views/sign_in.dart';
+import 'package:secure_notes/views/home.dart';
+import 'package:secure_notes/views/sign_in.dart';
 
 class Auth extends StatefulWidget {
   final VoidCallback fetchNote;

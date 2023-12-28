@@ -89,13 +89,13 @@ BEGIN
     BEGIN
         BLOCK "040904e4"
         BEGIN
-            VALUE "CompanyName", "com.example" "\0"
-            VALUE "FileDescription", "secured_notes" "\0"
+            VALUE "CompanyName", "com.vSkyper" "\0"
+            VALUE "FileDescription", "secure_notes" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
-            VALUE "InternalName", "secured_notes" "\0"
-            VALUE "LegalCopyright", "Copyright (C) 2023 com.example. All rights reserved." "\0"
-            VALUE "OriginalFilename", "secured_notes.exe" "\0"
-            VALUE "ProductName", "secured_notes" "\0"
+            VALUE "InternalName", "secure_notes" "\0"
+            VALUE "LegalCopyright", "Copyright (C) 2023 com.vSkyper. All rights reserved." "\0"
+            VALUE "OriginalFilename", "secure_notes.exe" "\0"
+            VALUE "ProductName", "secure_notes" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END

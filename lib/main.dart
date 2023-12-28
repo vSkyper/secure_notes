@@ -2,9 +2,9 @@ import 'dart:async';
 import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:secured_notes/utils.dart';
-import 'package:secured_notes/views/auth.dart';
-import 'package:secured_notes/views/create_password.dart';
+import 'package:secure_notes/utils.dart';
+import 'package:secure_notes/views/auth.dart';
+import 'package:secure_notes/views/create_password.dart';
 
 void main() {
   runApp(const MyApp());
@@ -30,22 +30,51 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return DynamicColorBuilder(builder: (lightColorScheme, darkColorScheme) {
+    return DynamicColorBuilder(builder: (ColorScheme? lightDynamic, ColorScheme? darkDynamic) {
       return MaterialApp(
-        title: 'Secured Notes',
+        title: 'Secure Notes',
         debugShowCheckedModeBanner: false,
         scaffoldMessengerKey: Utils.messengerKey,
         theme: ThemeData(
-          useMaterial3: darkColorScheme != null ? true : false,
-          colorScheme: darkColorScheme ?? ColorScheme.fromSwatch(primarySwatch: Colors.blue),
-          scaffoldBackgroundColor: darkColorScheme?.background ?? const Color(0xFF18181B),
+          useMaterial3: true,
+          colorScheme: darkDynamic ?? ColorScheme.fromSwatch(primarySwatch: Colors.blue),
+          scaffoldBackgroundColor: darkDynamic?.background ?? const Color(0xFF18181B),
           appBarTheme: AppBarTheme(
-            color: darkColorScheme?.background ?? const Color(0xFF18181B),
+            color: darkDynamic?.background ?? const Color(0xFF18181B),
+            foregroundColor: darkDynamic?.onBackground ?? Colors.white,
             elevation: 0,
           ),
-          textTheme: const TextTheme(
-            bodyMedium: TextStyle(color: Colors.white, fontSize: 15),
+          textTheme: TextTheme(
+            bodyMedium: const TextStyle(color: Colors.white, fontSize: 15),
+            bodyLarge: TextStyle(color: darkDynamic?.onBackground ?? Colors.white),
           ),
+          inputDecorationTheme: InputDecorationTheme(
+            labelStyle: MaterialStateTextStyle.resolveWith((Set<MaterialState> states) {
+              final Color color = states.contains(MaterialState.error)
+                  ? darkDynamic?.onErrorContainer ?? Theme.of(context).colorScheme.error
+                  : darkDynamic?.onSurfaceVariant ?? Colors.white;
+              return TextStyle(color: color, fontSize: 14);
+            }),
+            floatingLabelStyle: MaterialStateTextStyle.resolveWith(
+              (Set<MaterialState> states) {
+                if (states.contains(MaterialState.error)) {
+                  return TextStyle(color: darkDynamic?.onErrorContainer ?? Theme.of(context).colorScheme.error);
+                }
+                if (states.contains(MaterialState.focused)) {
+                  return TextStyle(color: darkDynamic?.primary ?? Colors.blue);
+                }
+                return TextStyle(color: darkDynamic?.onSurfaceVariant ?? Colors.white);
+              },
+            ),
+          ),
+          elevatedButtonTheme: ElevatedButtonThemeData(
+            style: ElevatedButton.styleFrom(
+              minimumSize: const Size.fromHeight(45),
+              backgroundColor: darkDynamic?.surface ?? const Color(0xFF18181B),
+              foregroundColor: darkDynamic?.primary ?? Colors.white,
+            ),
+          ),
+          dividerTheme: DividerThemeData(color: darkDynamic?.outlineVariant ?? Colors.grey),
         ),
         home: StreamBuilder(
           initialData: fetchNote(),
