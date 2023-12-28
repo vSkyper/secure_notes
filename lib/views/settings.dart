@@ -17,7 +17,7 @@ class _SettingsState extends State<Settings> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _newPasswordController = TextEditingController();
-  final TextEditingController _repeatNewPasswordController = TextEditingController();
+  final TextEditingController _confirmNewPasswordController = TextEditingController();
 
   @override
   void dispose() {
@@ -25,7 +25,7 @@ class _SettingsState extends State<Settings> {
 
     _passwordController.dispose();
     _newPasswordController.dispose();
-    _repeatNewPasswordController.dispose();
+    _confirmNewPasswordController.dispose();
   }
 
   Future changePassword() async {
@@ -54,7 +54,7 @@ class _SettingsState extends State<Settings> {
     }
 
     final Uint8List newSalt = Encryption.secureRandom(32);
-    final Uint8List newPassword = Encryption.stretching(_repeatNewPasswordController.text, newSalt);
+    final Uint8List newPassword = Encryption.stretching(_confirmNewPasswordController.text, newSalt);
 
     final Uint8List newIvKey = Encryption.secureRandom(12);
 
@@ -105,7 +105,7 @@ class _SettingsState extends State<Settings> {
                   textInputAction: TextInputAction.next,
                   style: const TextStyle(color: Colors.white),
                   decoration: const InputDecoration(
-                    labelText: 'Old Password',
+                    labelText: 'Old password',
                     labelStyle: TextStyle(color: Colors.grey, fontSize: 14),
                     enabledBorder: UnderlineInputBorder(
                       borderSide: BorderSide(color: Colors.white),
@@ -121,7 +121,7 @@ class _SettingsState extends State<Settings> {
                   textInputAction: TextInputAction.next,
                   style: const TextStyle(color: Colors.white),
                   decoration: const InputDecoration(
-                    labelText: 'New Password',
+                    labelText: 'New password',
                     labelStyle: TextStyle(color: Colors.grey, fontSize: 14),
                     enabledBorder: UnderlineInputBorder(
                       borderSide: BorderSide(color: Colors.white),
@@ -139,12 +139,12 @@ class _SettingsState extends State<Settings> {
                 ),
                 const SizedBox(height: 10),
                 TextFormField(
-                  controller: _repeatNewPasswordController,
+                  controller: _confirmNewPasswordController,
                   obscureText: true,
                   textInputAction: TextInputAction.done,
                   style: const TextStyle(color: Colors.white),
                   decoration: const InputDecoration(
-                    labelText: 'Repeat New Password',
+                    labelText: 'Confirm new password',
                     labelStyle: TextStyle(color: Colors.grey, fontSize: 14),
                     enabledBorder: UnderlineInputBorder(
                       borderSide: BorderSide(color: Colors.white),
@@ -153,6 +153,7 @@ class _SettingsState extends State<Settings> {
                   autovalidateMode: AutovalidateMode.onUserInteraction,
                   validator: (value) =>
                       value != null && value != _newPasswordController.text ? 'Passwords must be the same' : null,
+                  onFieldSubmitted: (_) => changePassword(),
                 ),
                 const SizedBox(height: 20),
                 ElevatedButton.icon(

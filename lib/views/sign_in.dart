@@ -206,6 +206,7 @@ class _SignInState extends State<SignIn> {
                       ),
                       autovalidateMode: AutovalidateMode.onUserInteraction,
                       validator: (value) => value != null && value.isEmpty ? 'The password must not be empty' : null,
+                      onFieldSubmitted: (_) => signIn(),
                     ),
                     const SizedBox(height: 20),
                     ElevatedButton.icon(
@@ -225,7 +226,7 @@ class _SignInState extends State<SignIn> {
                   text: 'Forgot password? ',
                   children: [
                     TextSpan(
-                      text: 'Create new note',
+                      text: 'Reset note',
                       style: TextStyle(color: Theme.of(context).colorScheme.primary),
                       recognizer: TapGestureRecognizer()..onTap = createNewNote,
                     ),
