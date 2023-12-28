@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -35,11 +34,11 @@ class _SettingsState extends State<Settings> {
 
     const FlutterSecureStorage storage = FlutterSecureStorage();
 
-    String? data = await storage.read(key: 'data');
+    final String? data = await storage.read(key: 'data');
     if (data == null) return;
 
-    Map<String, dynamic> dataMap = jsonDecode(data);
-    Data dataDeserialized = Data.fromJson(dataMap);
+    final Map<String, dynamic> dataMap = jsonDecode(data);
+    final Data dataDeserialized = Data.fromJson(dataMap);
 
     final Uint8List salt = Encryption.fromBase64(dataDeserialized.salt);
     final Uint8List password = Encryption.stretching(_passwordController.text, salt);
@@ -48,7 +47,7 @@ class _SettingsState extends State<Settings> {
 
     final String key;
     try {
-      key = Encryption.decrypt(dataDeserialized.keyEncrypted, password, ivKey);
+      key = Encryption.decrypt(dataDeserialized.key, password, ivKey);
     } on ArgumentError {
       Utils.showSnackBar('Incorrect password');
       return;
@@ -64,7 +63,7 @@ class _SettingsState extends State<Settings> {
       Encryption.toBase64(newIvKey),
       Encryption.encrypt(key, newPassword, newIvKey),
       dataDeserialized.ivNote,
-      dataDeserialized.noteEncrypted,
+      dataDeserialized.note,
     );
 
     await storage.write(key: 'data', value: jsonEncode(newData));

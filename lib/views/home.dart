@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -19,7 +18,7 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   final TextEditingController _noteController = TextEditingController();
-  late Uint8List _key;
+  late final Uint8List _key;
 
   @override
   void initState() {
@@ -39,18 +38,19 @@ class _HomeState extends State<Home> {
 
   Future saveNote() async {
     const FlutterSecureStorage storage = FlutterSecureStorage();
-    String? data = await storage.read(key: 'data');
+
+    final String? data = await storage.read(key: 'data');
     if (data == null) return;
 
-    Map<String, dynamic> dataMap = jsonDecode(data);
-    Data dataDeserialized = Data.fromJson(dataMap);
+    final Map<String, dynamic> dataMap = jsonDecode(data);
+    final Data dataDeserialized = Data.fromJson(dataMap);
 
     final Uint8List ivNote = Encryption.secureRandom(12);
 
     Data newData = Data(
       dataDeserialized.salt,
       dataDeserialized.ivKey,
-      dataDeserialized.keyEncrypted,
+      dataDeserialized.key,
       Encryption.toBase64(ivNote),
       Encryption.encrypt(_noteController.text, _key, ivNote),
     );

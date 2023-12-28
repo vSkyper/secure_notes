@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -43,11 +42,11 @@ class _SignInState extends State<SignIn> {
 
     const FlutterSecureStorage storage = FlutterSecureStorage();
 
-    String? data = await storage.read(key: 'data');
+    final String? data = await storage.read(key: 'data');
     if (data == null) return;
 
-    Map<String, dynamic> dataMap = jsonDecode(data);
-    Data dataDeserialized = Data.fromJson(dataMap);
+    final Map<String, dynamic> dataMap = jsonDecode(data);
+    final Data dataDeserialized = Data.fromJson(dataMap);
 
     final Uint8List salt = Encryption.fromBase64(dataDeserialized.salt);
     final Uint8List password = Encryption.stretching(_passwordController.text, salt);
@@ -56,7 +55,7 @@ class _SignInState extends State<SignIn> {
 
     final String key;
     try {
-      key = Encryption.decrypt(dataDeserialized.keyEncrypted, password, ivKey);
+      key = Encryption.decrypt(dataDeserialized.key, password, ivKey);
     } on ArgumentError {
       Utils.showSnackBar('Incorrect password');
       return;
@@ -97,18 +96,18 @@ class _SignInState extends State<SignIn> {
       }
     }
 
-    final Uint8List keyDecoded = Encryption.fromBase64(key);
+    final Uint8List keyUint8List = Encryption.fromBase64(key);
     final Uint8List ivNote = Encryption.fromBase64(dataDeserialized.ivNote);
 
     final String note;
     try {
-      note = Encryption.decrypt(dataDeserialized.noteEncrypted, keyDecoded, ivNote);
+      note = Encryption.decrypt(dataDeserialized.note, keyUint8List, ivNote);
     } on ArgumentError {
       Utils.showSnackBar('Error occurred');
       return;
     }
 
-    widget.openNote(keyDecoded, note);
+    widget.openNote(keyUint8List, note);
   }
 
   Future signInWithFingerprint() async {
@@ -149,19 +148,19 @@ class _SignInState extends State<SignIn> {
     }
 
     const FlutterSecureStorage storage = FlutterSecureStorage();
-    String? data = await storage.read(key: 'data');
+    final String? data = await storage.read(key: 'data');
     if (data == null) return;
 
-    Map<String, dynamic> dataMap = jsonDecode(data);
-    Data dataDeserialized = Data.fromJson(dataMap);
+    final Map<String, dynamic> dataMap = jsonDecode(data);
+    final Data dataDeserialized = Data.fromJson(dataMap);
 
-    final Uint8List keyDecoded = Encryption.fromBase64(key);
+    final Uint8List keyUint8List = Encryption.fromBase64(key);
     final Uint8List ivNote = Encryption.fromBase64(dataDeserialized.ivNote);
 
     try {
-      final String note = Encryption.decrypt(dataDeserialized.noteEncrypted, keyDecoded, ivNote);
+      final String note = Encryption.decrypt(dataDeserialized.note, keyUint8List, ivNote);
 
-      widget.openNote(keyDecoded, note);
+      widget.openNote(keyUint8List, note);
     } on ArgumentError {
       Utils.showSnackBar('Error occurred');
     }
