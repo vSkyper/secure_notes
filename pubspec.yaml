@@ -7,6 +7,7 @@ environment:
   sdk: '>=3.2.3 <4.0.0'
 
 dependencies:
+  date_format: ^2.0.7
   dynamic_color: ^1.6.9
   file_picker: ^6.1.1
   flutter:

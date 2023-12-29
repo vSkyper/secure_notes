@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:date_format/date_format.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -89,9 +90,7 @@ class _SettingsState extends State<Settings> {
         return;
       }
 
-      final DateTime date = DateTime.now();
-      selectedDirectory +=
-          '/${date.month}-${date.day}-${date.year}-${date.hour}-${date.minute}-${date.second}.secure_note';
+      selectedDirectory += '/${formatDate(DateTime.now(), [yyyy, mm, dd, '_', HH, nn, ss])}.secure_note';
 
       final File file = File(selectedDirectory);
       await file.writeAsString(data);
