@@ -22,6 +22,7 @@ class _CreatePasswordState extends State<CreatePassword> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _repeatPasswordController = TextEditingController();
+  bool _isLoading = false;
 
   @override
   void dispose() {
@@ -93,7 +94,13 @@ class _CreatePasswordState extends State<CreatePassword> {
 
   Future importNote() async {
     try {
-      FilePickerResult? selectedFile = await FilePicker.platform.pickFiles();
+      FilePickerResult? selectedFile = await FilePicker.platform.pickFiles(onFileLoading: (status) {
+        if (status == FilePickerStatus.picking) {
+          setState(() => _isLoading = true);
+          return;
+        }
+        setState(() => _isLoading = false);
+      });
       if (selectedFile == null) {
         Utils.showSnackBar('No file selected or storage permission denied');
         return;
@@ -184,8 +191,17 @@ class _CreatePasswordState extends State<CreatePassword> {
               ),
               const SizedBox(height: 15),
               ElevatedButton.icon(
-                onPressed: importNote,
-                icon: const Icon(Icons.file_upload),
+                onPressed: _isLoading ? null : importNote,
+                icon: _isLoading
+                    ? const SizedBox(
+                        width: 24,
+                        height: 24,
+                        child: Padding(
+                          padding: EdgeInsets.all(3.0),
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        ),
+                      )
+                    : const Icon(Icons.upload_file),
                 label: const Text('Import encrypted note'),
               ),
             ],

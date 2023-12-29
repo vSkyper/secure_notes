@@ -185,7 +185,7 @@ class _SettingsState extends State<Settings> {
               const SizedBox(height: 10),
               ElevatedButton.icon(
                 onPressed: exportNote,
-                icon: const Icon(Icons.file_download),
+                icon: const Icon(Icons.download),
                 label: const Text('Export encrypted note'),
               ),
             ],
