@@ -89,7 +89,11 @@ class _SettingsState extends State<Settings> {
         return;
       }
 
-      final File file = File('$selectedDirectory/secure_notes.txt');
+      final DateTime date = DateTime.now();
+      selectedDirectory +=
+          '/${date.month}-${date.day}-${date.year}-${date.hour}-${date.minute}-${date.second}.secure_note';
+
+      final File file = File(selectedDirectory);
       await file.writeAsString(data);
 
       Utils.showSnackBar('Exported successfully');

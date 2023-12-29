@@ -93,8 +93,7 @@ class _CreatePasswordState extends State<CreatePassword> {
 
   Future importNote() async {
     try {
-      FilePickerResult? selectedFile =
-          await FilePicker.platform.pickFiles(type: FileType.custom, allowedExtensions: ['txt']);
+      FilePickerResult? selectedFile = await FilePicker.platform.pickFiles();
       if (selectedFile == null) {
         Utils.showSnackBar('No file selected or storage permission denied');
         return;
@@ -103,10 +102,19 @@ class _CreatePasswordState extends State<CreatePassword> {
       final File file = File(selectedFile.files.single.path!);
       final String data = await file.readAsString();
 
+      final Map<String, dynamic> dataMap = jsonDecode(data);
+      Data.fromJson(dataMap);
+
       const FlutterSecureStorage storage = FlutterSecureStorage();
       await storage.write(key: 'data', value: data);
 
       widget.fetchNote();
+    } on FormatException {
+      Utils.showSnackBar('Incorrect file format');
+      return;
+    } on FileSystemException {
+      Utils.showSnackBar('Incorrect file format');
+      return;
     } catch (e) {
       Utils.showSnackBar(e.toString());
       return;
