@@ -5,7 +5,7 @@ import 'package:pointycastle/pointycastle.dart';
 
 class Encryption {
   static Uint8List secureRandom(int length) {
-    return Uint8List.fromList(List.generate(length, (i) => Random.secure().nextInt(256)));
+    return Uint8List.fromList(List.generate(length, (_) => Random.secure().nextInt(256)));
   }
 
   static Uint8List fromBase64(String encoded) {

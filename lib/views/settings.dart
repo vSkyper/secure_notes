@@ -51,7 +51,7 @@ class _SettingsState extends State<Settings> {
       final String key = Encryption.decrypt(dataDeserialized.key, password, ivKey);
 
       final Uint8List newSalt = Encryption.secureRandom(32);
-      final Uint8List newPassword = Encryption.stretching(_confirmNewPasswordController.text, newSalt);
+      final Uint8List newPassword = Encryption.stretching(_newPasswordController.text, newSalt);
 
       final Uint8List newIvKey = Encryption.secureRandom(12);
 
@@ -112,7 +112,7 @@ class _SettingsState extends State<Settings> {
           title: const Text('Settings'),
         ),
         body: SingleChildScrollView(
-          padding: const EdgeInsets.all(15),
+          padding: const EdgeInsets.only(left: 15, right: 15, bottom: 15),
           physics: const BouncingScrollPhysics(),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,

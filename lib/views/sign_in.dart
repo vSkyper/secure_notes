@@ -189,7 +189,7 @@ class _SignInState extends State<SignIn> {
           title: const Text('Sign in'),
         ),
         body: SingleChildScrollView(
-          padding: const EdgeInsets.all(15),
+          padding: const EdgeInsets.only(left: 15, right: 15, bottom: 15),
           physics: const BouncingScrollPhysics(),
           child: Column(
             children: [

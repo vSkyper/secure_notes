@@ -90,7 +90,7 @@ class _HomeState extends State<Home> {
           thumbVisibility: true,
           radius: const Radius.circular(10),
           child: SingleChildScrollView(
-            padding: const EdgeInsets.all(15),
+            padding: const EdgeInsets.only(left: 15, right: 15, bottom: 15),
             physics: const BouncingScrollPhysics(),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -103,18 +103,21 @@ class _HomeState extends State<Home> {
                   ),
                 ),
                 const SizedBox(height: 10),
-                TextField(
-                  controller: _noteController,
-                  keyboardType: TextInputType.multiline,
-                  minLines: 8,
-                  maxLines: null,
-                  decoration: const InputDecoration.collapsed(
-                    hintText: "Enter your note here",
-                    hintStyle: TextStyle(
-                      color: Colors.grey,
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 20),
+                  child: TextField(
+                    controller: _noteController,
+                    keyboardType: TextInputType.multiline,
+                    minLines: 8,
+                    maxLines: null,
+                    decoration: const InputDecoration.collapsed(
+                      hintText: "Enter your note here",
+                      hintStyle: TextStyle(
+                        color: Colors.grey,
+                      ),
                     ),
+                    style: const TextStyle(color: Colors.white),
                   ),
-                  style: const TextStyle(color: Colors.white),
                 ),
               ],
             ),

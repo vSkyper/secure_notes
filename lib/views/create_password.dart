@@ -21,7 +21,7 @@ class CreatePassword extends StatefulWidget {
 class _CreatePasswordState extends State<CreatePassword> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _repeatPasswordController = TextEditingController();
+  final TextEditingController _confirmPasswordController = TextEditingController();
   bool _isLoading = false;
 
   @override
@@ -29,7 +29,7 @@ class _CreatePasswordState extends State<CreatePassword> {
     super.dispose();
 
     _passwordController.dispose();
-    _repeatPasswordController.dispose();
+    _confirmPasswordController.dispose();
   }
 
   Future createPassword() async {
@@ -48,7 +48,7 @@ class _CreatePasswordState extends State<CreatePassword> {
       );
 
       final Uint8List salt = Encryption.secureRandom(32);
-      final Uint8List password = Encryption.stretching(_repeatPasswordController.text, salt);
+      final Uint8List password = Encryption.stretching(_passwordController.text, salt);
 
       final Uint8List ivKey = Encryption.secureRandom(12);
       final Uint8List ivNote = Encryption.secureRandom(12);
@@ -138,7 +138,7 @@ class _CreatePasswordState extends State<CreatePassword> {
           title: const Text('Create Password'),
         ),
         body: SingleChildScrollView(
-          padding: const EdgeInsets.all(15),
+          padding: const EdgeInsets.only(left: 15, right: 15, bottom: 15),
           physics: const BouncingScrollPhysics(),
           child: Column(
             children: [
@@ -158,10 +158,10 @@ class _CreatePasswordState extends State<CreatePassword> {
                     ),
                     const SizedBox(height: 10),
                     TextFormField(
-                      controller: _repeatPasswordController,
+                      controller: _confirmPasswordController,
                       obscureText: true,
                       textInputAction: TextInputAction.done,
-                      decoration: const InputDecoration(labelText: 'Repeat Password'),
+                      decoration: const InputDecoration(labelText: 'Confirm Password'),
                       autovalidateMode: AutovalidateMode.onUserInteraction,
                       validator: (value) =>
                           value != null && value != _passwordController.text ? 'Passwords must be the same' : null,
