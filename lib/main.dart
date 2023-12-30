@@ -16,7 +16,7 @@ Stream<String> get onNoteCreated => _noteStreamCtrl.stream;
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  Future fetchNote() async {
+  Future _fetchNote() async {
     try {
       const FlutterSecureStorage storage = FlutterSecureStorage();
       final String? value = await storage.read(key: 'data');
@@ -81,15 +81,15 @@ class MyApp extends StatelessWidget {
           dividerTheme: DividerThemeData(color: darkDynamic?.outlineVariant ?? Colors.grey),
         ),
         home: StreamBuilder(
-          initialData: fetchNote(),
+          initialData: _fetchNote(),
           stream: onNoteCreated,
           builder: (context, snapshot) {
             if (snapshot.hasData) {
               switch (snapshot.data) {
                 case 'noteAvailable':
-                  return Auth(fetchNote: fetchNote);
+                  return Auth(fetchNote: _fetchNote);
                 case 'noteNotAvailable':
-                  return CreatePassword(fetchNote: fetchNote);
+                  return CreatePassword(fetchNote: _fetchNote);
               }
             }
             return const Scaffold(body: Center(child: CircularProgressIndicator()));

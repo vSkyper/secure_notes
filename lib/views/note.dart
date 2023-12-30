@@ -7,17 +7,17 @@ import 'package:secure_notes/encryption.dart';
 import 'package:secure_notes/utils.dart';
 import 'package:secure_notes/views/settings.dart';
 
-class Home extends StatefulWidget {
+class Note extends StatefulWidget {
   final Uint8List key_;
   final String note;
   final VoidCallback closeNote;
-  const Home({super.key, required this.key_, required this.note, required this.closeNote});
+  const Note({super.key, required this.key_, required this.note, required this.closeNote});
 
   @override
-  State<Home> createState() => _HomeState();
+  State<Note> createState() => _NoteState();
 }
 
-class _HomeState extends State<Home> {
+class _NoteState extends State<Note> {
   final TextEditingController _noteController = TextEditingController();
   late final Uint8List _key;
 
@@ -27,7 +27,7 @@ class _HomeState extends State<Home> {
 
     _key = widget.key_;
     _noteController.text = widget.note;
-    _noteController.addListener(saveNote);
+    _noteController.addListener(_saveNote);
   }
 
   @override
@@ -37,7 +37,7 @@ class _HomeState extends State<Home> {
     _noteController.dispose();
   }
 
-  Future saveNote() async {
+  Future _saveNote() async {
     try {
       const FlutterSecureStorage storage = FlutterSecureStorage();
       final String? data = await storage.read(key: 'data');
@@ -80,7 +80,7 @@ class _HomeState extends State<Home> {
               ),
             ),
             IconButton(
-              tooltip: 'Logout',
+              tooltip: 'Sign out',
               icon: const Icon(Icons.logout, color: Colors.red),
               onPressed: widget.closeNote,
             ),

@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:io';
-
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -32,7 +31,7 @@ class _CreatePasswordState extends State<CreatePassword> {
     _confirmPasswordController.dispose();
   }
 
-  Future createPassword() async {
+  Future _createPassword() async {
     try {
       final bool isValid = _formKey.currentState!.validate();
       if (!isValid) return;
@@ -92,7 +91,7 @@ class _CreatePasswordState extends State<CreatePassword> {
     }
   }
 
-  Future importNote() async {
+  Future _importNote() async {
     try {
       FilePickerResult? selectedFile = await FilePicker.platform.pickFiles(onFileLoading: (status) {
         if (status == FilePickerStatus.picking) {
@@ -165,11 +164,11 @@ class _CreatePasswordState extends State<CreatePassword> {
                       autovalidateMode: AutovalidateMode.onUserInteraction,
                       validator: (value) =>
                           value != null && value != _passwordController.text ? 'Passwords must be the same' : null,
-                      onFieldSubmitted: (_) => createPassword(),
+                      onFieldSubmitted: (_) => _createPassword(),
                     ),
                     const SizedBox(height: 20),
                     ElevatedButton.icon(
-                      onPressed: createPassword,
+                      onPressed: _createPassword,
                       icon: const Icon(Icons.arrow_forward),
                       label: const Text('Create'),
                     ),
@@ -191,7 +190,7 @@ class _CreatePasswordState extends State<CreatePassword> {
               ),
               const SizedBox(height: 15),
               ElevatedButton.icon(
-                onPressed: _isLoading ? null : importNote,
+                onPressed: _isLoading ? null : _importNote,
                 icon: _isLoading
                     ? const SizedBox(
                         width: 24,

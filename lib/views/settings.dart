@@ -31,7 +31,7 @@ class _SettingsState extends State<Settings> {
     _confirmNewPasswordController.dispose();
   }
 
-  Future changePassword() async {
+  Future _changePassword() async {
     try {
       final bool isValid = _formKey.currentState!.validate();
       if (!isValid) return;
@@ -78,7 +78,7 @@ class _SettingsState extends State<Settings> {
     }
   }
 
-  Future exportNote() async {
+  Future _exportNote() async {
     try {
       const FlutterSecureStorage storage = FlutterSecureStorage();
       final String? data = await storage.read(key: 'data');
@@ -163,11 +163,11 @@ class _SettingsState extends State<Settings> {
                       autovalidateMode: AutovalidateMode.onUserInteraction,
                       validator: (value) =>
                           value != null && value != _newPasswordController.text ? 'Passwords must be the same' : null,
-                      onFieldSubmitted: (_) => changePassword(),
+                      onFieldSubmitted: (_) => _changePassword(),
                     ),
                     const SizedBox(height: 20),
                     ElevatedButton.icon(
-                      onPressed: changePassword,
+                      onPressed: _changePassword,
                       icon: const Icon(Icons.arrow_forward),
                       label: const Text('Change'),
                     ),
@@ -184,7 +184,7 @@ class _SettingsState extends State<Settings> {
               ),
               const SizedBox(height: 10),
               ElevatedButton.icon(
-                onPressed: exportNote,
+                onPressed: _exportNote,
                 icon: const Icon(Icons.download),
                 label: const Text('Export encrypted note'),
               ),

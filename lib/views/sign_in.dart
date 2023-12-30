@@ -26,7 +26,7 @@ class _SignInState extends State<SignIn> {
   void initState() {
     super.initState();
 
-    signInWithFingerprint();
+    _signInWithFingerprint();
   }
 
   @override
@@ -36,7 +36,7 @@ class _SignInState extends State<SignIn> {
     _passwordController.dispose();
   }
 
-  Future signIn() async {
+  Future _signIn() async {
     try {
       final bool isValid = _formKey.currentState!.validate();
       if (!isValid) return;
@@ -108,7 +108,7 @@ class _SignInState extends State<SignIn> {
     }
   }
 
-  Future signInWithFingerprint() async {
+  Future _signInWithFingerprint() async {
     try {
       if (!await Utils.canAuthenticate()) return;
 
@@ -166,7 +166,7 @@ class _SignInState extends State<SignIn> {
     }
   }
 
-  Future createNewNote() async {
+  Future _createNewNote() async {
     try {
       const FlutterSecureStorage storage = FlutterSecureStorage();
       await storage.delete(key: 'data');
@@ -177,6 +177,33 @@ class _SignInState extends State<SignIn> {
       Utils.showSnackBar(e.toString());
       return;
     }
+  }
+
+  Future<void> _showAlertDialog() async {
+    return showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Reset note'),
+          content: const Text('Are you sure you want to reset the note?'),
+          actions: [
+            TextButton(
+              child: const Text('No'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: const Text('Yes'),
+              onPressed: () {
+                _createNewNote();
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -204,11 +231,11 @@ class _SignInState extends State<SignIn> {
                       decoration: const InputDecoration(labelText: 'Password'),
                       autovalidateMode: AutovalidateMode.onUserInteraction,
                       validator: (value) => value != null && value.isEmpty ? 'The password must not be empty' : null,
-                      onFieldSubmitted: (_) => signIn(),
+                      onFieldSubmitted: (_) => _signIn(),
                     ),
                     const SizedBox(height: 20),
                     ElevatedButton.icon(
-                      onPressed: signIn,
+                      onPressed: _signIn,
                       icon: const Icon(Icons.lock_open),
                       label: const Text('Sign in'),
                     ),
@@ -223,7 +250,7 @@ class _SignInState extends State<SignIn> {
                     TextSpan(
                       text: 'Reset note',
                       style: TextStyle(color: Theme.of(context).colorScheme.primary),
-                      recognizer: TapGestureRecognizer()..onTap = createNewNote,
+                      recognizer: TapGestureRecognizer()..onTap = _showAlertDialog,
                     ),
                   ],
                 ),
@@ -243,7 +270,7 @@ class _SignInState extends State<SignIn> {
               ),
               const SizedBox(height: 15),
               IconButton(
-                onPressed: signInWithFingerprint,
+                onPressed: _signInWithFingerprint,
                 icon: const Icon(Icons.fingerprint),
                 iconSize: 45,
                 style: IconButton.styleFrom(
