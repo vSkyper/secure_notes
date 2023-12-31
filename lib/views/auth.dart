@@ -4,7 +4,7 @@ import 'package:secure_notes/views/note.dart';
 import 'package:secure_notes/views/sign_in.dart';
 
 class Auth extends StatefulWidget {
-  final VoidCallback fetchNote;
+  final Function() fetchNote;
   const Auth({super.key, required this.fetchNote});
 
   @override

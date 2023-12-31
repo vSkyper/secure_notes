@@ -10,7 +10,7 @@ import 'package:secure_notes/views/settings.dart';
 class Note extends StatefulWidget {
   final Uint8List key_;
   final String note;
-  final VoidCallback closeNote;
+  final Function() closeNote;
   const Note({super.key, required this.key_, required this.note, required this.closeNote});
 
   @override

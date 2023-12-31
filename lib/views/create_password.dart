@@ -10,7 +10,7 @@ import 'package:secure_notes/encryption.dart';
 import 'package:secure_notes/utils.dart';
 
 class CreatePassword extends StatefulWidget {
-  final VoidCallback fetchNote;
+  final Function() fetchNote;
   const CreatePassword({super.key, required this.fetchNote});
 
   @override

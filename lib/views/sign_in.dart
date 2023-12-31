@@ -9,7 +9,7 @@ import 'package:secure_notes/encryption.dart';
 import 'package:secure_notes/utils.dart';
 
 class SignIn extends StatefulWidget {
-  final VoidCallback fetchNote;
+  final Function() fetchNote;
   final Function openNote;
   const SignIn({super.key, required this.fetchNote, required this.openNote});
 
@@ -188,17 +188,18 @@ class _SignInState extends State<SignIn> {
           content: const Text('Are you sure you want to reset the note?'),
           actions: [
             TextButton(
-              child: const Text('No'),
+              child: const Text('Cancel'),
               onPressed: () {
                 Navigator.of(context).pop();
               },
             ),
             TextButton(
-              child: const Text('Yes'),
+              style: TextButton.styleFrom(foregroundColor: Theme.of(context).colorScheme.error),
               onPressed: () {
                 _createNewNote();
                 Navigator.of(context).pop();
               },
+              child: const Text('Reset'),
             ),
           ],
         );

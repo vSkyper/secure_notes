@@ -4,15 +4,9 @@ import 'package:flutter_locker/flutter_locker.dart';
 class Utils {
   static final GlobalKey<ScaffoldMessengerState> messengerKey = GlobalKey<ScaffoldMessengerState>();
 
-  static showSnackBar(String? text) {
-    if (text == null) return;
-
+  static showSnackBar(String text) {
     final SnackBar snackBar = SnackBar(
-      content: Text(
-        text,
-        style: const TextStyle(color: Colors.white),
-      ),
-      backgroundColor: Colors.red,
+      content: Text(text),
     );
 
     messengerKey.currentState!

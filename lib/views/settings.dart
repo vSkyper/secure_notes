@@ -67,8 +67,8 @@ class _SettingsState extends State<Settings> {
 
       Utils.showSnackBar('The password has been changed');
 
-      if (!mounted) return;
-      Navigator.of(context).pop();
+      _formKey.currentState!.reset();
+      FocusManager.instance.primaryFocus?.unfocus();
     } on ArgumentError {
       Utils.showSnackBar('Incorrect password');
       return;

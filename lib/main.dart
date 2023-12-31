@@ -41,44 +41,16 @@ class MyApp extends StatelessWidget {
         scaffoldMessengerKey: Utils.messengerKey,
         theme: ThemeData(
           useMaterial3: true,
-          colorScheme: darkDynamic ?? ColorScheme.fromSwatch(primarySwatch: Colors.blue),
-          scaffoldBackgroundColor: darkDynamic?.background ?? const Color(0xFF18181B),
-          appBarTheme: AppBarTheme(
-            color: darkDynamic?.background ?? const Color(0xFF18181B),
-            foregroundColor: darkDynamic?.onBackground ?? Colors.white,
-            elevation: 0,
-          ),
-          textTheme: TextTheme(
-            bodyMedium: const TextStyle(color: Colors.white, fontSize: 15),
-            bodyLarge: TextStyle(color: darkDynamic?.onBackground ?? Colors.white),
-          ),
-          inputDecorationTheme: InputDecorationTheme(
-            labelStyle: MaterialStateTextStyle.resolveWith((Set<MaterialState> states) {
-              final Color color = states.contains(MaterialState.error)
-                  ? darkDynamic?.onErrorContainer ?? Theme.of(context).colorScheme.error
-                  : darkDynamic?.onSurfaceVariant ?? Colors.white;
-              return TextStyle(color: color, fontSize: 14);
-            }),
-            floatingLabelStyle: MaterialStateTextStyle.resolveWith(
-              (Set<MaterialState> states) {
-                if (states.contains(MaterialState.error)) {
-                  return TextStyle(color: darkDynamic?.onErrorContainer ?? Theme.of(context).colorScheme.error);
-                }
-                if (states.contains(MaterialState.focused)) {
-                  return TextStyle(color: darkDynamic?.primary ?? Colors.blue);
-                }
-                return TextStyle(color: darkDynamic?.onSurfaceVariant ?? Colors.white);
-              },
-            ),
-          ),
+          colorScheme: darkDynamic ??
+              ColorScheme.fromSeed(seedColor: const Color.fromARGB(255, 74, 49, 121), brightness: Brightness.dark),
+          appBarTheme: const AppBarTheme(elevation: 0),
+          textTheme: const TextTheme(bodyMedium: TextStyle(fontSize: 15)),
+          inputDecorationTheme: const InputDecorationTheme(labelStyle: TextStyle(fontSize: 14)),
           elevatedButtonTheme: ElevatedButtonThemeData(
             style: ElevatedButton.styleFrom(
               minimumSize: const Size.fromHeight(45),
-              backgroundColor: darkDynamic?.surface ?? const Color(0xFF18181B),
-              foregroundColor: darkDynamic?.primary ?? Colors.white,
             ),
           ),
-          dividerTheme: DividerThemeData(color: darkDynamic?.outlineVariant ?? Colors.grey),
         ),
         home: StreamBuilder(
           initialData: _fetchNote(),
