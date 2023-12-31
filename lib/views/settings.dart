@@ -21,6 +21,7 @@ class _SettingsState extends State<Settings> {
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _newPasswordController = TextEditingController();
   final TextEditingController _confirmNewPasswordController = TextEditingController();
+  bool _incorrectPassword = false;
 
   @override
   void dispose() {
@@ -29,6 +30,10 @@ class _SettingsState extends State<Settings> {
     _passwordController.dispose();
     _newPasswordController.dispose();
     _confirmNewPasswordController.dispose();
+  }
+
+  void _passwordChanged() {
+    if (_incorrectPassword) _incorrectPassword = false;
   }
 
   Future _changePassword() async {
@@ -70,7 +75,8 @@ class _SettingsState extends State<Settings> {
       _formKey.currentState!.reset();
       FocusManager.instance.primaryFocus?.unfocus();
     } on ArgumentError {
-      Utils.showSnackBar('Incorrect password');
+      _incorrectPassword = true;
+      _formKey.currentState!.validate();
       return;
     } catch (e) {
       Utils.showSnackBar(e.toString());
@@ -136,7 +142,12 @@ class _SettingsState extends State<Settings> {
                       textInputAction: TextInputAction.next,
                       decoration: const InputDecoration(labelText: 'Old password'),
                       autovalidateMode: AutovalidateMode.onUserInteraction,
-                      validator: (value) => value != null && value.isEmpty ? 'The password must not be empty' : null,
+                      onChanged: (_) => _passwordChanged(),
+                      validator: (value) {
+                        if (value != null && value.isEmpty) return 'The password must not be empty';
+                        if (_incorrectPassword) return 'Incorrect password';
+                        return null;
+                      },
                     ),
                     const SizedBox(height: 10),
                     TextFormField(

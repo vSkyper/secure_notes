@@ -21,6 +21,7 @@ class _SignInState extends State<SignIn> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TextEditingController _passwordController = TextEditingController();
   bool _secretNotFound = false;
+  bool _incorrectPassword = false;
 
   @override
   void initState() {
@@ -34,6 +35,10 @@ class _SignInState extends State<SignIn> {
     super.dispose();
 
     _passwordController.dispose();
+  }
+
+  void _passwordChanged() {
+    if (_incorrectPassword) _incorrectPassword = false;
   }
 
   Future _signIn() async {
@@ -74,7 +79,8 @@ class _SignInState extends State<SignIn> {
 
       widget.openNote(keyUint8List, note);
     } on ArgumentError {
-      Utils.showSnackBar('Incorrect password');
+      _incorrectPassword = true;
+      _formKey.currentState!.validate();
       return;
     } on LockerException catch (e) {
       switch (e.reason) {
@@ -231,7 +237,12 @@ class _SignInState extends State<SignIn> {
                       textInputAction: TextInputAction.done,
                       decoration: const InputDecoration(labelText: 'Password'),
                       autovalidateMode: AutovalidateMode.onUserInteraction,
-                      validator: (value) => value != null && value.isEmpty ? 'The password must not be empty' : null,
+                      onChanged: (_) => _passwordChanged(),
+                      validator: (value) {
+                        if (value != null && value.isEmpty) return 'The password must not be empty';
+                        if (_incorrectPassword) return 'Incorrect password';
+                        return null;
+                      },
                       onFieldSubmitted: (_) => _signIn(),
                     ),
                     const SizedBox(height: 20),
