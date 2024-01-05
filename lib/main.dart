@@ -5,6 +5,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:secure_notes/utils.dart';
 import 'package:secure_notes/views/auth.dart';
 import 'package:secure_notes/views/create_password.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   runApp(const MyApp());
@@ -34,9 +35,21 @@ class MyApp extends StatelessWidget {
     }
   }
 
+  Future<void> _clearSecureStorageOnReinstall() async {
+    const String key = 'hasRunBefore';
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    final bool? hasRunBefore = prefs.getBool(key);
+    if (hasRunBefore == null || !hasRunBefore) {
+      const FlutterSecureStorage storage = FlutterSecureStorage();
+      await storage.deleteAll();
+      await prefs.setBool(key, true);
+    }
+    _fetchNote();
+  }
+
   @override
   Widget build(BuildContext context) {
-    _fetchNote();
+    _clearSecureStorageOnReinstall();
 
     return DynamicColorBuilder(builder: (ColorScheme? lightDynamic, ColorScheme? darkDynamic) {
       return MaterialApp(
