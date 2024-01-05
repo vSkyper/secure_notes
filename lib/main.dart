@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:secure_notes/utils.dart';
 import 'package:secure_notes/views/auth.dart';
@@ -27,7 +28,7 @@ class MyApp extends StatelessWidget {
       }
       _noteStreamCtrl.add('noteNotAvailable');
     } catch (e) {
-      Utils.showSnackBar(e.toString());
+      _noteStreamCtrl.add('noteNotAvailable');
       return;
     }
   }
