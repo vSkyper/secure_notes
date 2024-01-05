@@ -22,10 +22,10 @@ class MyApp extends StatelessWidget {
       final String? value = await storage.read(key: 'data');
 
       if (value != null) {
-        _noteStreamCtrl.sink.add('noteAvailable');
+        _noteStreamCtrl.add('noteAvailable');
         return;
       }
-      _noteStreamCtrl.sink.add('noteNotAvailable');
+      _noteStreamCtrl.add('noteNotAvailable');
     } catch (e) {
       Utils.showSnackBar(e.toString());
       return;
@@ -34,6 +34,8 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    _fetchNote();
+
     return DynamicColorBuilder(builder: (ColorScheme? lightDynamic, ColorScheme? darkDynamic) {
       return MaterialApp(
         title: 'Secure Notes',
@@ -52,10 +54,9 @@ class MyApp extends StatelessWidget {
             ),
           ),
         ),
-        home: StreamBuilder(
-          initialData: _fetchNote(),
+        home: StreamBuilder<String>(
           stream: onNoteCreated,
-          builder: (context, snapshot) {
+          builder: (context, AsyncSnapshot<String> snapshot) {
             if (snapshot.hasData) {
               switch (snapshot.data) {
                 case 'noteAvailable':
