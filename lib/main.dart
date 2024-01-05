@@ -16,7 +16,7 @@ Stream<String> get onNoteCreated => _noteStreamCtrl.stream;
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  Future _fetchNote() async {
+  Future<void> _fetchNote() async {
     try {
       const FlutterSecureStorage storage = FlutterSecureStorage();
       final String? value = await storage.read(key: 'data');

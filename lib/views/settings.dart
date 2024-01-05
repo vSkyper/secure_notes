@@ -36,7 +36,7 @@ class _SettingsState extends State<Settings> {
     if (_incorrectPassword) _incorrectPassword = false;
   }
 
-  Future _changePassword() async {
+  Future<void> _changePassword() async {
     try {
       final bool isValid = _formKey.currentState!.validate();
       if (!isValid) return;
@@ -84,7 +84,7 @@ class _SettingsState extends State<Settings> {
     }
   }
 
-  Future _exportNote() async {
+  Future<void> _exportNote() async {
     try {
       const FlutterSecureStorage storage = FlutterSecureStorage();
       final String? data = await storage.read(key: 'data');

@@ -31,7 +31,7 @@ class _CreatePasswordState extends State<CreatePassword> {
     _confirmPasswordController.dispose();
   }
 
-  Future _createPassword() async {
+  Future<void> _createPassword() async {
     try {
       final bool isValid = _formKey.currentState!.validate();
       if (!isValid) return;
@@ -91,7 +91,7 @@ class _CreatePasswordState extends State<CreatePassword> {
     }
   }
 
-  Future _importNote() async {
+  Future<void> _importNote() async {
     try {
       FilePickerResult? selectedFile = await FilePicker.platform.pickFiles(onFileLoading: (status) {
         if (status == FilePickerStatus.picking) {

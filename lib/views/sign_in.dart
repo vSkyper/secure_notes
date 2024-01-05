@@ -41,7 +41,7 @@ class _SignInState extends State<SignIn> {
     if (_incorrectPassword) _incorrectPassword = false;
   }
 
-  Future _signIn() async {
+  Future<void> _signIn() async {
     try {
       final bool isValid = _formKey.currentState!.validate();
       if (!isValid) return;
@@ -114,7 +114,7 @@ class _SignInState extends State<SignIn> {
     }
   }
 
-  Future _signInWithFingerprint() async {
+  Future<void> _signInWithFingerprint() async {
     try {
       if (!await Utils.canAuthenticate()) return;
 
@@ -172,7 +172,7 @@ class _SignInState extends State<SignIn> {
     }
   }
 
-  Future _createNewNote() async {
+  Future<void> _createNewNote() async {
     try {
       const FlutterSecureStorage storage = FlutterSecureStorage();
       await storage.delete(key: 'data');

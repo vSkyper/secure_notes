@@ -4,7 +4,7 @@ import 'package:flutter_locker/flutter_locker.dart';
 class Utils {
   static final GlobalKey<ScaffoldMessengerState> messengerKey = GlobalKey<ScaffoldMessengerState>();
 
-  static showSnackBar(String text) {
+  static void showSnackBar(String text) {
     final SnackBar snackBar = SnackBar(
       content: Text(text),
     );
@@ -14,7 +14,7 @@ class Utils {
       ..showSnackBar(snackBar);
   }
 
-  static Future canAuthenticate() async {
+  static Future<bool> canAuthenticate() async {
     try {
       if (await FlutterLocker.canAuthenticate() ?? false) {
         return true;

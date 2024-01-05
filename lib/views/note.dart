@@ -37,7 +37,7 @@ class _NoteState extends State<Note> {
     _noteController.dispose();
   }
 
-  Future _saveNote() async {
+  Future<void> _saveNote() async {
     try {
       const FlutterSecureStorage storage = FlutterSecureStorage();
       final String? data = await storage.read(key: 'data');
