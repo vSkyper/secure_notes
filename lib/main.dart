@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:secure_notes/utils.dart';
 import 'package:secure_notes/views/auth.dart';
@@ -11,8 +10,10 @@ void main() {
   runApp(const MyApp());
 }
 
-final StreamController<String> _noteStreamCtrl = StreamController<String>.broadcast();
-Stream<String> get onNoteCreated => _noteStreamCtrl.stream;
+enum NoteStatus { available, notAvailable }
+
+final StreamController<NoteStatus> _noteStreamCtrl = StreamController<NoteStatus>.broadcast();
+Stream<NoteStatus> get onNoteCreated => _noteStreamCtrl.stream;
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -23,12 +24,12 @@ class MyApp extends StatelessWidget {
       final String? value = await storage.read(key: 'data');
 
       if (value != null) {
-        _noteStreamCtrl.add('noteAvailable');
+        _noteStreamCtrl.add(NoteStatus.available);
         return;
       }
-      _noteStreamCtrl.add('noteNotAvailable');
+      _noteStreamCtrl.add(NoteStatus.notAvailable);
     } catch (e) {
-      _noteStreamCtrl.add('noteNotAvailable');
+      _noteStreamCtrl.add(NoteStatus.notAvailable);
       return;
     }
   }
@@ -55,14 +56,15 @@ class MyApp extends StatelessWidget {
             ),
           ),
         ),
-        home: StreamBuilder<String>(
+        home: StreamBuilder<NoteStatus>(
           stream: onNoteCreated,
-          builder: (context, AsyncSnapshot<String> snapshot) {
+          builder: (context, AsyncSnapshot<NoteStatus> snapshot) {
             if (snapshot.hasData) {
               switch (snapshot.data) {
-                case 'noteAvailable':
+                case NoteStatus.available:
                   return Auth(fetchNote: _fetchNote);
-                case 'noteNotAvailable':
+                case NoteStatus.notAvailable:
+                default:
                   return CreatePassword(fetchNote: _fetchNote);
               }
             }
