@@ -251,6 +251,12 @@ class _SignInState extends State<SignIn> {
                       icon: const Icon(Icons.lock_open),
                       label: const Text('Sign in'),
                     ),
+                    const SizedBox(height: 15),
+                    ElevatedButton.icon(
+                      onPressed: _signInWithFingerprint,
+                      icon: const Icon(Icons.fingerprint),
+                      label: const Text('Sign in with fingerprint'),
+                    ),
                   ],
                 ),
               ),
@@ -265,28 +271,6 @@ class _SignInState extends State<SignIn> {
                       recognizer: TapGestureRecognizer()..onTap = _showAlertDialog,
                     ),
                   ],
-                ),
-              ),
-              const SizedBox(height: 15),
-              const Row(
-                children: [
-                  Expanded(child: Divider()),
-                  Text(
-                    'OR',
-                    style: TextStyle(
-                      fontWeight: FontWeight.w300,
-                    ),
-                  ),
-                  Expanded(child: Divider()),
-                ],
-              ),
-              const SizedBox(height: 15),
-              IconButton(
-                onPressed: _signInWithFingerprint,
-                icon: const Icon(Icons.fingerprint),
-                iconSize: 45,
-                style: IconButton.styleFrom(
-                  foregroundColor: Theme.of(context).colorScheme.primary,
                 ),
               ),
             ],

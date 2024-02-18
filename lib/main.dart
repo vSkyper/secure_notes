@@ -57,10 +57,8 @@ class MyApp extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         scaffoldMessengerKey: Utils.messengerKey,
         theme: ThemeData(
-          useMaterial3: true,
           colorScheme: darkDynamic ??
               ColorScheme.fromSeed(seedColor: const Color.fromARGB(255, 74, 49, 121), brightness: Brightness.dark),
-          appBarTheme: const AppBarTheme(elevation: 0),
           textTheme: const TextTheme(bodyMedium: TextStyle(fontSize: 15)),
           inputDecorationTheme: const InputDecorationTheme(labelStyle: TextStyle(fontSize: 14)),
           elevatedButtonTheme: ElevatedButtonThemeData(
