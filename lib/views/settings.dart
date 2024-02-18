@@ -92,7 +92,7 @@ class _SettingsState extends State<Settings> {
 
       String? selectedDirectory = await FilePicker.platform.getDirectoryPath();
       if (selectedDirectory == null) {
-        Utils.showSnackBar('No directory selected or storage permission denied');
+        Utils.showSnackBar('No directory has been selected or access to storage is denied');
         return;
       }
 
@@ -101,7 +101,7 @@ class _SettingsState extends State<Settings> {
       final File file = File(selectedDirectory);
       await file.writeAsString(data);
 
-      Utils.showSnackBar('Exported successfully');
+      Utils.showSnackBar('Export completed successfully');
     } catch (e) {
       Utils.showSnackBar(e.toString());
       return;

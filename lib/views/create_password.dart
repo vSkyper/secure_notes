@@ -67,10 +67,11 @@ class _CreatePasswordState extends State<CreatePassword> {
     } on LockerException catch (e) {
       switch (e.reason) {
         case (LockerExceptionReason.authenticationCanceled):
-          Utils.showSnackBar('You must authenticate with your fingerprint to confirm the creation of a password');
+          Utils.showSnackBar('Please authenticate using your fingerprint to confirm the creation of a password');
           break;
         case (LockerExceptionReason.authenticationFailed):
-          Utils.showSnackBar('Too many attempts or fingerprint reader error. Try again later');
+          Utils.showSnackBar(
+              'Exceeded maximum attempts or encountering a fingerprint reader error. Please try again later');
           break;
         default:
           break;
@@ -78,8 +79,12 @@ class _CreatePasswordState extends State<CreatePassword> {
       return;
     } on PlatformException catch (e) {
       switch (e.message) {
+        case ('1'):
+          Utils.showSnackBar('Please authenticate using your fingerprint to confirm the creation of a password');
+          break;
         case ('2'):
-          Utils.showSnackBar('Too many attempts or fingerprint reader error. Try again later');
+          Utils.showSnackBar(
+              'Exceeded maximum attempts or encountering a fingerprint reader error. Please try again later');
           break;
         default:
           break;
@@ -101,7 +106,7 @@ class _CreatePasswordState extends State<CreatePassword> {
         setState(() => _isLoading = false);
       });
       if (selectedFile == null) {
-        Utils.showSnackBar('No file selected or storage permission denied');
+        Utils.showSnackBar('No file has been selected or access to storage is denied');
         return;
       }
 
@@ -116,10 +121,10 @@ class _CreatePasswordState extends State<CreatePassword> {
 
       widget.fetchNote();
     } on FormatException {
-      Utils.showSnackBar('Incorrect file format');
+      Utils.showSnackBar('The selected file format is incorrect');
       return;
     } on FileSystemException {
-      Utils.showSnackBar('Incorrect file format');
+      Utils.showSnackBar('The selected file format is incorrect');
       return;
     } catch (e) {
       Utils.showSnackBar(e.toString());

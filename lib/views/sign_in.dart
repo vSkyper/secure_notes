@@ -66,7 +66,9 @@ class _SignInState extends State<SignIn> {
             key: 'key',
             secret: key,
             androidPrompt: AndroidPrompt(
-                title: 'Authentication required', descriptionLabel: 'Fingerprints changed', cancelLabel: "Cancel"),
+                title: 'Authentication required',
+                descriptionLabel: 'Authenticate using your fingerprints',
+                cancelLabel: "Cancel"),
           ),
         );
       }
@@ -86,10 +88,11 @@ class _SignInState extends State<SignIn> {
       switch (e.reason) {
         case (LockerExceptionReason.authenticationCanceled):
           Utils.showSnackBar(
-              'You must authenticate with your fingerprint after changing fingerprints on your device or importing a note');
+              'Please authenticate with your fingerprint after updating fingerprints on the device or importing a note');
           break;
         case (LockerExceptionReason.authenticationFailed):
-          Utils.showSnackBar('Too many attempts or fingerprint reader error. Try again later');
+          Utils.showSnackBar(
+              'Exceeded maximum attempts or encountering a fingerprint reader error. Please try again later');
           break;
         default:
           break;
@@ -99,10 +102,11 @@ class _SignInState extends State<SignIn> {
       switch (e.message) {
         case ('1'):
           Utils.showSnackBar(
-              'You must authenticate with your fingerprint after changing fingerprints on your device or importing a note');
+              'Please authenticate with your fingerprint after updating fingerprints on the device or importing a note');
           break;
         case ('2'):
-          Utils.showSnackBar('Too many attempts or fingerprint reader error. Try again later');
+          Utils.showSnackBar(
+              'Exceeded maximum attempts or encountering a fingerprint reader error. Please try again later');
           break;
         default:
           break;
@@ -144,10 +148,12 @@ class _SignInState extends State<SignIn> {
       switch (e.reason) {
         case (LockerExceptionReason.secretNotFound):
           _secretNotFound = true;
-          Utils.showSnackBar('Sign in with password after changing fingerprints on device or importing a note');
+          Utils.showSnackBar(
+              'Sign in using your password after updating fingerprints on the device or importing a note');
           break;
         case (LockerExceptionReason.authenticationFailed):
-          Utils.showSnackBar('Too many attempts or fingerprint reader error. Try again later');
+          Utils.showSnackBar(
+              'Exceeded maximum attempts or encountering a fingerprint reader error. Please try again later');
           break;
         default:
           break;
@@ -157,10 +163,12 @@ class _SignInState extends State<SignIn> {
       switch (e.message) {
         case ('0'):
           _secretNotFound = true;
-          Utils.showSnackBar('Sign in with password after changing fingerprints on device or importing a note');
+          Utils.showSnackBar(
+              'Sign in using your password after updating fingerprints on the device or importing a note');
           break;
         case ('2'):
-          Utils.showSnackBar('Too many attempts or fingerprint reader error. Try again later');
+          Utils.showSnackBar(
+              'Exceeded maximum attempts or encountering a fingerprint reader error. Please try again later');
           break;
         default:
           break;
